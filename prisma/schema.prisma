@@ -1,0 +1,105 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+// ENUMS for predefined choices
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING      // Order placed, awaiting payment/processing
+  PROCESSING   // Payment received, being prepared
+  READY_FOR_PICKUP
+  OUT_FOR_DELIVERY
+  COMPLETED
+  CANCELLED
+}
+
+enum FulfillmentType {
+  DELIVERY
+  PICKUP
+}
+
+enum PaymentMethod {
+  ONLINE
+  INSTORE
+}
+
+// MODELS for database tables
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String   // Will be a hashed password
+  role      UserRole @default(CUSTOMER)
+  orders    Order[]
+  addresses Address[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Address {
+  id         String  @id @default(cuid())
+  userId     String
+  user       User    @relation(fields: [userId], references: [id])
+  street     String
+  city       String
+  postalCode String
+  isDefault  Boolean @default(false)
+}
+
+model Product {
+  id          String       @id @default(cuid())
+  name        String
+  description String
+  price       Float        // Store price in the smallest currency unit (e.g., Rupiah) as an Integer in production
+  imageUrl    String
+  stock       Int
+  weightInKg  Float        // Crucial for delivery calculation
+  categoryId  String
+  category    Category     @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Order {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  totalAmount     Float           // Includes delivery fee
+  deliveryFee     Float           @default(0)
+  status          OrderStatus     @default(PENDING)
+  fulfillmentType FulfillmentType
+  paymentMethod   PaymentMethod
+  shippingAddress String?         // Nullable, only for delivery orders
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id])
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  quantity       Int
+  priceAtPurchase Float  // Price of the product at the time of order
+}        
