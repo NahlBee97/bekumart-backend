@@ -3,6 +3,7 @@ import type { ILogin, IRegister } from "../interfaces/authInterfaces.ts";
 import prisma from "../lib/prisma.ts";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config.ts";
+import { is } from "zod/locales";
 
 export async function FindUserByEmail(email: string) {
   try {
@@ -66,11 +67,13 @@ async function Login(userData: ILogin) {
       email: user.email,
       name: user.name,
       role: user.role,
+      isVerified: user.isVerified,
+      image: user.imageUrl,
     };
 
     const token = jwt.sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
 
-    return { user: payload, token };
+    return token;
   } catch (err) {
     throw err;
   }
