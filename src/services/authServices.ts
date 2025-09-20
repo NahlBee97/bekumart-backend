@@ -66,11 +66,13 @@ async function Login(userData: ILogin) {
       email: user.email,
       name: user.name,
       role: user.role,
+      isVerified: user.isVerified,
+      image: user.imageUrl,
     };
 
     const token = jwt.sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
 
-    return { user: payload, token };
+    return token;
   } catch (err) {
     throw err;
   }
