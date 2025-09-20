@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 5000;
 
 // Routes
 import AuthRouter from "./routes/authRoutes.ts";
+import ProductRouter from "./routes/productRoutes.ts";
 
 // Middlewares
 app.use(
@@ -21,6 +22,7 @@ app.use(express.json()); // Allows server to accept JSON data
 
 //api routes
 app.use("/api/auth", AuthRouter);
+app.use("/api/products", ProductRouter);
 
 app.listen(PORT, () => {
   console.log(`Backend server is running on http://localhost:${PORT}`);

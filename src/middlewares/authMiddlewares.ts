@@ -1,10 +1,11 @@
-import type { Request, NextFunction } from "express";
-import { verify } from "jsonwebtoken";
+import type { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config.ts";
 import type { IUserReqParam } from "../custom.js";
 
 export async function VerifyToken(
   req: Request,
+  res: Response,
   next: NextFunction
 ) {
   try {
@@ -12,7 +13,7 @@ export async function VerifyToken(
 
     if (!token) throw new Error("Unauthorized");
 
-    const verifyUser = verify(token, String(JWT_SECRET));
+    const verifyUser = jwt.verify(token, String(JWT_SECRET));
 
     if (!verifyUser) throw new Error("Invalid Token");
 
@@ -24,10 +25,10 @@ export async function VerifyToken(
   }
 }
 
-export const RoleGuard = (role: string) => {
-  return (req: Request, next: NextFunction) => {
+export const RoleGuard = () => {
+  return (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (req.user?.role !== role) throw new Error("Restricted");
+      if (req.user?.role !== "ADMIN") throw new Error("Restricted");
 
       next();
     } catch (err) {
