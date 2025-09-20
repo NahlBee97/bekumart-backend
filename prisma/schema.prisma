@@ -41,6 +41,8 @@ model User {
   email     String   @unique
   name      String
   password  String   // Will be a hashed password
+  imageUrl  String?  // Nullable, optional profile picture
+  isVerified Boolean  @default(false)
   role      UserRole @default(CUSTOMER)
   orders    Order[]
   addresses Address[]

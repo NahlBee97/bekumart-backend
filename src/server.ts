@@ -7,6 +7,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Routes
+import AuthRouter from "./routes/authRoutes.ts";
+
 // Middlewares
 app.use(
   cors({
@@ -16,10 +19,8 @@ app.use(
 );
 app.use(express.json()); // Allows server to accept JSON data
 
-// Simple test route
-app.get("/api", (req, res) => {
-  res.json({ message: "Welcome to the BekuMart API! 🧊" });
-});
+//api routes
+app.use("/api/auth", AuthRouter);
 
 app.listen(PORT, () => {
   console.log(`Backend server is running on http://localhost:${PORT}`);
