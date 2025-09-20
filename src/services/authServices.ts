@@ -3,7 +3,6 @@ import type { ILogin, IRegister } from "../interfaces/authInterfaces.ts";
 import prisma from "../lib/prisma.ts";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config.ts";
-import { is } from "zod/locales";
 
 export async function FindUserByEmail(email: string) {
   try {
