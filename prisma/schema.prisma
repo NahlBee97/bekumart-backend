@@ -46,6 +46,7 @@ model Users {
   role      UserRoles @default(CUSTOMER)
   orders    Orders[]
   addresses Addresses[]
+  cart      Carts?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -72,6 +73,7 @@ model Products {
   rating      Float?      // Average rating, nullable if no ratings yet
   category    Categories     @relation(fields: [categoryId], references: [id])
   orderItems  OrderItems[]
+  cartItems  CartItems[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
@@ -80,6 +82,26 @@ model Categories {
   id       String    @id @default(cuid())
   name     String    @unique
   products Products[]
+}
+
+model Carts {
+  id        String     @id @default(cuid())
+  userId    String     @unique // Each user has one cart
+  user      Users       @relation(fields: [userId], references: [id])
+  items     CartItems[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItems {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Carts    @relation(fields: [cartId], references: [id])
+  productId String
+  product   Products @relation(fields: [productId], references: [id])
+  quantity  Int
+
+  @@unique([cartId, productId]) // Prevents adding the same product twice
 }
 
 model Orders {
