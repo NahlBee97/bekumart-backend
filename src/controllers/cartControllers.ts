@@ -3,7 +3,7 @@ import { AddItemToCartService, DeleteItemInCartService, GetUserCartService, Upda
 import type { IAddItem } from "../interfaces/cartInterfaces.ts";
 import { AddItemToCartSchema } from "../schemas/cartSchemas.ts";
 
-export default async function GetUserCartController(
+export async function GetUserCartController(
   req: Request,
   res: Response,
   next: NextFunction
@@ -11,7 +11,7 @@ export default async function GetUserCartController(
   try {
     const userId = req.params.userId as string;
     const cart = await GetUserCartService(userId);
-    res.status(200).send({ message: "User cart retrieved successfully", data: cart });
+    res.status(200).send({ message: "User cart retrieved", data: cart });
   } catch (err) {
     next(err);
   }

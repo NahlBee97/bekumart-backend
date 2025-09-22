@@ -4,9 +4,37 @@ export async function GetUserCartService(userId: string) {
   try {
     const cart = await prisma.carts.findFirst({
       where: { userId },
-      include: { items: true }, // Include items in the cart
+      include: {
+        items: {
+          // You might want to include product details here as well
+          include: {
+            product: true,
+          },
+        },
+      },
     });
-    return cart;
+
+    if (!cart) {
+      throw new Error("Cart not found for user");
+    }
+
+    // Calculate total quantity and price using reduce
+    const totals = cart.items.reduce(
+      (acc, item) => {
+        acc.totalQuantity += item.quantity;
+        // Ensure you have the price on the cart item or product relation
+        acc.totalPrice += item.quantity * item.product.price;
+        return acc;
+      },
+      { totalQuantity: 0, totalPrice: 0 } // Initial values
+    );
+
+    // Return the original cart data along with the calculated totals
+    return {
+      ...cart,
+      totalQuantity: totals.totalQuantity,
+      totalPrice: totals.totalPrice,
+    };
   } catch (err) {
     throw err;
   }
