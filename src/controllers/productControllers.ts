@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { CreateProductService, DeleteProductService, GetProductsService, UpdateProductPhotoService, UpdateProductService } from "../services/productServices.ts";
+import { CreateProductService, DeleteProductService, GetProductByIdService, GetProductsService, UpdateProductPhotoService, UpdateProductService } from "../services/productServices.ts";
 import type { INewProduct, IUpdateProduct } from "../interfaces/productInterface.ts";
 import { CreateProductSchema, UpdateProductSchema } from "../schemas/productSchemas.ts";
 import { bufferToDataURI } from "../helper/fileUploadHelper.ts";
@@ -12,6 +12,20 @@ export async function GetProductsController(
   try {
     const products = await GetProductsService();
     res.status(200).send({ message: "Products retrieved successfully", data: products });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function GetProductsByIdController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const productId = req.params.id as string;
+    const product = await GetProductByIdService(productId);
+    res.status(200).send({ message: "Product retrieved successfully", data: product });
   } catch (err) {
     next(err);
   }
