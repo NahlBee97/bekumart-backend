@@ -11,12 +11,12 @@ datasource db {
 
 
 // ENUMS for predefined choices
-enum UserRole {
+enum UserRoles {
   CUSTOMER
   ADMIN
 }
 
-enum OrderStatus {
+enum OrderStatuses {
   PENDING      // Order placed, awaiting payment/processing
   PROCESSING   // Payment received, being prepared
   READY_FOR_PICKUP
@@ -25,7 +25,7 @@ enum OrderStatus {
   CANCELLED
 }
 
-enum FulfillmentType {
+enum FulfillmentTypes {
   DELIVERY
   PICKUP
 }
@@ -36,72 +36,73 @@ enum PaymentMethod {
 }
 
 // MODELS for database tables
-model User {
+model Users {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String
   password  String   // Will be a hashed password
   imageUrl  String?  // Nullable, optional profile picture
   isVerified Boolean  @default(false)
-  role      UserRole @default(CUSTOMER)
-  orders    Order[]
-  addresses Address[]
+  role      UserRoles @default(CUSTOMER)
+  orders    Orders[]
+  addresses Addresses[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Address {
+model Addresses {
   id         String  @id @default(cuid())
   userId     String
-  user       User    @relation(fields: [userId], references: [id])
+  user       Users    @relation(fields: [userId], references: [id])
   street     String
   city       String
   postalCode String
   isDefault  Boolean @default(false)
 }
 
-model Product {
+model Products {
   id          String       @id @default(cuid())
-  name        String
+  name        String      @unique
   description String
   price       Float        // Store price in the smallest currency unit (e.g., Rupiah) as an Integer in production
-  imageUrl    String
+  imageUrl    String?
   stock       Int
   weightInKg  Float        // Crucial for delivery calculation
   categoryId  String
-  category    Category     @relation(fields: [categoryId], references: [id])
-  orderItems  OrderItem[]
+  rating      Float?      // Average rating, nullable if no ratings yet
+  category    Categories     @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItems[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
-model Category {
+model Categories {
   id       String    @id @default(cuid())
   name     String    @unique
-  products Product[]
+  products Products[]
 }
 
-model Order {
+model Orders {
   id              String          @id @default(cuid())
   userId          String
-  user            User            @relation(fields: [userId], references: [id])
-  items           OrderItem[]
-  totalAmount     Float           // Includes delivery fee
+  user            Users            @relation(fields: [userId], references: [id])
+  items           OrderItems[]
+  totalAmount     Float            // Includes delivery fee
   deliveryFee     Float           @default(0)
-  status          OrderStatus     @default(PENDING)
-  fulfillmentType FulfillmentType
+  status          OrderStatuses     @default(PENDING)
+  fulfillmentType FulfillmentTypes
   paymentMethod   PaymentMethod
   shippingAddress String?         // Nullable, only for delivery orders
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }
 
-model OrderItem {
+model OrderItems {
   id             String  @id @default(cuid())
   orderId        String
-  order          Order   @relation(fields: [orderId], references: [id])
+  order          Orders   @relation(fields: [orderId], references: [id])
   productId      String
-  product        Product @relation(fields: [productId], references: [id])
+  product        Products @relation(fields: [productId], references: [id])
   quantity       Int
   priceAtPurchase Float  // Price of the product at the time of order
 }        

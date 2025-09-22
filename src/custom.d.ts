@@ -1,11 +1,11 @@
-import { UserRole } from "@prisma/client";
+import { UserRoles } from "@prisma/client";
 import { User } from "@prisma/client";
 
 export interface IUserReqParam {
   id: number; 
   name: string;
   email: string;
-  role: UserRole;
+  role: UserRoles;
 }
 
 declare global {

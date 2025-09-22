@@ -6,7 +6,7 @@ import { JWT_SECRET } from "../config.ts";
 
 export async function FindUserByEmail(email: string) {
   try {
-    const user = await prisma.user.findFirst({
+    const user = await prisma.users.findFirst({
       where: {
         email,
       },
@@ -29,7 +29,7 @@ async function Register(userData: IRegister) {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = await prisma.$transaction(async (t: any) => {
-      const registeredUser = await t.user.create({
+      const registeredUser = await t.users.create({
         data: {
           name,
           email,
