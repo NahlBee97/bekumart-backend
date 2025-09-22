@@ -62,13 +62,14 @@ model Addresses {
 
 model Products {
   id          String       @id @default(cuid())
-  name        String
+  name        String      @unique
   description String
   price       Float        // Store price in the smallest currency unit (e.g., Rupiah) as an Integer in production
-  imageUrl    String
+  imageUrl    String?
   stock       Int
   weightInKg  Float        // Crucial for delivery calculation
   categoryId  String
+  rating      Float?      // Average rating, nullable if no ratings yet
   category    Categories     @relation(fields: [categoryId], references: [id])
   orderItems  OrderItems[]
   createdAt   DateTime     @default(now())

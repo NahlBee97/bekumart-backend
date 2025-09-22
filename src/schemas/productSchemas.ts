@@ -1,20 +1,18 @@
 import { z } from "zod";
 
 export const CreateProductSchema = z.object({
-    name: z.string().min(1, "Product name is required"),
-    description: z.string().min(1, "Product description is required"),
-    price: z.number().min(0, "Price must be a positive number"),
-    imageUrl: z.string().min(1,"Please provide a valid URL for the image"),
-    stock: z.number().min(0, "Stock must be a positive number"),
-    weightInKg: z.number().min(0, "Weight must be a positive number"),
-    categoryId: z.string().min(1, "Category ID is required"),
+  name: z.string().min(1, "Product name is required"),
+  description: z.string().min(1, "Product description is required"),
+  price: z.number().min(0, "Price must be a positive number"),
+  stock: z.number().min(0, "Stock must be a positive number"),
+  weightInKg: z.number().min(0, "Weight must be a positive number"),
+  categoryId: z.string().min(1, "Category ID is required"),
 });
 
 export const UpdateProductSchema = z.object({
     name: z.string().min(1).optional(),
     description: z.string().min(1).optional(),
     price: z.number().min(0).optional(),
-    imageUrl: z.string().min(1).optional(),
     stock: z.number().min(0).optional(),
     weightInKg: z.number().min(0).optional(),
     categoryId: z.string().min(1).optional(),
