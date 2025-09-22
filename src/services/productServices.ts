@@ -14,6 +14,18 @@ export async function GetProductsService() {
   }
 }
 
+export async function GetProductByIdService(productId: string) {
+  try {
+    const product = await prisma.products.findUnique({
+      where: { id: productId },
+      include: { category: true },
+    });
+    return product;
+  } catch (err) {
+    throw err;
+  }
+}
+
 export async function CreateProductService(productData: INewProduct) {
   try {
     const newProduct = await prisma.products.create({
