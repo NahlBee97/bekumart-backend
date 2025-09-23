@@ -43,6 +43,11 @@ async function Register(userData: IRegister) {
 
     if (!newUser) throw new Error("Create account failed");
 
+    // Create an empty cart for the new user
+    await prisma.carts.create({
+      data: { userId: newUser.id },
+    })
+
     return newUser;
   } catch (err) {
     throw err;

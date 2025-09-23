@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 5000;
 import AuthRouter from "./routes/authRoutes.ts";
 import ProductRouter from "./routes/productRoutes.ts";
 import CategoryRouter from "./routes/categoryRoutes.ts";
+import CartRouter from "./routes/cartRoutes.ts";
 import { errorHandler } from "./middlewares/errorHandlers.ts";
 
 // Middlewares
@@ -26,6 +27,7 @@ app.use(express.json()); // Allows server to accept JSON data
 app.use("/api/auth", AuthRouter);
 app.use("/api/products", ProductRouter);
 app.use("/api/categories", CategoryRouter);
+app.use("/api/carts", CartRouter);
 
 // --- Central Error Handler ---
 app.use(errorHandler);
