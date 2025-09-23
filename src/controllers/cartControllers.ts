@@ -25,9 +25,9 @@ export async function AddItemToCartController(
   try {
     const itemData: IAddItem = AddItemToCartSchema.parse(req.body);
 
-    const { userId, productId, quantity } = itemData;
+    const { userId, productId } = itemData;
 
-    const cart = await AddItemToCartService(userId, productId, quantity);
+    const cart = await AddItemToCartService(userId, productId);
     res.status(200).send({ message: "Item added to cart successfully", data: cart });
   } catch (err) {
     next(err);

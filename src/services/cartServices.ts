@@ -40,7 +40,7 @@ export async function GetUserCartService(userId: string) {
   }
 }
 
-export async function AddItemToCartService(userId: string, productId: string, quantity: number) {
+export async function AddItemToCartService(userId: string, productId: string) {
   try {
     // Find the user's cart
     const cart = await prisma.carts.findFirst({
@@ -49,22 +49,37 @@ export async function AddItemToCartService(userId: string, productId: string, qu
     });
     if (!cart) throw new Error("Cart not found for user");
 
-    // Add item to the cart
-    const newItem = await prisma.cartItems.create({
-      data: {
-        cartId: cart.id,
-        productId,
-        quantity,
-      },
-    });
+    // Check if the item already exists in the cart
+    const existingItem = cart.items.find(
+      (item) => item.productId === productId
+    );
 
-    return { ...cart, items: [...cart.items, newItem] };
+    if (existingItem) {
+      // If it exists, update the quantity
+      await prisma.cartItems.update({
+        where: { id: existingItem.id },
+        data: { quantity: existingItem.quantity + 1 },
+      });
+    } else {
+      const newItem = await prisma.cartItems.create({
+        data: {
+          cartId: cart.id,
+          productId,
+          quantity: 1, // Default to 1 for new items
+        },
+      });
+
+      return { ...cart, items: [...cart.items, newItem] };
+    }
   } catch (err) {
     throw err;
   }
 }
 
-export async function UpdateItemInCartService(itemId: string, quantity: number) {
+export async function UpdateItemInCartService(
+  itemId: string,
+  quantity: number
+) {
   try {
     // Find the item in the cart
     const cartItem = await prisma.cartItems.findUnique({
@@ -75,7 +90,7 @@ export async function UpdateItemInCartService(itemId: string, quantity: number) 
     // Update the item quantity
     const updatedItem = await prisma.cartItems.update({
       where: { id: cartItem.id },
-      data: { quantity: cartItem.quantity + quantity },
+      data: { quantity },
     });
 
     return updatedItem;
