@@ -9,9 +9,9 @@ export default async function CreateOrderController(
   try {
     const { userId, fullfillmentType, addressId, totalCheckoutPrice } = req.body;
 
-    const newOrder = await CreateOrderService(userId, fullfillmentType, addressId, totalCheckoutPrice);
+    const newOrderData = await CreateOrderService(userId, fullfillmentType, addressId, totalCheckoutPrice);
 
-    res.status(200).json({ message: "Order created successfully", order: newOrder });
+    res.status(200).json({ message: "Order created successfully", order: newOrderData });
   } catch (error) {
     next(error);
   }
