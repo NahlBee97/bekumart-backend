@@ -56,9 +56,16 @@ model Addresses {
   userId     String
   user       Users    @relation(fields: [userId], references: [id])
   street     String
+  subdistrict   String
+  district   String
   city       String
+  province  String
   postalCode String
+  phone     String
+  latitude   Float?
+  longitude  Float?
   isDefault  Boolean @default(false)
+  orders     Orders[]
 }
 
 model Products {
@@ -109,12 +116,13 @@ model Orders {
   userId          String
   user            Users            @relation(fields: [userId], references: [id])
   items           OrderItems[]
-  totalAmount     Float            // Includes delivery fee
-  deliveryFee     Float           @default(0)
+  totalAmount     Float           
+  totalWeight    Float           @default(0) // Total weight of the order in kg
   status          OrderStatuses     @default(PENDING)
   fulfillmentType FulfillmentTypes
   paymentMethod   PaymentMethod
-  shippingAddress String?         // Nullable, only for delivery orders
+  addressId      String?         // Nullable, only for delivery orders
+  address        Addresses?      @relation(fields: [addressId], references: [id])
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }

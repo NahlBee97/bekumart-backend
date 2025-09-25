@@ -1,0 +1,89 @@
+import prisma from "../lib/prisma.ts";
+import { ORIGIN_ID } from "../config.ts";
+import { GetUserCartService } from "./cartServices.ts";
+
+async function calculateShippingCost(addressId: string) {
+  // Implement your logic to calculate delivery fee based on addressId
+  try {
+    const shippingAddress = await prisma.addresses.findUnique({
+      where: { id: addressId },
+    });
+
+    if (!shippingAddress) throw new Error("Address not found");
+
+    // const addressDetailData = await axios.get(
+    //   `https://nominatim.openstreetmap.org/search?q=${subdistrict}%20${district}%20${city}&format=jsonv2&addressdetails=1&countrycodes=id`
+    // );
+
+    const lat2 = shippingAddress.latitude as number;
+    const lon2 = shippingAddress.longitude as number;
+    // origin coordinates (BekuMart HQ)
+    const originAddress = await prisma.addresses.findUnique({
+      where: { id: ORIGIN_ID as string },
+    });
+
+    if (!originAddress) throw new Error("Origin address not found");
+
+    const lat1 = originAddress.latitude as number;
+    const lon1 = originAddress.longitude as number;
+
+    // Haversine formula to calculate distance between two coordinates
+    const R = 6371; // Radius of the Earth in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in km
+
+    if (distance > 30) throw new Error("Delivery address is too far");
+
+    // Calculate delivery fee based on distance
+    const deliveryBaseFee = distance * 2500; // Example: 2500 IDR per km
+    const markUpDeliveryFee = deliveryBaseFee + deliveryBaseFee * 0.1; // Add 10% markup
+    const minDeliveryFee = 10000; // Minimum delivery fee
+    const deliveryFee =
+      markUpDeliveryFee < minDeliveryFee ? minDeliveryFee : markUpDeliveryFee;
+    return deliveryFee;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function GetShippingCostService(addressId: string) {
+  try {
+    // Fetch the address details
+    const address = await prisma.addresses.findUnique({
+      where: { id: addressId },
+    });
+
+    if (!address) {
+      throw new Error("Address not found");
+    }
+
+    const cart = await GetUserCartService(address.userId);
+
+    if (!cart?.items.length) throw new Error("Cart is empty");
+
+    if (cart.totalWeight > 30) throw new Error("Order weight is too heavy");
+    // Calculate shipping cost based on address and cart weight
+    let shippingCost;
+
+    shippingCost = await calculateShippingCost(addressId);
+    if (cart.totalWeight > 5) {
+      shippingCost = shippingCost + shippingCost * 0.1; // Add additional fee for heavy items
+    } else if (cart.totalWeight > 10) {
+      shippingCost = shippingCost + shippingCost * 0.2; // Add additional fee for very heavy items
+    } else if (cart.totalWeight > 20) {
+      shippingCost = shippingCost + shippingCost * 0.3; // Add additional fee for extremely heavy items
+    }
+
+    return shippingCost;
+  } catch (err) {
+    throw err;
+  }
+}
