@@ -22,17 +22,19 @@ export async function GetUserCartService(userId: string) {
     const totals = cart.items.reduce(
       (acc, item) => {
         acc.totalQuantity += item.quantity;
+        acc.totalWeight += item.quantity * item.product.weightInKg; // Assuming product has a weight field
         // Ensure you have the price on the cart item or product relation
         acc.totalPrice += item.quantity * item.product.price;
         return acc;
       },
-      { totalQuantity: 0, totalPrice: 0 } // Initial values
+      { totalQuantity: 0, totalPrice: 0, totalWeight: 0 } // Initial values
     );
 
     // Return the original cart data along with the calculated totals
     return {
       ...cart,
       totalQuantity: totals.totalQuantity,
+      totalWeight: totals.totalWeight,
       totalPrice: totals.totalPrice,
     };
   } catch (err) {
