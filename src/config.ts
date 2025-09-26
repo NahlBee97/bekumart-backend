@@ -10,6 +10,8 @@ export const {
   RAJAONGKIR_BASE_URL,
   RAJAONGKIR_API_KEY,
   ORIGIN_ID,
+  MIDTRANS_SERVER_KEY,
+  MIDTRANS_CLIENT_KEY,
 } = process.env;
 
 

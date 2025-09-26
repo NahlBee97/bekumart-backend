@@ -23,10 +23,13 @@ import ShippingCostRouter from "./routes/shippingCostRoutes.ts";
 // Error Handler
 import { errorHandler } from "./middlewares/errorHandlers.ts";
 
-// Middlewares
+// cors
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow requests from your frontend
+    origin: [
+      "http://localhost:3000",
+      "https://unpneumatic-postmuscular-deeann.ngrok-free.dev",
+    ],
     credentials: true,
   })
 );
