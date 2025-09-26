@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { CreateOrderService, UpdateOrderStatusService } from "../services/orderService.ts";
+import { CreateOrderService, GetOrderItemsByOrderIdService, GetUserOrdersService, UpdateOrderStatusService } from "../services/orderService.ts";
 
 export async function CreateOrderController(
   req: Request,
@@ -11,7 +11,7 @@ export async function CreateOrderController(
 
     const newOrderData = await CreateOrderService(userId, fullfillmentType, addressId, totalCheckoutPrice);
 
-    res.status(200).json({ message: "Order created successfully", order: newOrderData });
+    res.status(200).send({ message: "Order created successfully", order: newOrderData });
   } catch (error) {
     next(error);
   }
@@ -28,7 +28,41 @@ export async function UpdateOrderStatusController(
 
     const updatedOrder = await UpdateOrderStatusService(id, status);
 
-    res.status(200).json({ message: "Order status updated successfully", order: updatedOrder });
+    res.status(200).send({ message: "Order status updated successfully", order: updatedOrder });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function GetOrderItemsByOrderIdController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+try {
+    const orderId = req.params.orderId as string;
+
+    const orderItems = await GetOrderItemsByOrderIdService(orderId);
+
+    res.status(200).send({ message: "Order items retrives successfully", data: orderItems });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function GetUserOrdersController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = req.params.userId as string;
+
+    const orders = await GetUserOrdersService(userId);
+
+    res
+      .status(200)
+      .send({ message: "Get user orders successfully", data: orders });
   } catch (error) {
     next(error);
   }
