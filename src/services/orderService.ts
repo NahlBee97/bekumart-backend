@@ -131,3 +131,32 @@ export async function UpdateOrderStatusService(
     throw error;
   }
 }
+
+export async function GetOrderItemsByOrderIdService(orderId: string) {
+  try {
+    const orderItems = await prisma.orderItems.findMany({
+      where: {
+        orderId,
+      },
+      include: {
+        product: true,
+      },
+    });
+    return orderItems;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function GetUserOrdersService(userId: string) {
+  try {
+    const orders = await prisma.orders.findMany({
+      where: {
+        userId,
+      },
+    });
+    return orders;
+  } catch (err) {
+    throw err;
+  }
+}
