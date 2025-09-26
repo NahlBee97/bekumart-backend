@@ -160,3 +160,14 @@ export async function GetUserOrdersService(userId: string) {
     throw err;
   }
 }
+
+export async function GetAllOrderService() {
+  try {
+    const orders = await prisma.orders.findMany({
+      include: { user: true },
+    });
+    return orders;
+  } catch (err) {
+    throw err;
+  }
+}
