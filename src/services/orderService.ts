@@ -1,3 +1,4 @@
+import type { OrderStatuses } from "@prisma/client";
 import prisma from "../lib/prisma.ts";
 import { snap } from "../utils/midtrans.ts";
 import { GetUserCartService } from "./cartServices.ts";
@@ -113,5 +114,20 @@ export async function CreateOrderService(
     return { newOrder, paymentToken };
   } catch (err) {
     throw err;
+  }
+}
+
+export async function UpdateOrderStatusService(
+  orderId: string,
+  status: OrderStatuses
+) {
+  try {
+    const updatedOrder = await prisma.orders.update({
+      where: { id: orderId },
+      data: { status },
+    });
+    return updatedOrder;
+  } catch (error) {
+    throw error;
   }
 }
