@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { CreateOrderService, GetOrderItemsByOrderIdService, GetUserOrdersService, UpdateOrderStatusService } from "../services/orderService.ts";
+import { CreateOrderService, GetAllOrderService, GetOrderItemsByOrderIdService, GetUserOrdersService, UpdateOrderStatusService } from "../services/orderService.ts";
 
 export async function CreateOrderController(
   req: Request,
@@ -63,6 +63,22 @@ export async function GetUserOrdersController(
     res
       .status(200)
       .send({ message: "Get user orders successfully", data: orders });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function GetAllOrderController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const orders = await GetAllOrderService();
+
+    res
+      .status(200)
+      .send({ message: "Get all orders successfully", data: orders });
   } catch (error) {
     next(error);
   }
