@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { errorHandler } from "./middlewares/errorHandlers.ts";
 
 dotenv.config();
 
@@ -9,6 +10,7 @@ const PORT = process.env.PORT || 5000;
 
 // Routes
 import AuthRouter from "./routes/authRoutes.ts";
+import UserRouter from "./routes/userRoutes.ts"
 import ProductRouter from "./routes/productRoutes.ts";
 import CategoryRouter from "./routes/categoryRoutes.ts";
 import CartRouter from "./routes/cartRoutes.ts";
@@ -21,7 +23,6 @@ import AddressesRouter from "./routes/addressRoutes.ts";
 import ShippingCostRouter from "./routes/shippingCostRoutes.ts";
 
 // Error Handler
-import { errorHandler } from "./middlewares/errorHandlers.ts";
 
 // cors
 app.use(
@@ -37,6 +38,7 @@ app.use(express.json()); // Allows server to accept JSON data
 
 //api routes
 app.use("/api/auth", AuthRouter);
+app.use("/api/users", UserRouter);
 app.use("/api/products", ProductRouter);
 app.use("/api/categories", CategoryRouter);
 app.use("/api/carts", CartRouter);
@@ -48,7 +50,7 @@ app.use("/api/sub-districts", SubDistrictRouter);
 app.use("/api/addresses", AddressesRouter);
 app.use("/api/shipping-cost", ShippingCostRouter);
 
-// // --- Central Error Handler ---
+// --- Central Error Handler ---
 // app.use(errorHandler);
 
 app.listen(PORT, () => {

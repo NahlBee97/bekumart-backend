@@ -72,7 +72,7 @@ async function Login(userData: ILogin) {
       name: user.name,
       role: user.role,
       isVerified: user.isVerified,
-      image: user.imageUrl,
+      imageUrl: user.imageUrl,
     };
 
     const token = jwt.sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
