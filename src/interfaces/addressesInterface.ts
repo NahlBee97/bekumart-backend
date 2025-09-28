@@ -1,5 +1,5 @@
 export interface IAddress {
-  id: string;
+  name: string;
   street: string;
   subdistrict: string;
   district: string;
@@ -7,5 +7,4 @@ export interface IAddress {
   province: string;
   postalCode: string;
   phone: string;
-  isDefault: boolean;
 }

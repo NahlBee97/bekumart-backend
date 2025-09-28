@@ -45,7 +45,10 @@ export async function EditAddressByIdService(
   }
 }
 
-export async function SetDefaultAddressService(addressId: string, isDefault: boolean) {
+export async function SetDefaultAddressService(
+  addressId: string,
+  isDefault: boolean
+) {
   try {
     const address = await prisma.addresses.findUnique({
       where: {
@@ -85,6 +88,19 @@ export async function DeleteAddressByIdService(addressId: string) {
     await prisma.addresses.delete({
       where: { id: addressId },
     });
+  } catch (error) {
+    throw error;
+  }
+}
+export async function CreateAddressService(userId: string, bodyData: IAddress) {
+  try {
+    const address = await prisma.addresses.create({
+      data: {
+        ...bodyData,
+        userId,
+      },
+    });
+    return address;
   } catch (error) {
     throw error;
   }

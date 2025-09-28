@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { DeleteAddressByIdService, EditAddressByIdService, GetAddressesByUserIdService, SetDefaultAddressService } from "../services/addressServices.ts";
+import { CreateAddressService, DeleteAddressByIdService, EditAddressByIdService, GetAddressesByUserIdService, SetDefaultAddressService } from "../services/addressServices.ts";
 
 export async function GetAddressesByUserIdController(
   req: Request,
@@ -64,6 +64,21 @@ export async function DeleteAddressByIdController(
     const addressId = req.params.id as string;
     await DeleteAddressByIdService(addressId);
     res.status(200).send({ message: "Delete Address successfully" });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function CreateAddressController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const bodyData = req.body;
+    const {userId} = req.body
+    const address = await CreateAddressService(userId, bodyData);
+    res.status(200).send({ message: "Create Address successfully", data: address });
   } catch (error) {
     next(error);
   }
