@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Status Update</title>
+<style>
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+margin: 0;
+padding: 0;
+background-color: #f4f4f7;
+color: #333;
+}
+.container {
+max-width: 600px;
+margin: 20px auto;
+background-color: #ffffff;
+border: 1px solid #e0e0e0;
+border-radius: 8px;
+overflow: hidden;
+}
+.header {
+background-color: #4A90E2;
+color: #ffffff;
+padding: 20px;
+text-align: center;
+}
+.header h1 {
+margin: 0;
+font-size: 24px;
+}
+.content {
+padding: 30px;
+line-height: 1.6;
+}
+.status-badge {
+display: inline-block;
+padding: 5px 15px;
+font-size: 14px;
+font-weight: bold;
+border-radius: 20px;
+color: #fff;
+background-color: #2ECC71;
+margin-top: 10px;
+}
+.order-summary {
+margin-top: 30px;
+border-top: 2px solid #eee;
+padding-top: 20px;
+}
+.order-summary h3 {
+margin-top: 0;
+}
+.items-table {
+width: 100%;
+border-collapse: collapse;
+}
+.items-table th, .items-table td {
+padding: 10px;
+text-align: left;
+border-bottom: 1px solid #eee;
+}
+.items-table th {
+font-size: 14px;
+color: #777;
+}
+.totals {
+text-align: right;
+margin-top: 20px;
+}
+.button {
+display: inline-block;
+background-color: #4A90E2;
+color: #ffffff;
+padding: 12px 25px;
+text-decoration: none;
+border-radius: 5px;
+margin-top: 20px;
+font-weight: bold;
+}
+.footer {
+background-color: #f4f4f7;
+padding: 20px;
+text-align: center;
+font-size: 12px;
+color: #777;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>Your Order Has Been Updated</h1>
+</div>
+<div class="content">
+<p>Hi {{customerName}},</p>
+<p>This is a notification that your order <strong>#{{orderId}}</strong> has a new status.</p>
+
+        <h3>New Status: <span class="status-badge" style="background-color: {{statusColor}};">{{status}}</span></h3>
+
+        {{#if isProcessing}}
+        <p>We've successfully received your order and are getting it ready. We will notify you again once it has shipped. Thanks for your patience!</p>
+        {{/if}}
+
+        {{#if isOutForDelivery}}
+        <p>Great news! Your order is on its way to you. You can track its journey using the tracking number below.</p>
+        <p><strong>Tracking Number:</strong> {{trackingNumber}}</p>
+        {{/if}}
+
+        {{#if isReadyForPickup}}
+        <p>Your order is now ready for pickup at our store. Please bring a copy of this email or your order ID when you arrive.</p>
+        <p><strong>Pickup Location:</strong><br>{{pickupAddress}}</p>
+        {{/if}}
+
+        {{#if isCompleted}}
+        <p>Your order has been delivered. We hope you enjoy your purchase!</p>
+        {{/if}}
+
+         {{#if isCancelled}}
+        <p>Sorry, Your order has been cancelled.</p>
+        {{/if}}
+
+        <div class="order-summary">
+            <h3>Order Summary</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th style="text-align: right;">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each items}}
+                    <tr>
+                        <td>{{this.name}}</td>
+                        <td>{{this.quantity}}</td>
+                        <td style="text-align: right;">{{this.price}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            <div class="totals">
+                <p>Total: <strong>{{total}}</strong></p>
+            </div>
+        </div>
+
+        <a href="{{orderUrl}}" class="button">View Your Order Details</a>
+    </div>
+    <div class="footer">
+        <p>&copy; {{currentYear}} {{companyName}}. All rights reserved.</p>
+        <p>{{companyAddress}}</p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ import "dotenv/config";
 
 export const {
   PORT,
+  FE_URL,
   CLOUDINARY_NAME,
   CLOUDINARY_KEY,
   CLOUDINARY_SECRET,
@@ -12,6 +13,8 @@ export const {
   ORIGIN_ID,
   MIDTRANS_SERVER_KEY,
   MIDTRANS_CLIENT_KEY,
+  NODEMAILER_USER,
+  NODEMAILER_PASS
 } = process.env;
 
 
