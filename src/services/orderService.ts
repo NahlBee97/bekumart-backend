@@ -2,6 +2,7 @@ import type { OrderStatuses } from "@prisma/client";
 import prisma from "../lib/prisma.ts";
 import { snap } from "../utils/midtrans.ts";
 import { GetUserCartService } from "./cartServices.ts";
+import { sendOrderStatusUpdateEmail } from "../helper/emailSender.ts";
 
 export async function CreateOrderService(
   userId: string,
@@ -125,7 +126,19 @@ export async function UpdateOrderStatusService(
     const updatedOrder = await prisma.orders.update({
       where: { id: orderId },
       data: { status },
+      include: {
+        user: true,
+        items: {
+          include: {
+            product: {
+              include: { category: true },
+            },
+          },
+        },
+      },
     });
+
+    sendOrderStatusUpdateEmail(updatedOrder);
     return updatedOrder;
   } catch (error) {
     throw error;
