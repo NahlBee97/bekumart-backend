@@ -11,10 +11,6 @@ async function calculateShippingCost(addressId: string) {
 
     if (!shippingAddress) throw new Error("Address not found");
 
-    // const addressDetailData = await axios.get(
-    //   `https://nominatim.openstreetmap.org/search?q=${subdistrict}%20${district}%20${city}&format=jsonv2&addressdetails=1&countrycodes=id`
-    // );
-
     const lat2 = shippingAddress.latitude as number;
     const lon2 = shippingAddress.longitude as number;
     // origin coordinates (BekuMart HQ)
