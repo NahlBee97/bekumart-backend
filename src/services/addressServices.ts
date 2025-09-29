@@ -26,13 +26,13 @@ export async function EditAddressByIdService(
 
     if (!address) throw new Error("Address not found");
 
-    const { subdistrict, district, city } = address;
+    const { subdistrict, district, city } = addressData;
 
     const addressDetailData = await axios.get(
       `https://nominatim.openstreetmap.org/search?q=${subdistrict}%20${district}%20${city}&format=jsonv2&addressdetails=1&countrycodes=id`
     );
-
-    if (!addressDetailData) throw new Error("Can not get the coordinates");
+    
+    if (addressDetailData.data.lenght === 0) throw new Error("Can not get the coordinates");
 
     const latitude = Number(addressDetailData.data[0].lat);
     const longitude = Number(addressDetailData.data[0].lon);
@@ -114,10 +114,10 @@ export async function CreateAddressService(userId: string, bodyData: IAddress) {
       `https://nominatim.openstreetmap.org/search?q=${subdistrict}%20${district}%20${city}&format=jsonv2&addressdetails=1&countrycodes=id`
     );
 
-    if (!addressDetailData) throw new Error("Can not get the coordinates");
+    if (addressDetailData.data.lenght === 0) throw new Error("Can not get the coordinates");
 
-    const latitude = addressDetailData.data[0].lat;
-    const longitude = addressDetailData.data[0].lon;
+    const latitude = Number(addressDetailData.data[0].lat);
+    const longitude = Number(addressDetailData.data[0].lon);
 
     const address = await prisma.addresses.create({
       data: {

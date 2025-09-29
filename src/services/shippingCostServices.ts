@@ -1,5 +1,5 @@
 import prisma from "../lib/prisma.ts";
-import { ORIGIN_ID } from "../config.ts";
+import { ORIGIN_ADDRESS_ID } from "../config.ts";
 import { GetUserCartService } from "./cartServices.ts";
 
 async function calculateShippingCost(addressId: string) {
@@ -15,7 +15,7 @@ async function calculateShippingCost(addressId: string) {
     const lon2 = shippingAddress.longitude as number;
     // origin coordinates (BekuMart HQ)
     const originAddress = await prisma.addresses.findUnique({
-      where: { id: ORIGIN_ID as string },
+      where: { id: ORIGIN_ADDRESS_ID as string },
     });
 
     if (!originAddress) throw new Error("Origin address not found");
