@@ -1,6 +1,6 @@
 import axios from "axios";
 import { IAddress } from "../interfaces/addressesInterface";
-import prisma from "../lib/prisma";
+import { prisma } from "../lib/prisma";
 
 export async function GetAddressesByUserIdService(userId: string) {
   try {

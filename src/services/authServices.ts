@@ -1,35 +1,25 @@
 import bcrypt, { compare } from "bcryptjs";
 import { ILogin, IRegister } from "../interfaces/authInterfaces";
-import prisma from "../lib/prisma";
+import { prisma } from "../lib/prisma";
 import { JWT_SECRET } from "../config";
 import { sign } from "jsonwebtoken";
+import { FindUserByEmail } from "../helper/findUserByEmail";
 
-export async function FindUserByEmail(email: string) {
-  try {
-    const user = await prisma.users.findFirst({
-      where: {
-        email,
-      },
-    });
-    return user;
-  } catch (err) {
-    throw err;
-  }
-}
-
-async function Register(userData: IRegister) {
+export async function RegisterService(userData: IRegister) {
   try {
     const { name, email, password } = userData;
 
-    const user = await FindUserByEmail(email);
+    const existingUser = await FindUserByEmail(email);
 
-    if (user) throw new Error("Email already registered");
+    if (existingUser) throw new Error("Email already registered");
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = await prisma.$transaction(async (t: any) => {
-      const registeredUser = await t.users.create({
+    if (!hashedPassword) throw new Error("Failed hashing password")
+
+    const newUser = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.users.create({
         data: {
           name,
           email,
@@ -38,15 +28,16 @@ async function Register(userData: IRegister) {
         },
       });
 
-      return registeredUser;
+      if (!createdUser) throw new Error("Create new user failed");
+
+      const cart = await tx.carts.create({
+        data: { userId: createdUser.id },
+      });
+
+      if (!cart) throw new Error("Failed to create cart");
+
+      return createdUser;
     });
-
-    if (!newUser) throw new Error("Create account failed");
-
-    // Create an empty cart for the new user
-    await prisma.carts.create({
-      data: { userId: newUser.id },
-    })
 
     return newUser;
   } catch (err) {
@@ -54,7 +45,7 @@ async function Register(userData: IRegister) {
   }
 }
 
-async function Login(userData: ILogin) {
+export async function LoginService(userData: ILogin) {
   try {
     const { email, password } = userData;
 
@@ -77,29 +68,9 @@ async function Login(userData: ILogin) {
 
     const token = sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
 
+    if(!token) throw new Error ("Failed to generate token");
+
     return token;
-  } catch (err) {
-    throw err;
-  }
-}
-
-export async function RegisterService(userData: IRegister) {
-  try {
-    const newUser = await Register(userData);
-
-    return newUser;
-  } catch (err) {
-    throw err;
-  }
-}
-
-export async function LoginService(userData: ILogin) {
-  try {
-    const user = await Login(userData);
-
-    if (!user) throw new Error("User not found");
-
-    return user;
   } catch (err) {
     throw err;
   }

@@ -1,6 +1,6 @@
 import { getPublicIdFromUrl } from "../helper/fileUploadHelper";
 import { INewProduct, IUpdateProduct } from "../interfaces/productInterface";
-import prisma from "../lib/prisma";
+import { prisma } from "../lib/prisma";
 import cloudinary from "../utils/cloudinary";
 
 export async function GetProductsService() {

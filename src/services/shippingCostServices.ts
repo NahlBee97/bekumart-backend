@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma";
+import { prisma } from "../lib/prisma";
 import { ORIGIN_ADDRESS_ID } from "../config";
 import { GetUserCartService } from "./cartServices";
 

@@ -1,5 +1,5 @@
 import { OrderStatuses } from "@prisma/client";
-import prisma from "../lib/prisma";
+import { prisma } from "../lib/prisma";
 import { snap } from "../utils/midtrans";
 import { GetUserCartService } from "./cartServices";
 import { sendOrderStatusUpdateEmail } from "../helper/emailSender";

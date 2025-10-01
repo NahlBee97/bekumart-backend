@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { JWT_SECRET } from "../config";
 import { getPublicIdFromUrl } from "../helper/fileUploadHelper";
-import prisma from "../lib/prisma";
+import { prisma } from "../lib/prisma";
 import cloudinary from "../utils/cloudinary";
 import { sign } from "jsonwebtoken";
 
