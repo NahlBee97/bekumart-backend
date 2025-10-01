@@ -1,8 +1,8 @@
-import type { Request, Response, NextFunction } from "express";
-import { CreateProductService, DeleteProductService, GetProductByIdService, GetProductsService, UpdateProductPhotoService, UpdateProductService } from "../services/productServices.ts";
-import type { INewProduct, IUpdateProduct } from "../interfaces/productInterface.ts";
-import { CreateProductSchema, UpdateProductSchema } from "../schemas/productSchemas.ts";
-import { bufferToDataURI } from "../helper/fileUploadHelper.ts";
+import { Request, Response, NextFunction } from "express";
+import { CreateProductService, DeleteProductService, GetProductByIdService, GetProductsService, UpdateProductPhotoService, UpdateProductService } from "../services/productServices";
+import { INewProduct, IUpdateProduct } from "../interfaces/productInterface";
+import { CreateProductSchema, UpdateProductSchema } from "../schemas/productSchemas";
+import { bufferToDataURI } from "../helper/fileUploadHelper";
 
 export async function GetProductsController(
   req: Request,

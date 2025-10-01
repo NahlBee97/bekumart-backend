@@ -2,9 +2,9 @@ import axios from "axios";
 import {
   RAJAONGKIR_API_KEY,
   RAJAONGKIR_BASE_URL,
-} from "../config.ts";
-import { getProvinceId } from "./province.service.ts";
-import { redis } from "../lib/redis.ts";
+} from "../config";
+import { getProvinceId } from "./province.service";
+import { redis } from "../lib/redis";
 
 export async function fetchCitiesByProvince(province: string) {
   try {

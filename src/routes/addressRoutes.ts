@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { CreateAddressController, DeleteAddressByIdController, EditAddressByIdController, GetAddressesByUserIdController, SetDefaultAddressController } from "../controllers/addressControllers.ts";
-import { VerifyToken } from "../middlewares/authMiddlewares.ts";
+import { CreateAddressController, DeleteAddressByIdController, EditAddressByIdController, GetAddressesByUserIdController, SetDefaultAddressController } from "../controllers/addressControllers";
+import { VerifyToken } from "../middlewares/authMiddlewares";
 
 const router = Router();
 

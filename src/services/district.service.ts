@@ -1,7 +1,7 @@
 import axios from "axios";
-import { getCityId } from "./city.service.ts";
-import { redis } from "../lib/redis.ts";
-import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config.ts";
+import { getCityId } from "./city.service";
+import { redis } from "../lib/redis";
+import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
 
 export async function fetchDistrictsByCity(province: string, city: string) {
   try {

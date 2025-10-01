@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { CLOUDINARY_KEY, CLOUDINARY_NAME, CLOUDINARY_SECRET } from '../config.ts';
+import { CLOUDINARY_KEY, CLOUDINARY_NAME, CLOUDINARY_SECRET } from '../config';
 
 cloudinary.config({
   cloud_name: CLOUDINARY_NAME || process.env.CLOUDINARY_CLOUD_NAME!,

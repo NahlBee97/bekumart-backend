@@ -1,10 +1,10 @@
-import type { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import {
   RegisterSchema,
   LoginSchema,
-} from "../schemas/authSchemas.js";
-import { LoginService, RegisterService } from "../services/authServices.ts";
-import type { ILogin, IRegister } from "../interfaces/authInterfaces.ts";
+} from "../schemas/authSchemas";
+import { LoginService, RegisterService } from "../services/authServices";
+import type { ILogin, IRegister } from "../interfaces/authInterfaces";
 
 export async function RegisterController(
   req: Request,

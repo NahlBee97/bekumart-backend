@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { errorHandler } from "./middlewares/errorHandlers.ts";
+import { errorHandler } from "./middlewares/errorHandlers";
 
 dotenv.config();
 
@@ -9,18 +9,18 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Routes
-import AuthRouter from "./routes/authRoutes.ts";
-import UserRouter from "./routes/userRoutes.ts"
-import ProductRouter from "./routes/productRoutes.ts";
-import CategoryRouter from "./routes/categoryRoutes.ts";
-import CartRouter from "./routes/cartRoutes.ts";
-import OrderRouter from "./routes/orderRoutes.ts";
-import CityRouter from "./routes/city.routes.ts";
-import ProvinceRouter from "./routes/province.routes.ts";
-import DistrictRouter from "./routes/district.routes.ts";
-import SubDistrictRouter from "./routes/subDistrictRoutes.ts";
-import AddressesRouter from "./routes/addressRoutes.ts";
-import ShippingCostRouter from "./routes/shippingCostRoutes.ts";
+import AuthRouter from "./routes/authRoutes";
+import UserRouter from "./routes/userRoutes"
+import ProductRouter from "./routes/productRoutes";
+import CategoryRouter from "./routes/categoryRoutes";
+import CartRouter from "./routes/cartRoutes";
+import OrderRouter from "./routes/orderRoutes";
+import CityRouter from "./routes/city.routes";
+import ProvinceRouter from "./routes/province.routes";
+import DistrictRouter from "./routes/district.routes";
+import SubDistrictRouter from "./routes/subDistrictRoutes";
+import AddressesRouter from "./routes/addressRoutes";
+import ShippingCostRouter from "./routes/shippingCostRoutes";
 
 // Error Handler
 

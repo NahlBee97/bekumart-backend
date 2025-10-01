@@ -1,5 +1,5 @@
 import {Redis} from "ioredis";
-import { REDIS_URL } from "../config.ts";
+import { REDIS_URL } from "../config";
 
 const getRedisUrl = () => {
     if (REDIS_URL) {

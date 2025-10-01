@@ -1,13 +1,8 @@
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 import fs from "fs";
 import handlebars from "handlebars";
-import { Transporter } from "../utils/nodemailer.ts";
-import type { IOrder } from "../interfaces/orderInterfaces.ts";
+import { Transporter } from "../utils/nodemailer";
+import { IOrder } from "../interfaces/orderInterfaces";
 
 export async function sendOrderStatusUpdateEmail(order: IOrder) {
   try {

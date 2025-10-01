@@ -1,6 +1,6 @@
 import axios from "axios";
-import type { IAddress } from "../interfaces/addressesInterface.ts";
-import prisma from "../lib/prisma.ts";
+import { IAddress } from "../interfaces/addressesInterface";
+import prisma from "../lib/prisma";
 
 export async function GetAddressesByUserIdService(userId: string) {
   try {

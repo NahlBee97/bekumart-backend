@@ -1,6 +1,6 @@
-import prisma from "../lib/prisma.ts";
-import { ORIGIN_ADDRESS_ID } from "../config.ts";
-import { GetUserCartService } from "./cartServices.ts";
+import prisma from "../lib/prisma";
+import { ORIGIN_ADDRESS_ID } from "../config";
+import { GetUserCartService } from "./cartServices";
 
 async function calculateShippingCost(addressId: string) {
   // Implement your logic to calculate delivery fee based on addressId

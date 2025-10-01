@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { GetDistrictsByCityService } from "../services/district.service.ts";
+import { Request, Response, NextFunction } from "express";
+import { GetDistrictsByCityService } from "../services/district.service";
 
 export async function GetDistrictsByCityController(
   req: Request,

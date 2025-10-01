@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { GetShippingCostService } from "../services/shippingCostServices.ts";
+import { Request, Response, NextFunction } from "express";
+import { GetShippingCostService } from "../services/shippingCostServices";
 
 export default async function GetShippingCostController(
   req: Request,

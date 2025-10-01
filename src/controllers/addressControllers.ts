@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { CreateAddressService, DeleteAddressByIdService, EditAddressByIdService, GetAddressesByUserIdService, SetDefaultAddressService } from "../services/addressServices.ts";
+import { Request, Response, NextFunction } from "express";
+import { CreateAddressService, DeleteAddressByIdService, EditAddressByIdService, GetAddressesByUserIdService, SetDefaultAddressService } from "../services/addressServices";
 
 export async function GetAddressesByUserIdController(
   req: Request,

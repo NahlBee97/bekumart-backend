@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { CreateProductController, DeleteProductController, GetProductsByIdController, GetProductsController, UpdateProductController, UpdateProductPhotoController } from "../controllers/productControllers.ts";
-import { RoleGuard, VerifyToken } from "../middlewares/authMiddlewares.ts";
-import { upload } from "../middlewares/fileUpload.middleware.ts";
+import { CreateProductController, DeleteProductController, GetProductsByIdController, GetProductsController, UpdateProductController, UpdateProductPhotoController } from "../controllers/productControllers";
+import { RoleGuard, VerifyToken } from "../middlewares/authMiddlewares";
+import { upload } from "../middlewares/fileUpload.middleware";
 
 const router = Router();
 

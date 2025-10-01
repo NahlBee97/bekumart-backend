@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { VerifyToken } from "../middlewares/authMiddlewares.ts";
-import { ChangeUserPasswordController, EditUserInfoController, GetUserInfoController, UploadProfileController } from "../controllers/userController.ts";
-import { upload } from "../middlewares/fileUpload.middleware.ts";
+import { VerifyToken } from "../middlewares/authMiddlewares";
+import { ChangeUserPasswordController, EditUserInfoController, GetUserInfoController, UploadProfileController } from "../controllers/userController";
+import { upload } from "../middlewares/fileUpload.middleware";
 
 const router = Router();
 

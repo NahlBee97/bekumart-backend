@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
-import { JWT_SECRET } from "../config.ts";
-import { getPublicIdFromUrl } from "../helper/fileUploadHelper.ts";
-import prisma from "../lib/prisma.ts";
-import cloudinary from "../utils/cloudinary.ts";
-import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../config";
+import { getPublicIdFromUrl } from "../helper/fileUploadHelper";
+import prisma from "../lib/prisma";
+import cloudinary from "../utils/cloudinary";
+import { sign } from "jsonwebtoken";
 
 export async function UploadProfileService(userId: string, fileUri: string) {
   try {
@@ -61,7 +61,7 @@ export async function GetUserInfoService(userId: string) {
       imageUrl: user.imageUrl,
     };
 
-    const token = jwt.sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
+    const token = sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
     return token;
   } catch (error) {
     throw error;

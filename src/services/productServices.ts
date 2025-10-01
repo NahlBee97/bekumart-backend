@@ -1,7 +1,7 @@
-import { getPublicIdFromUrl } from "../helper/fileUploadHelper.ts";
-import type { INewProduct, IUpdateProduct } from "../interfaces/productInterface.ts";
-import prisma from "../lib/prisma.ts";
-import cloudinary from "../utils/cloudinary.ts";
+import { getPublicIdFromUrl } from "../helper/fileUploadHelper";
+import { INewProduct, IUpdateProduct } from "../interfaces/productInterface";
+import prisma from "../lib/prisma";
+import cloudinary from "../utils/cloudinary";
 
 export async function GetProductsService() {
   try {

@@ -1,7 +1,7 @@
-import type { Request, Response, NextFunction } from "express";
-import { AddItemToCartService, DeleteItemInCartService, GetUserCartService, UpdateItemInCartService } from "../services/cartServices.ts";
-import type { IAddItem } from "../interfaces/cartInterfaces.ts";
-import { AddItemToCartSchema } from "../schemas/cartSchemas.ts";
+import { Request, Response, NextFunction } from "express";
+import { AddItemToCartService, DeleteItemInCartService, GetUserCartService, UpdateItemInCartService } from "../services/cartServices";
+import type { IAddItem } from "../interfaces/cartInterfaces";
+import { AddItemToCartSchema } from "../schemas/cartSchemas";
 
 export async function GetUserCartController(
   req: Request,

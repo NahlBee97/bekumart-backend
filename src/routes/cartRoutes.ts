@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { AddItemToCartController, DeleteItemInCartController, GetUserCartController, UpdateItemInCartController } from "../controllers/cartControllers.ts";
-import { VerifyToken } from "../middlewares/authMiddlewares.ts";
+import { AddItemToCartController, DeleteItemInCartController, GetUserCartController, UpdateItemInCartController } from "../controllers/cartControllers";
+import { VerifyToken } from "../middlewares/authMiddlewares";
 
 const router = Router();
 

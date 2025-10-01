@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { VerifyToken } from "../middlewares/authMiddlewares.ts";
-import { CreateOrderController, GetAllOrderController, GetOrderItemsByOrderIdController, GetUserOrdersController, UpdateOrderStatusController } from "../controllers/orderControllers.ts";
+import { VerifyToken } from "../middlewares/authMiddlewares";
+import { CreateOrderController, GetAllOrderController, GetOrderItemsByOrderIdController, GetUserOrdersController, UpdateOrderStatusController } from "../controllers/orderControllers";
 
 const router = Router();
 

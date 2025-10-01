@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { CreateOrderService, GetAllOrderService, GetOrderItemsByOrderIdService, GetUserOrdersService, UpdateOrderStatusService } from "../services/orderService.ts";
+import { Request, Response, NextFunction } from "express";
+import { CreateOrderService, GetAllOrderService, GetOrderItemsByOrderIdService, GetUserOrdersService, UpdateOrderStatusService } from "../services/orderService";
 
 export async function CreateOrderController(
   req: Request,

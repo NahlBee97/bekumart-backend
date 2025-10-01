@@ -1,7 +1,7 @@
-import type { Request, Response, NextFunction } from "express";
-import jwt, { type JwtPayload } from "jsonwebtoken";
-import type { IUserReqParam } from "../custom.js";
-import { JWT_SECRET } from "../config.ts";
+import { Request, Response, NextFunction } from "express";
+import { JsonWebTokenError, JwtPayload, TokenExpiredError, verify } from "jsonwebtoken";
+import { IUserReqParam } from "../custom.js";
+import { JWT_SECRET } from "../config";
 
 // Custom error class to handle HTTP status codes
 class AppError extends Error {
@@ -24,7 +24,7 @@ export async function VerifyToken(
       throw new AppError("Unauthorized: No token provided", 401);
     }
 
-    const decodedPayload = jwt.verify(token, String(JWT_SECRET)) as JwtPayload;
+    const decodedPayload = verify(token, String(JWT_SECRET)) as JwtPayload;
 
     if (!decodedPayload.id || !decodedPayload.role) {
       throw new AppError("Invalid token: Payload missing required fields", 401);
@@ -34,10 +34,10 @@ export async function VerifyToken(
 
     next();
   } catch (err) {
-    if (err instanceof jwt.TokenExpiredError) {
+    if (err instanceof TokenExpiredError) {
       return next(new AppError("Unauthorized: Token has expired", 401));
     }
-    if (err instanceof jwt.JsonWebTokenError) {
+    if (err instanceof JsonWebTokenError) {
       return next(new AppError("Unauthorized: Invalid token", 401));
     }
     next(err);

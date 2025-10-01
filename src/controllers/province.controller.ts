@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { GetAllProvincesService } from "../services/province.service.ts";
+import { Request, Response, NextFunction } from "express";
+import { GetAllProvincesService } from "../services/province.service";
 
 export async function GetAllProvincesController(
   req: Request,

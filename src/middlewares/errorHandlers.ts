@@ -1,5 +1,5 @@
 // src/middlewares/errorHandler.ts
-import type { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 
 // A more specific error class for your application

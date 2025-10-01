@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { VerifyToken } from "../middlewares/authMiddlewares.ts";
-import GetShippingCostController from "../controllers/shippingCostController.ts";
+import { VerifyToken } from "../middlewares/authMiddlewares";
+import GetShippingCostController from "../controllers/shippingCostController";
 
 const router = Router();
 

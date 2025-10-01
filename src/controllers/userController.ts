@@ -1,6 +1,6 @@
-import type { NextFunction, Request, Response } from "express";
-import { bufferToDataURI } from "../helper/fileUploadHelper.ts";
-import { ChangeUserPasswordService, EditUserInfoService, GetUserInfoService, UploadProfileService } from "../services/userServices.ts";
+import { NextFunction, Request, Response } from "express";
+import { bufferToDataURI } from "../helper/fileUploadHelper";
+import { ChangeUserPasswordService, EditUserInfoService, GetUserInfoService, UploadProfileService } from "../services/userServices";
 
 export async function UploadProfileController(
   req: Request,

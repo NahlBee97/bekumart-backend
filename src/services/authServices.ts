@@ -1,8 +1,8 @@
 import bcrypt, { compare } from "bcryptjs";
-import type { ILogin, IRegister } from "../interfaces/authInterfaces.ts";
-import prisma from "../lib/prisma.ts";
-import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config.ts";
+import { ILogin, IRegister } from "../interfaces/authInterfaces";
+import prisma from "../lib/prisma";
+import { JWT_SECRET } from "../config";
+import { sign } from "jsonwebtoken";
 
 export async function FindUserByEmail(email: string) {
   try {
@@ -75,7 +75,7 @@ async function Login(userData: ILogin) {
       imageUrl: user.imageUrl,
     };
 
-    const token = jwt.sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
+    const token = sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
 
     return token;
   } catch (err) {

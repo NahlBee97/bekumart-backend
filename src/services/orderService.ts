@@ -1,8 +1,8 @@
-import type { OrderStatuses } from "@prisma/client";
-import prisma from "../lib/prisma.ts";
-import { snap } from "../utils/midtrans.ts";
-import { GetUserCartService } from "./cartServices.ts";
-import { sendOrderStatusUpdateEmail } from "../helper/emailSender.ts";
+import { OrderStatuses } from "@prisma/client";
+import prisma from "../lib/prisma";
+import { snap } from "../utils/midtrans";
+import { GetUserCartService } from "./cartServices";
+import { sendOrderStatusUpdateEmail } from "../helper/emailSender";
 
 export async function CreateOrderService(
   userId: string,

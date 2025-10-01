@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { GetCategoriesService } from "../services/categoryServices.ts";
+import { Request, Response, NextFunction } from "express";
+import { GetCategoriesService } from "../services/categoryServices";
 
 export default async function GetCategoriesController(
   req: Request,
