@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import { FE_URL, PORT } from "./config";
 import dotenv from "dotenv";
@@ -34,6 +34,11 @@ app.use(
 app.use(express.json()); // Allows server to accept JSON data
 
 //api routes
+// --- Routes ---
+app.get('/', (req: Request, res: Response) => {
+  res.send("hello world");
+});
+
 app.use("/api/auth", AuthRouter);
 app.use("/api/users", UserRouter);
 app.use("/api/products", ProductRouter);
@@ -50,6 +55,8 @@ app.use("/api/shipping-cost", ShippingCostRouter);
 // --- Central Error Handler ---
 // app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Backend server is running on http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Backend server is running on http://localhost:${PORT}`);
+// });
+
+export default app;
