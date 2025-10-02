@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest --verbose",
     "dev": "nodemon",
-    "build": "npx tsc",
+    "build": "npx prisma generate && tsc",
     "start": "npm run build && node dist/server.js"
   },
   "repository": {
