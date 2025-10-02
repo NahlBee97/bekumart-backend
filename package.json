@@ -5,8 +5,8 @@
   "scripts": {
     "test": "jest --verbose",
     "dev": "nodemon",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "build": "npx tsc",
+    "start": "npm run build && node dist/server.js"
   },
   "repository": {
     "type": "git",
