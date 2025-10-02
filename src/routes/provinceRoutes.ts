@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { GetAllProvincesController } from "../controllers/province.controller";
+import { GetAllProvincesController } from "../controllers/provinceController";
 const router = Router();
 
 // read

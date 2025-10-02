@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { GetCitiesByProvinceService } from "../services/city.service";
-
+import { GetCitiesByProvinceService } from "../services/cityServices";
 
 export async function GetCitiesByProvinceController(
   req: Request,

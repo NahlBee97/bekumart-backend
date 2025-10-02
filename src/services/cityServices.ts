@@ -1,9 +1,6 @@
 import axios from "axios";
-import {
-  RAJAONGKIR_API_KEY,
-  RAJAONGKIR_BASE_URL,
-} from "../config";
-import { getProvinceId } from "./province.service";
+import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
+import { getProvinceId } from "./provinceServices";
 import { redis } from "../lib/redis";
 
 export async function fetchCitiesByProvince(province: string) {

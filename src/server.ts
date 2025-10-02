@@ -1,23 +1,23 @@
 import express from "express";
 import cors from "cors";
+import { FE_URL, PORT } from "./config";
 import dotenv from "dotenv";
-import { errorHandler } from "./middlewares/errorHandlers";
+// import { errorHandler } from "./middlewares/errorHandlers";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Routes
 import AuthRouter from "./routes/authRoutes";
-import UserRouter from "./routes/userRoutes"
+import UserRouter from "./routes/userRoutes";
 import ProductRouter from "./routes/productRoutes";
 import CategoryRouter from "./routes/categoryRoutes";
 import CartRouter from "./routes/cartRoutes";
 import OrderRouter from "./routes/orderRoutes";
-import CityRouter from "./routes/city.routes";
-import ProvinceRouter from "./routes/province.routes";
-import DistrictRouter from "./routes/district.routes";
+import CityRouter from "./routes/cityRoutes";
+import ProvinceRouter from "./routes/provinceRoutes";
+import DistrictRouter from "./routes/districtRoutes";
 import SubDistrictRouter from "./routes/subDistrictRoutes";
 import AddressesRouter from "./routes/addressRoutes";
 import ShippingCostRouter from "./routes/shippingCostRoutes";
@@ -27,10 +27,7 @@ import ShippingCostRouter from "./routes/shippingCostRoutes";
 // cors
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://unpneumatic-postmuscular-deeann.ngrok-free.dev",
-    ],
+    origin: FE_URL,
     credentials: true,
   })
 );

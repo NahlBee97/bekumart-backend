@@ -1,8 +1,8 @@
-import bcrypt, { compare } from "bcryptjs";
+import bcrypt from "bcryptjs";
 import { ILogin, IRegister } from "../interfaces/authInterfaces";
 import { prisma } from "../lib/prisma";
 import { JWT_SECRET } from "../config";
-import { sign } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { FindUserByEmail } from "../helper/findUserByEmail";
 
 export async function RegisterService(userData: IRegister) {
@@ -51,9 +51,9 @@ export async function LoginService(userData: ILogin) {
 
     const user = await FindUserByEmail(email);
 
-    if (!user) throw new Error("Email does not exist");
+    if (!user) throw new Error("User not found");
 
-    const checkPass = await compare(password, user.password as string);
+    const checkPass = await bcrypt.compare(password, user.password as string);
 
     if (!checkPass) throw new Error("Incorrect Password");
 
@@ -66,7 +66,7 @@ export async function LoginService(userData: ILogin) {
       imageUrl: user.imageUrl,
     };
 
-    const token = sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
+    const token = jwt.sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
 
     if(!token) throw new Error ("Failed to generate token");
 

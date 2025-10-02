@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getCityId } from "./city.service";
+import { getCityId } from "./cityServices";
 import { redis } from "../lib/redis";
 import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
 

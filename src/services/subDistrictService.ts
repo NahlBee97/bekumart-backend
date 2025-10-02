@@ -1,13 +1,19 @@
 import axios from "axios";
 import { redis } from "../lib/redis";
 import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
-import { getDistrictId } from "./district.service";
+import { getDistrictId } from "./districtServices";
 
-export async function GetSubDistrictsByDistrictService(province: string, city: string, district: string) {
+export async function GetSubDistrictsByDistrictService(
+  province: string,
+  city: string,
+  district: string
+) {
   try {
     const districtId = await getDistrictId(province, city, district);
 
-    const cachedValue = await redis.get(`${district.toLowerCase()}_sub_districts`);
+    const cachedValue = await redis.get(
+      `${district.toLowerCase()}_sub_districts`
+    );
 
     if (cachedValue) {
       return JSON.parse(cachedValue);
@@ -22,7 +28,10 @@ export async function GetSubDistrictsByDistrictService(province: string, city: s
 
     const subDistricts = response.data.data;
 
-    redis.set(`${district.toLowerCase()}_sub_districts`, JSON.stringify(subDistricts));
+    redis.set(
+      `${district.toLowerCase()}_sub_districts`,
+      JSON.stringify(subDistricts)
+    );
 
     return subDistricts;
   } catch (err) {
