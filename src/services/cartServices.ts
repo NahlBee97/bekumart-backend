@@ -42,7 +42,7 @@ export async function GetUserCartService(userId: string) {
   }
 }
 
-export async function AddItemToCartService(userId: string, productId: string) {
+export async function AddItemToCartService(userId: string, productId: string, quantity: number) {
   try {
     // Find the user's cart
     const cart = await prisma.carts.findFirst({
@@ -60,14 +60,14 @@ export async function AddItemToCartService(userId: string, productId: string) {
       // If it exists, update the quantity
       await prisma.cartItems.update({
         where: { id: existingItem.id },
-        data: { quantity: existingItem.quantity + 1 },
+        data: { quantity: existingItem.quantity + quantity },
       });
     } else {
       const newItem = await prisma.cartItems.create({
         data: {
           cartId: cart.id,
           productId,
-          quantity: 1, // Default to 1 for new items
+          quantity,
         },
       });
 

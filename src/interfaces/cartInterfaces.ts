@@ -4,6 +4,7 @@ import type { IProduct } from "./productInterface.ts";
 export interface IAddItem {
   userId: string;
   productId: string;
+  quantity: number;
 }
 
 // Corresponds to the 'Carts' model
