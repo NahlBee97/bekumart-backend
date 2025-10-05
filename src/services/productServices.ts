@@ -6,7 +6,7 @@ import cloudinary from "../utils/cloudinary";
 export async function GetProductsService() {
   try {
     const products = await prisma.products.findMany({
-      include: { category: true },
+      include: { category: true, productPhotos: true },
     });
     return products;
   } catch (err) {
@@ -63,78 +63,6 @@ export async function UpdateProductService(
       },
     });
     return updatedProduct;
-  } catch (err) {
-    throw err;
-  }
-}
-
-export async function UpdateProductPhotoService(
-  fileUri: string,
-  photoId: string
-) {
-  try {
-    const existingProductPhoto = await prisma.productPhotos.findUnique({
-      where: { id: photoId },
-    });
-    if (!existingProductPhoto) throw new Error("Product not found");
-
-    let publicId = `products/product_${photoId}_${Date.now()}`; // Default for new images
-
-    if (existingProductPhoto.imageUrl) {
-      const existingPublicId = getPublicIdFromUrl(
-        existingProductPhoto.imageUrl
-      );
-      if (existingPublicId) {
-        publicId = existingPublicId; // Use existing public_id to overwrite
-      }
-    }
-
-    // Upload the image to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(fileUri, {
-      public_id: publicId,
-      overwrite: true,
-      folder: "products",
-    });
-
-    const imageUrl = uploadResult.secure_url;
-
-    await prisma.productPhotos.update({
-      where: { id: photoId },
-      data: { imageUrl },
-    });
-
-    return imageUrl;
-  } catch (err) {
-    throw err;
-  }
-}
-
-export async function AddProductPhotoService(
-  fileUri: string,
-  productId: string
-) {
-  try {
-    const existingProduct = await prisma.productPhotos.findUnique({
-      where: { id: productId },
-    });
-    if (!existingProduct) throw new Error("Product not found");
-
-    let publicId = `products/product_${productId}_${Date.now()}`; // Default for new images
-
-    // Upload the image to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(fileUri, {
-      public_id: publicId,
-      overwrite: true,
-      folder: "products",
-    });
-
-    const imageUrl = uploadResult.secure_url;
-
-    const newPhoto = await prisma.productPhotos.create({
-      data: { imageUrl, productId, updatedAt: new Date() },
-    });
-
-    return newPhoto;
   } catch (err) {
     throw err;
   }

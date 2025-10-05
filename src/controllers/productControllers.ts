@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { AddProductPhotoService, CreateProductService, DeleteProductService, GetProductByIdService, GetProductsService, UpdateProductPhotoService, UpdateProductService } from "../services/productServices";
 import { INewProduct, IUpdateProduct } from "../interfaces/productInterface";
 import { CreateProductSchema, UpdateProductSchema } from "../schemas/productSchemas";
 import { bufferToDataURI } from "../helper/fileUploadHelper";
+import { CreateProductService, DeleteProductService, GetProductByIdService, GetProductsService, UpdateProductService } from "../services/productServices";
 
 export async function GetProductsController(
   req: Request,
@@ -55,56 +55,6 @@ export async function UpdateProductController(
     const productData: IUpdateProduct = UpdateProductSchema.parse(req.body);
     const updatedProduct = await UpdateProductService(productId, productData);
     res.status(200).send({ message: "Product updated successfully", data: updatedProduct });
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function UpdateProductPhotoController(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const photoId = req.params.id as string;
-    const { file } = req;
-
-    if (!file) throw new Error("File not found");
-
-    // 2. Convert the file buffer to a Data URI
-    const fileUri = bufferToDataURI(file.buffer, file.mimetype);
-
-    const imageUrl = await UpdateProductPhotoService(fileUri, photoId);
-
-    res.status(200).send({
-      message: `Image uploaded and URL saved successfully!`,
-      data: imageUrl,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function AddProductPhotoController(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const productId = req.params.id as string;
-    const { file } = req;
-
-    if (!file) throw new Error("File not found");
-
-    // 2. Convert the file buffer to a Data URI
-    const fileUri = bufferToDataURI(file.buffer, file.mimetype);
-
-    const newPhoto = await AddProductPhotoService(fileUri, productId);
-
-    res.status(200).send({
-      message: `Image uploaded and URL saved successfully!`,
-      data: newPhoto,
-    });
   } catch (err) {
     next(err);
   }

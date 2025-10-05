@@ -12,6 +12,7 @@ const app = express();
 import AuthRouter from "./routes/authRoutes";
 import UserRouter from "./routes/userRoutes";
 import ProductRouter from "./routes/productRoutes";
+import ProductPhotoRouter from "./routes/productPhotosRoutes";
 import CategoryRouter from "./routes/categoryRoutes";
 import CartRouter from "./routes/cartRoutes";
 import OrderRouter from "./routes/orderRoutes";
@@ -42,6 +43,7 @@ app.get('/', (req: Request, res: Response) => {
 app.use("/api/auth", AuthRouter);
 app.use("/api/users", UserRouter);
 app.use("/api/products", ProductRouter);
+app.use("/api/product-photos", ProductPhotoRouter);
 app.use("/api/categories", CategoryRouter);
 app.use("/api/carts", CartRouter);
 app.use("/api/orders", OrderRouter);
