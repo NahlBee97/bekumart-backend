@@ -5,7 +5,7 @@ import cloudinary from "../utils/cloudinary";
 export async function GetProductPhotosService(productId: string) {
   try {
     const photos = await prisma.productPhotos.findMany({
-      where: { productId }
+      where: { productId },
     });
     return photos;
   } catch (err) {
@@ -26,18 +26,21 @@ export async function SetDefaultProductPhotoService(
 
     if (!photo) throw new Error("Product photo not found");
 
-    await prisma.productPhotos.updateMany({
-      data: { isDefault: false },
+    const newPhoto = await prisma.$transaction(async (tx) => {
+      await tx.productPhotos.updateMany({
+        data: { isDefault: false },
+      });
+
+      const updatedPhoto = await tx.productPhotos.update({
+        where: { id: photoId },
+        data: {
+          isDefault,
+        },
+      });
+      return updatedPhoto;
     });
 
-    const updatedPhoto = await prisma.productPhotos.update({
-      where: { id: photoId },
-      data: {
-        isDefault,
-      },
-    });
-
-    return updatedPhoto;
+    return newPhoto;
   } catch (error) {
     throw error;
   }

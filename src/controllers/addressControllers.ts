@@ -43,6 +43,7 @@ export async function SetDefaultAddressController(
   try {
     const addressId = req.params.id as string;
     const { isDefault } = req.body;
+    console.log(isDefault);
     const updatedAddress = await SetDefaultAddressService(addressId, isDefault);
     res
       .status(200)

@@ -25,7 +25,7 @@ export async function SetDefaultProductPhotoController(
 ) {
   try {
     const productId = req.params.id as string;
-    const isDefault = req.body;
+    const { isDefault } = req.body;
     const updatedPhoto = await SetDefaultProductPhotoService(productId, isDefault);
     res
       .status(200)
