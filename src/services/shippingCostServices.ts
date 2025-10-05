@@ -44,7 +44,7 @@ async function calculateShippingCost(addressId: string) {
     const minDeliveryFee = 10000; // Minimum delivery fee
     const deliveryFee =
       markUpDeliveryFee < minDeliveryFee ? minDeliveryFee : markUpDeliveryFee;
-    return deliveryFee;
+    return Math.ceil(deliveryFee);
   } catch (err) {
     throw err;
   }

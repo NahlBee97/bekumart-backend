@@ -25,7 +25,6 @@ export interface IProduct {
   name: string;
   description: string;
   price: number;
-  imageUrl: string | null;
   stock: number;
   weightInKg: number;
   categoryId: string;

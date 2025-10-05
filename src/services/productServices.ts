@@ -42,14 +42,8 @@ export async function UpdateProductService(
   productData: IUpdateProduct
 ) {
   try {
-    const {
-      name,
-      price,
-      description,
-      stock,
-      weightInKg,
-      categoryId,
-    } = productData;
+    const { name, price, description, stock, weightInKg, categoryId } =
+      productData;
 
     const existingProduct = await prisma.products.findUnique({
       where: { id: productId },
@@ -76,18 +70,20 @@ export async function UpdateProductService(
 
 export async function UpdateProductPhotoService(
   fileUri: string,
-  productId: string
+  photoId: string
 ) {
   try {
-    const existingProduct = await prisma.products.findUnique({
-      where: { id: productId },
+    const existingProductPhoto = await prisma.productPhotos.findUnique({
+      where: { id: photoId },
     });
-    if (!existingProduct) throw new Error("Product not found");
+    if (!existingProductPhoto) throw new Error("Product not found");
 
-    let publicId = `products/product_${productId}_${Date.now()}`; // Default for new images
+    let publicId = `products/product_${photoId}_${Date.now()}`; // Default for new images
 
-    if (existingProduct.imageUrl) {
-      const existingPublicId = getPublicIdFromUrl(existingProduct.imageUrl);
+    if (existingProductPhoto.imageUrl) {
+      const existingPublicId = getPublicIdFromUrl(
+        existingProductPhoto.imageUrl
+      );
       if (existingPublicId) {
         publicId = existingPublicId; // Use existing public_id to overwrite
       }
@@ -102,8 +98,8 @@ export async function UpdateProductPhotoService(
 
     const imageUrl = uploadResult.secure_url;
 
-    await prisma.products.update({
-      where: { id: productId },
+    await prisma.productPhotos.update({
+      where: { id: photoId },
       data: { imageUrl },
     });
 
@@ -113,6 +109,36 @@ export async function UpdateProductPhotoService(
   }
 }
 
+export async function AddProductPhotoService(
+  fileUri: string,
+  productId: string
+) {
+  try {
+    const existingProduct = await prisma.productPhotos.findUnique({
+      where: { id: productId },
+    });
+    if (!existingProduct) throw new Error("Product not found");
+
+    let publicId = `products/product_${productId}_${Date.now()}`; // Default for new images
+
+    // Upload the image to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload(fileUri, {
+      public_id: publicId,
+      overwrite: true,
+      folder: "products",
+    });
+
+    const imageUrl = uploadResult.secure_url;
+
+    const newPhoto = await prisma.productPhotos.create({
+      data: { imageUrl, productId, updatedAt: new Date() },
+    });
+
+    return newPhoto;
+  } catch (err) {
+    throw err;
+  }
+}
 
 export async function DeleteProductService(productId: string) {
   try {
@@ -121,7 +147,7 @@ export async function DeleteProductService(productId: string) {
     });
 
     if (!existingProduct) throw new Error("Product not found");
-    
+
     await prisma.products.delete({
       where: { id: productId },
     });

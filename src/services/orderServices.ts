@@ -25,7 +25,7 @@ export async function CreateOrderService(
         const order = await prisma.orders.create({
           data: {
             userId: cart.userId,
-            totalAmount: totalCheckoutPrice,
+            totalAmount: Math.ceil(totalCheckoutPrice),
             totalWeight: cart.totalWeight,
             fulfillmentType: "DELIVERY",
             paymentMethod: "ONLINE",

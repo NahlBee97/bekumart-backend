@@ -74,7 +74,6 @@ model Products {
   name        String      @unique
   description String
   price       Float        // Store price in the smallest currency unit (e.g., Rupiah) as an Integer in production
-  imageUrl    String?
   stock       Int
   weightInKg  Float        // Crucial for delivery calculation
   categoryId  String
@@ -83,6 +82,17 @@ model Products {
   category    Categories     @relation(fields: [categoryId], references: [id])
   orderItems  OrderItems[]
   cartItems  CartItems[]
+  productPhotos ProductPhotos[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model ProductPhotos {
+  id          String       @id @default(cuid())
+  productId     String
+  product       Products    @relation(fields: [productId], references: [id])
+  imageUrl String
+  isDefault  Boolean @default(false)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
