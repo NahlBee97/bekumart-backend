@@ -53,6 +53,7 @@ model Users {
 
 model Addresses {
   id         String  @id @default(cuid())
+  receiver String
   userId     String
   user       Users    @relation(fields: [userId], references: [id])
   street     String
@@ -77,6 +78,7 @@ model Products {
   stock       Int
   weightInKg  Float        // Crucial for delivery calculation
   categoryId  String
+  sale  Int?
   rating      Float?      // Average rating, nullable if no ratings yet
   category    Categories     @relation(fields: [categoryId], references: [id])
   orderItems  OrderItems[]

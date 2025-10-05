@@ -1,6 +1,7 @@
 // Corresponds to the 'Addresses' model
 export interface IAddress {
   id: string;
+  receiver: string;
   userId: string;
   street: string;
   subdistrict: string;
