@@ -8,7 +8,11 @@ export async function GetUserCartService(userId: string) {
         items: {
           // You might want to include product details here as well
           include: {
-            product: true,
+            product: {
+              include: {
+                productPhotos: true,
+              },
+            },
           },
         },
       },
@@ -42,7 +46,11 @@ export async function GetUserCartService(userId: string) {
   }
 }
 
-export async function AddItemToCartService(userId: string, productId: string, quantity: number) {
+export async function AddItemToCartService(
+  userId: string,
+  productId: string,
+  quantity: number
+) {
   try {
     // Find the user's cart
     const cart = await prisma.carts.findFirst({

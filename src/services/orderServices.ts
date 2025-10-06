@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import { snap } from "../utils/midtrans";
 import { GetUserCartService } from "./cartServices";
 import { sendOrderStatusUpdateEmail } from "../helper/emailSender";
+import { includes } from "zod";
 
 export async function CreateOrderService(
   userId: string,
@@ -152,7 +153,11 @@ export async function GetOrderItemsByOrderIdService(orderId: string) {
         orderId,
       },
       include: {
-        product: true,
+        product: {
+          include: {
+            productPhotos: true
+          }
+        },
       },
     });
     return orderItems;
