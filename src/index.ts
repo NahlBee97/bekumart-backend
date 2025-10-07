@@ -60,8 +60,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(400).json({ success: false, message: err.message });
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend server is running on http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Backend server is running on http://localhost:${PORT}`);
+// });
 
-// export default app;
+export default app;
