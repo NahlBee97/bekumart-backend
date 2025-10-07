@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { FE_URL, PORT } from "./config";
 import dotenv from "dotenv";
@@ -56,9 +56,12 @@ app.use("/api/shipping-cost", ShippingCostRouter);
 
 // --- Central Error Handler ---
 // app.use(errorHandler);
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  res.status(400).json({ success: false, message: err.message });
+});
 
-// app.listen(PORT, () => {
-//   console.log(`Backend server is running on http://localhost:${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`Backend server is running on http://localhost:${PORT}`);
+});
 
-export default app;
+// export default app;
