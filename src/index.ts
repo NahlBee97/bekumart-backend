@@ -2,7 +2,6 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { FE_URL, PORT } from "./config";
 import dotenv from "dotenv";
-// import { errorHandler } from "./middlewares/errorHandlers";
 
 dotenv.config();
 
@@ -23,8 +22,6 @@ import SubDistrictRouter from "./routes/subDistrictRoutes";
 import AddressesRouter from "./routes/addressRoutes";
 import ShippingCostRouter from "./routes/shippingCostRoutes";
 
-// Error Handler
-
 // cors
 app.use(
   cors({
@@ -34,10 +31,9 @@ app.use(
 );
 app.use(express.json()); // Allows server to accept JSON data
 
-//api routes
 // --- Routes ---
 app.get('/', (req: Request, res: Response) => {
-  res.send("hello world");
+  res.send("Connected");
 });
 
 app.use("/api/auth", AuthRouter);
@@ -55,9 +51,10 @@ app.use("/api/addresses", AddressesRouter);
 app.use("/api/shipping-cost", ShippingCostRouter);
 
 // --- Central Error Handler ---
-// app.use(errorHandler);
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  res.status(400).json({ success: false, message: err.message });
+app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error("UNHANDLED ERROR:", error); // Log the error for debugging
+
+  res.status(500).json({ message: "Internal Server Error" });
 });
 
 // app.listen(PORT, () => {

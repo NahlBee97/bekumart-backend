@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { GetSubDistrictsByDistrictService } from "../services/subDistrictService";
+import { AppError } from "../utils/appError";
 
 export async function GetSubDistrictsByDistrictController(
   req: Request,
@@ -11,13 +12,20 @@ export async function GetSubDistrictsByDistrictController(
     const province = req.query.province as string;
     const district = req.query.district as string;
 
-    const districts = await GetSubDistrictsByDistrictService(province, city, district);
+    const districts = await GetSubDistrictsByDistrictService(
+      province,
+      city,
+      district
+    );
 
-    res.status(200).send({
+    res.status(200).json({
       message: `Get sub-districts by district success`,
       data: districts,
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }

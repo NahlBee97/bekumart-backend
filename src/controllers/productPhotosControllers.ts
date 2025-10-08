@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { bufferToDataURI } from "../helper/fileUploadHelper";
 import { AddProductPhotoService, DeleteProductPhotoService, GetProductPhotosService, SetDefaultProductPhotoService, UpdateProductPhotoService } from "../services/productPhotosServices";
+import { AppError } from "../utils/appError";
 
 export async function GetProductPhotosController(
   req: Request,
@@ -12,9 +13,12 @@ export async function GetProductPhotosController(
     const photos = await GetProductPhotosService(productId);
     res
       .status(200)
-      .send({ message: "Product photos retrieved successfully", data: photos });
-  } catch (err) {
-    next(err);
+      .json({ message: "Product photos retrieved successfully", data: photos });
+  } catch (error) {
+    if (error instanceof AppError) {
+          return res.status(error.statusCode).json({ message: error.message });
+        }
+        next(error);
   }
 }
 
@@ -29,9 +33,12 @@ export async function SetDefaultProductPhotoController(
     const updatedPhoto = await SetDefaultProductPhotoService(productId, isDefault);
     res
       .status(200)
-      .send({ message: "Product photo updated successfully", data: updatedPhoto });
-  } catch (err) {
-    next(err);
+      .json({ message: "Product photo updated successfully", data: updatedPhoto });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }
 
@@ -51,12 +58,15 @@ export async function UpdateProductPhotoController(
 
     const imageUrl = await UpdateProductPhotoService(fileUri, photoId);
 
-    res.status(200).send({
+    res.status(200).json({
       message: `Image uploaded and URL saved successfully!`,
       data: imageUrl,
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }
 
@@ -76,12 +86,15 @@ export async function AddProductPhotoController(
 
     const newPhoto = await AddProductPhotoService(fileUri, productId);
 
-    res.status(200).send({
+    res.status(200).json({
       message: `Image uploaded and URL saved successfully!`,
       data: newPhoto,
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }
 
@@ -95,11 +108,14 @@ export async function DeleteProductPhotoController(
 
     const deletedPhoto = await DeleteProductPhotoService(productId);
 
-    res.status(200).send({
+    res.status(200).json({
       message: `Image deleted successfully!`,
       data: deletedPhoto,
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }

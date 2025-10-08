@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { GetShippingCostService } from "../services/shippingCostServices";
+import { AppError } from "../utils/appError";
 
 export default async function GetShippingCostController(
   req: Request,
@@ -13,6 +14,9 @@ export default async function GetShippingCostController(
 
     return res.status(200).json({ shippingCost });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }

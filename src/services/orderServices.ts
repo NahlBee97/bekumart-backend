@@ -1,121 +1,66 @@
-import { OrderStatuses } from "@prisma/client";
+import { FulfillmentTypes, OrderStatuses } from "@prisma/client";
 import { prisma } from "../lib/prisma";
-import { snap } from "../utils/midtrans";
 import { GetUserCartService } from "./cartServices";
 import { sendOrderStatusUpdateEmail } from "../helper/emailSender";
-import { includes } from "zod";
+import { AppError } from "../utils/appError";
+import {
+  createOrderTransaction,
+  createPaymentTransaction,
+  validateCartItems,
+} from "../helper/orderHelpers";
 
 export async function CreateOrderService(
   userId: string,
-  fullfillmentType: string,
-  addressId: string | null,
-  totalCheckoutPrice: number
+  fulfillmentType: FulfillmentTypes,
+  addressId: string,
+  totalCheckoutPrice: number,
 ) {
   try {
     const cart = await GetUserCartService(userId);
 
-    if (!cart?.items.length) throw new Error("Cart is empty");
-
-    let newOrder;
-
-    if (fullfillmentType === "DELIVERY") {
-      if (!addressId)
-        throw new Error("Shipping address is required for delivery");
-
-      newOrder = await prisma.$transaction(async (tx) => {
-        const order = await prisma.orders.create({
-          data: {
-            userId: cart.userId,
-            totalAmount: Math.ceil(totalCheckoutPrice),
-            totalWeight: cart.totalWeight,
-            fulfillmentType: "DELIVERY",
-            paymentMethod: "ONLINE",
-            addressId,
-            status: "PENDING",
-          },
-        });
-        // 2. Create OrderItem records from CartItems
-        const orderItemsData = cart.items.map((item) => ({
-          orderId: order.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          priceAtPurchase: item.product.price, // Lock in the price
-        }));
-        await tx.orderItems.createMany({ data: orderItemsData });
-        // 3. Clear the user's cart
-        await tx.cartItems.deleteMany({ where: { cartId: cart.id } });
-        //   4. Update product stock levels
-        for (const item of cart.items) {
-          await tx.products.update({
-            where: { id: item.productId },
-            data: { stock: { decrement: item.quantity } },
-          });
-        }
-        return order;
-      });
-    } else {
-      // Logic for pickup can be added here
-      newOrder = await prisma.$transaction(async (tx) => {
-        const order = await prisma.orders.create({
-          data: {
-            userId: cart.userId,
-            totalAmount: totalCheckoutPrice,
-            totalWeight: cart.totalWeight,
-            fulfillmentType: "PICKUP",
-            paymentMethod: "INSTORE",
-            addressId: null,
-            status: "PENDING",
-          },
-        });
-        // 2. Create OrderItem records from CartItems
-        const orderItemsData = cart.items.map((item) => ({
-          orderId: order.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          priceAtPurchase: item.product.price, // Lock in the price
-        }));
-        await tx.orderItems.createMany({ data: orderItemsData });
-        // 3. Clear the user's cart
-        await tx.cartItems.deleteMany({ where: { cartId: cart.id } });
-        //   4. Update product stock levels
-        for (const item of cart.items) {
-          await tx.products.update({
-            where: { id: item.productId },
-            data: { stock: { decrement: item.quantity } },
-          });
-        }
-        return order;
-      });
+    if (!cart?.items?.length) {
+      throw new AppError("Cart is empty", 400);
     }
-    // 3. Define the transaction parameters
-    const user = await prisma.users.findUnique({
-      where: { id: userId },
+
+    if (fulfillmentType === "DELIVERY" && addressId) {
+      const userAddress = await prisma.addresses.findFirst({
+        where: {
+          id: addressId,
+          userId: userId,
+        },
+      });
+
+      if (!userAddress) {
+        throw new AppError("Address not found or does not belong to user", 400);
+      }
+    }
+
+    await validateCartItems(cart.items, totalCheckoutPrice);
+
+    // Step 4: Create order in transaction
+    const newOrder = await createOrderTransaction({
+      userId,
+      cart,
+      fulfillmentType,
+      addressId,
+      totalCheckoutPrice: Math.ceil(totalCheckoutPrice),
     });
-    if (!user) throw new Error("User not found");
 
-    const parameter = {
-      transaction_details: {
-        order_id: newOrder.id, // Must be a unique order ID
-        gross_amount: newOrder.totalAmount,
-      },
-      customer_details: {
-        first_name: user.name,
-        email: user.email,
-      },
+    // Step 5: Create payment transaction
+    const { paymentToken, transaction } = await createPaymentTransaction(
+      newOrder,
+      userId
+    );
+
+    console.log("Midtrans transaction created:", transaction);
+
+    return {
+      order: newOrder,
+      paymentToken,
     };
-
-    // 4. Create the Midtrans transaction
-    const transaction = await snap.createTransaction(parameter);
-
-    if (!transaction) throw new Error("Failed to create transaction");
-    // 5. Extract the payment token from the response
-    const paymentToken = transaction.token;
-
-    console.log("Midtrans transaction:", transaction);
-
-    return { newOrder, paymentToken };
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    console.error("Error in CreateOrderService:", error);
+    throw new AppError("Could not create order", 500);
   }
 }
 
@@ -142,7 +87,7 @@ export async function UpdateOrderStatusService(
     sendOrderStatusUpdateEmail(updatedOrder);
     return updatedOrder;
   } catch (error) {
-    throw error;
+    throw new AppError("can not update oreder status", 500);
   }
 }
 
@@ -155,14 +100,17 @@ export async function GetOrderItemsByOrderIdService(orderId: string) {
       include: {
         product: {
           include: {
-            productPhotos: true
-          }
+            productPhotos: true,
+          },
         },
       },
     });
+
+    if (!orderItems) throw new AppError("order items not found", 404);
+
     return orderItems;
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    throw new AppError("can not get order item", 500);
   }
 }
 
@@ -175,7 +123,7 @@ export async function GetUserOrdersService(userId: string) {
     });
     return orders;
   } catch (err) {
-    throw err;
+    throw new AppError("can not get orders", 500);
   }
 }
 
@@ -186,6 +134,6 @@ export async function GetAllOrderService() {
     });
     return orders;
   } catch (err) {
-    throw err;
+    throw new AppError("can not get orders item", 500);
   }
 }

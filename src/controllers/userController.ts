@@ -1,6 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { bufferToDataURI } from "../helper/fileUploadHelper";
-import { ChangeUserPasswordService, EditUserInfoService, GetUserInfoService, UploadProfileService } from "../services/userServices";
+import {
+  ChangeUserPasswordService,
+  EditUserInfoService,
+  GetUserInfoService,
+  UploadProfileService,
+} from "../services/userServices";
+import { AppError } from "../utils/appError";
 
 export async function UploadProfileController(
   req: Request,
@@ -12,17 +18,20 @@ export async function UploadProfileController(
 
     const { file } = req;
 
-    if (!file) throw new Error("File not found");
+    if (!file) throw new AppError("File not found", 400);
 
     // 2. Convert the file buffer to a Data URI
     const fileUri = bufferToDataURI(file.buffer, file.mimetype);
 
     await UploadProfileService(userId, fileUri);
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Upload profile successfully",
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -37,11 +46,14 @@ export async function GetUserInfoController(
 
     const token = await GetUserInfoService(userId);
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Get user successfully",
       data: token,
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -57,11 +69,14 @@ export async function EditUserInfoController(
 
     const updatedUser = await EditUserInfoService(userId, userData);
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Edit user successfully",
       data: updatedUser,
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -77,11 +92,14 @@ export async function ChangeUserPasswordController(
 
     const updatedUser = await ChangeUserPasswordService(userId, newPassword);
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Update user password successfully",
       data: updatedUser,
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { GetCategoriesService } from "../services/categoryServices";
+import { AppError } from "../utils/appError";
 
 export default async function GetCategoriesController(
   req: Request,
@@ -7,13 +8,15 @@ export default async function GetCategoriesController(
   next: NextFunction
 ) {
   try {
-    // Fetch categories from the database or any data source
     const categories = await GetCategoriesService();
-    res.status(200).send({
-        message: "Categories fetched successfully",
-        data: categories
+    res.status(200).json({
+      message: "Categories fetched successfully",
+      data: categories,
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }

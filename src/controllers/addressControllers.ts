@@ -1,5 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { CreateAddressService, DeleteAddressByIdService, EditAddressByIdService, GetAddressesByUserIdService, SetDefaultAddressService } from "../services/addressServices";
+import {
+  CreateAddressService,
+  DeleteAddressByIdService,
+  EditAddressByIdService,
+  GetAddressesByUserIdService,
+  SetDefaultAddressService,
+} from "../services/addressServices";
+import { AppError } from "../utils/appError";
 
 export async function GetAddressesByUserIdController(
   req: Request,
@@ -11,8 +18,11 @@ export async function GetAddressesByUserIdController(
     const addresses = await GetAddressesByUserIdService(userId);
     res
       .status(200)
-      .send({ message: "Addresses retrieved successfully", data: addresses });
+      .json({ message: "Addresses retrieved successfully", data: addresses });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -29,8 +39,11 @@ export async function EditAddressByIdController(
     const updatedAddress = await EditAddressByIdService(addressId, addressData);
     res
       .status(200)
-      .send({ message: "Edit Address successfully", data: updatedAddress });
+      .json({ message: "Edit Address successfully", data: updatedAddress });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -42,16 +55,16 @@ export async function SetDefaultAddressController(
 ) {
   try {
     const addressId = req.params.id as string;
-    const { isDefault } = req.body;
-    console.log(isDefault);
-    const updatedAddress = await SetDefaultAddressService(addressId, isDefault);
-    res
-      .status(200)
-      .send({
-        message: "Set default address successfully",
-        data: updatedAddress,
-      });
+    const { isDefault, userId } = req.body;
+    const updatedAddress = await SetDefaultAddressService(addressId, userId, isDefault);
+    res.status(200).json({
+      message: "Set default address successfully",
+      data: updatedAddress,
+    });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -64,8 +77,11 @@ export async function DeleteAddressByIdController(
   try {
     const addressId = req.params.id as string;
     await DeleteAddressByIdService(addressId);
-    res.status(200).send({ message: "Delete Address successfully" });
+    res.status(200).json({ message: "Delete Address successfully" });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -77,10 +93,15 @@ export async function CreateAddressController(
 ) {
   try {
     const bodyData = req.body;
-    const {userId} = req.body
+    const { userId } = req.body;
     const address = await CreateAddressService(userId, bodyData);
-    res.status(200).send({ message: "Create Address successfully", data: address });
+    res
+      .status(201)
+      .json({ message: "Create Address successfully", data: address });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }

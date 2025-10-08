@@ -1,5 +1,6 @@
 import { getPublicIdFromUrl } from "../helper/fileUploadHelper";
 import { prisma } from "../lib/prisma";
+import { AppError } from "../utils/appError";
 import cloudinary from "../utils/cloudinary";
 
 export async function GetProductPhotosService(productId: string) {
@@ -7,9 +8,10 @@ export async function GetProductPhotosService(productId: string) {
     const photos = await prisma.productPhotos.findMany({
       where: { productId },
     });
+
     return photos;
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    throw new AppError("can not get photos", 500);
   }
 }
 
@@ -17,33 +19,31 @@ export async function SetDefaultProductPhotoService(
   photoId: string,
   isDefault: boolean
 ) {
-  try {
-    const photo = await prisma.productPhotos.findUnique({
-      where: {
-        id: photoId,
+  const photo = await prisma.productPhotos.findUnique({
+    where: {
+      id: photoId,
+    },
+  });
+
+  if (!photo) throw new AppError("Product photo not found", 404);
+
+  const newPhoto = await prisma.$transaction(async (tx) => {
+    await tx.productPhotos.updateMany({
+      data: { isDefault: false },
+    });
+
+    const updatedPhoto = await tx.productPhotos.update({
+      where: { id: photoId },
+      data: {
+        isDefault,
       },
     });
+    return updatedPhoto;
+  });
 
-    if (!photo) throw new Error("Product photo not found");
+  if (!newPhoto) throw new AppError("can not set address to default", 500);
 
-    const newPhoto = await prisma.$transaction(async (tx) => {
-      await tx.productPhotos.updateMany({
-        data: { isDefault: false },
-      });
-
-      const updatedPhoto = await tx.productPhotos.update({
-        where: { id: photoId },
-        data: {
-          isDefault,
-        },
-      });
-      return updatedPhoto;
-    });
-
-    return newPhoto;
-  } catch (error) {
-    throw error;
-  }
+  return newPhoto;
 }
 
 export async function UpdateProductPhotoService(
@@ -54,7 +54,7 @@ export async function UpdateProductPhotoService(
     const existingProductPhoto = await prisma.productPhotos.findUnique({
       where: { id: photoId },
     });
-    if (!existingProductPhoto) throw new Error("Product not found");
+    if (!existingProductPhoto) throw new AppError("Product not found", 404);
 
     let publicId = `products/product_${photoId}_${Date.now()}`; // Default for new images
 
@@ -82,8 +82,8 @@ export async function UpdateProductPhotoService(
     });
 
     return imageUrl;
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    throw new AppError("can not upload image", 500);
   }
 }
 
@@ -91,31 +91,29 @@ export async function AddProductPhotoService(
   fileUri: string,
   productId: string
 ) {
-  try {
-    const existingProduct = await prisma.products.findUnique({
-      where: { id: productId },
-    });
-    if (!existingProduct) throw new Error("Product not found");
+  const existingProduct = await prisma.products.findUnique({
+    where: { id: productId },
+  });
+  if (!existingProduct) throw new AppError("Product not found", 404);
 
-    let publicId = `products/product_${productId}_${Date.now()}`; // Default for new images
+  let publicId = `products/product_${productId}_${Date.now()}`; // Default for new images
 
-    // Upload the image to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(fileUri, {
-      public_id: publicId,
-      overwrite: true,
-      folder: "products",
-    });
+  // Upload the image to Cloudinary
+  const uploadResult = await cloudinary.uploader.upload(fileUri, {
+    public_id: publicId,
+    overwrite: true,
+    folder: "products",
+  });
 
-    const imageUrl = uploadResult.secure_url;
+  const imageUrl = uploadResult.secure_url;
 
-    const newPhoto = await prisma.productPhotos.create({
-      data: { imageUrl, productId, updatedAt: new Date() },
-    });
+  const newPhoto = await prisma.productPhotos.create({
+    data: { imageUrl, productId, updatedAt: new Date() },
+  });
 
-    return newPhoto;
-  } catch (err) {
-    throw err;
-  }
+  if (!newPhoto) throw new AppError("can not upload new photo", 500);
+
+  return newPhoto;
 }
 
 export async function DeleteProductPhotoService(photoId: string) {
@@ -124,7 +122,7 @@ export async function DeleteProductPhotoService(photoId: string) {
       where: { id: photoId },
     });
     return deletedPhoto;
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    throw new AppError("can not delete photo", 500);
   }
 }

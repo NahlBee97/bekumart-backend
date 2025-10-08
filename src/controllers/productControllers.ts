@@ -1,8 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import { INewProduct, IUpdateProduct } from "../interfaces/productInterface";
-import { CreateProductSchema, UpdateProductSchema } from "../schemas/productSchemas";
+import {
+  CreateProductSchema,
+  UpdateProductSchema,
+} from "../schemas/productSchemas";
 import { bufferToDataURI } from "../helper/fileUploadHelper";
-import { CreateProductService, DeleteProductService, GetProductByIdService, GetProductsService, UpdateProductService } from "../services/productServices";
+import {
+  CreateProductService,
+  DeleteProductService,
+  GetProductByIdService,
+  GetProductsService,
+  UpdateProductService,
+} from "../services/productServices";
+import { AppError } from "../utils/appError";
 
 export async function GetProductsController(
   req: Request,
@@ -11,9 +21,14 @@ export async function GetProductsController(
 ) {
   try {
     const products = await GetProductsService();
-    res.status(200).send({ message: "Products retrieved successfully", data: products });
-  } catch (err) {
-    next(err);
+    res
+      .status(200)
+      .json({ message: "Products retrieved successfully", data: products });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }
 
@@ -25,9 +40,14 @@ export async function GetProductsByIdController(
   try {
     const productId = req.params.id as string;
     const product = await GetProductByIdService(productId);
-    res.status(200).send({ message: "Product retrieved successfully", data: product });
-  } catch (err) {
-    next(err);
+    res
+      .status(200)
+      .json({ message: "Product retrieved successfully", data: product });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }
 
@@ -39,9 +59,14 @@ export async function CreateProductController(
   try {
     const productData: INewProduct = CreateProductSchema.parse(req.body);
     const newProduct = await CreateProductService(productData);
-    res.status(200).send({ message: "Product created successfully", data: newProduct });
-  } catch (err) {
-    next(err);
+    res
+      .status(201)
+      .json({ message: "Product created successfully", data: newProduct });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }
 
@@ -54,9 +79,14 @@ export async function UpdateProductController(
     const productId = req.params.id as string;
     const productData: IUpdateProduct = UpdateProductSchema.parse(req.body);
     const updatedProduct = await UpdateProductService(productId, productData);
-    res.status(200).send({ message: "Product updated successfully", data: updatedProduct });
-  } catch (err) {
-    next(err);
+    res
+      .status(200)
+      .json({ message: "Product updated successfully", data: updatedProduct });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }
 
@@ -68,8 +98,11 @@ export async function DeleteProductController(
   try {
     const productId = req.params.id as string;
     await DeleteProductService(productId);
-    res.status(200).send({ message: "Product deleted successfully" });
-  } catch (err) {
-    next(err);
+    res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }

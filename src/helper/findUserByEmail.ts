@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { AppError } from "../utils/appError";
 
 export async function FindUserByEmail(email: string) {
   try {
@@ -9,7 +10,7 @@ export async function FindUserByEmail(email: string) {
     });
 
     return user;
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    throw new AppError("can not get user", 500);
   }
 }

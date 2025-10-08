@@ -1,138 +1,99 @@
 import bcrypt, { genSaltSync, hash } from "bcryptjs";
 import { ILogin, IRegister } from "../interfaces/authInterfaces";
 import { prisma } from "../lib/prisma";
-import { FE_URL, JWT_SECRET } from "../config";
-import jwt, { JwtPayload, sign, verify } from "jsonwebtoken";
+import { JWT_SECRET } from "../config";
+import jwt, { JwtPayload, verify } from "jsonwebtoken";
 import { FindUserByEmail } from "../helper/findUserByEmail";
-import path from "path";
-import fs from "fs";
-import handlebars from "handlebars"
-import { Transporter } from "../utils/nodemailer";
+import { AppError } from "../utils/appError";
 
 export async function RegisterService(userData: IRegister) {
-  try {
-    const { name, email, password } = userData;
+  const { name, email, password } = userData;
 
-    const existingUser = await FindUserByEmail(email);
+  const existingUser = await FindUserByEmail(email);
 
-    if (existingUser) throw new Error("Email already registered");
+  if (existingUser) throw new AppError("Email already registered", 409);
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (!hashedPassword) throw new Error("Failed hashing password")
+  if (!hashedPassword) throw new AppError("Failed hashing password", 500);
 
-    const newUser = await prisma.$transaction(async (tx) => {
-      const createdUser = await tx.users.create({
-        data: {
-          name,
-          email,
-          password: hashedPassword,
-          updatedAt: new Date(),
-        },
-      });
-
-      if (!createdUser) throw new Error("Create new user failed");
-
-      const cart = await tx.carts.create({
-        data: { userId: createdUser.id },
-      });
-
-      if (!cart) throw new Error("Failed to create cart");
-
-      return createdUser;
+  const newUser = await prisma.$transaction(async (tx) => {
+    const createdUser = await tx.users.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        updatedAt: new Date(),
+      },
     });
 
-    return newUser;
-  } catch (err) {
-    throw err;
-  }
+    if (!createdUser) throw new AppError("Create new user failed", 500);
+
+    const cart = await tx.carts.create({
+      data: { userId: createdUser.id },
+    });
+
+    if (!cart) throw new AppError("Failed to create cart", 500);
+
+    return createdUser;
+  });
+
+  return newUser;
 }
 
 export async function LoginService(userData: ILogin) {
-  try {
-    const { email, password } = userData;
+  const { email, password } = userData;
 
-    const user = await FindUserByEmail(email);
+  const user = await FindUserByEmail(email);
 
-    if (!user) throw new Error("User not found");
+  if (!user) throw new AppError("User not found", 404);
 
-    const checkPass = await bcrypt.compare(password, user.password as string);
+  const checkPass = await bcrypt.compare(password, user.password as string);
 
-    if (!checkPass) throw new Error("Incorrect Password");
+  if (!checkPass) throw new AppError("Incorrect Password", 401);
 
-    const payload = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      isVerified: user.isVerified,
-      imageUrl: user.imageUrl,
-    };
+  const payload = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    isVerified: user.isVerified,
+    imageUrl: user.imageUrl,
+  };
 
-    const token = jwt.sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
+  const token = jwt.sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
 
-    if(!token) throw new Error ("Failed to generate token");
+  if (!token) throw new AppError("Failed to generate token", 500);
 
-    return token;
-  } catch (err) {
-    throw err;
-  }
-}
-
-export async function VerifyResetService(email: string) {
-  try {
-    const templatePath = path.join(
-      __dirname,
-      "../emails",
-      "verify-reset-template.hbs"
-    );
-
-    const payload = {
-      email,
-    };
-
-    const token = sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
-
-    const templateSource = fs.readFileSync(templatePath, "utf-8");
-    const compiledTemplate = handlebars.compile(templateSource);
-
-    const html = compiledTemplate({
-      email,
-      fe_url: `${FE_URL}/reset-password/${token}`,
-    });
-
-    await Transporter.sendMail({
-      from: "EOHelper",
-      to: email,
-      subject: "Reset Password",
-      html,
-    });
-  } catch (err) {
-    throw err;
-  }
+  return token;
 }
 
 export async function SetPasswordService(password: string, token: string) {
+  let email: string;
+
   try {
-    const { email } = verify(token, String(JWT_SECRET)) as JwtPayload;
+    const decoded = verify(token, String(JWT_SECRET)) as JwtPayload;
+    email = decoded.email;
+  } catch (error) {
+    throw new AppError("Invalid or expired token.", 401);
+  }
 
-    const user = await FindUserByEmail(email);
+  const user = await FindUserByEmail(email);
+  if (!user) throw new AppError("User not found.", 404);
 
-    if (!user) throw new Error("User does not exist");
-
+  try {
     const salt = genSaltSync(10);
     const hashedPassword = await hash(password, salt);
-
     await prisma.users.update({
       where: {
-        email,
+        id: user.id
       },
       data: {
-        password: hashedPassword,
-      },
+        password: hashedPassword
+      }
     });
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    throw new AppError("Could not update password.", 500);
   }
 }

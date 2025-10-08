@@ -1,5 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { CreateOrderService, GetAllOrderService, GetOrderItemsByOrderIdService, GetUserOrdersService, UpdateOrderStatusService } from "../services/orderServices";
+import {
+  CreateOrderService,
+  GetAllOrderService,
+  GetOrderItemsByOrderIdService,
+  GetUserOrdersService,
+  UpdateOrderStatusService,
+} from "../services/orderServices";
+import { AppError } from "../utils/appError";
 
 export async function CreateOrderController(
   req: Request,
@@ -7,12 +14,23 @@ export async function CreateOrderController(
   next: NextFunction
 ) {
   try {
-    const { userId, fullfillmentType, addressId, totalCheckoutPrice } = req.body;
+    const { userId, fullfillmentType, addressId, totalCheckoutPrice } =
+      req.body;
 
-    const newOrderData = await CreateOrderService(userId, fullfillmentType, addressId, totalCheckoutPrice);
+    const newOrderData = await CreateOrderService(
+      userId,
+      fullfillmentType,
+      addressId,
+      totalCheckoutPrice
+    );
 
-    res.status(200).send({ message: "Order created successfully", order: newOrderData });
+    res
+      .status(201)
+      .json({ message: "Order created successfully", order: newOrderData });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -28,8 +46,16 @@ export async function UpdateOrderStatusController(
 
     const updatedOrder = await UpdateOrderStatusService(id, status);
 
-    res.status(200).send({ message: "Order status updated successfully", order: updatedOrder });
+    res
+      .status(200)
+      .json({
+        message: "Order status updated successfully",
+        order: updatedOrder,
+      });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -39,13 +65,18 @@ export async function GetOrderItemsByOrderIdController(
   res: Response,
   next: NextFunction
 ) {
-try {
+  try {
     const orderId = req.params.orderId as string;
 
     const orderItems = await GetOrderItemsByOrderIdService(orderId);
 
-    res.status(200).send({ message: "Order items retrives successfully", data: orderItems });
+    res
+      .status(200)
+      .json({ message: "Order items retrives successfully", data: orderItems });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -62,8 +93,11 @@ export async function GetUserOrdersController(
 
     res
       .status(200)
-      .send({ message: "Get user orders successfully", data: orders });
+      .json({ message: "Get user orders successfully", data: orders });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }
@@ -78,8 +112,11 @@ export async function GetAllOrderController(
 
     res
       .status(200)
-      .send({ message: "Get all orders successfully", data: orders });
+      .json({ message: "Get all orders successfully", data: orders });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 }

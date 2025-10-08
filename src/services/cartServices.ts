@@ -1,49 +1,44 @@
 import { prisma } from "../lib/prisma";
+import { AppError } from "../utils/appError";
 
 export async function GetUserCartService(userId: string) {
-  try {
-    const cart = await prisma.carts.findFirst({
-      where: { userId },
-      include: {
-        items: {
-          // You might want to include product details here as well
-          include: {
-            product: {
-              include: {
-                productPhotos: true,
-              },
+  const cart = await prisma.carts.findFirst({
+    where: { userId },
+    include: {
+      items: {
+        // You might want to include product details here as well
+        include: {
+          product: {
+            include: {
+              productPhotos: true,
             },
           },
         },
       },
-    });
+    },
+  });
 
-    if (!cart) {
-      throw new Error("Cart not found for user");
-    }
-
-    // Calculate total quantity and price using reduce
-    const totals = cart.items.reduce(
-      (acc, item) => {
-        acc.totalQuantity += item.quantity;
-        acc.totalWeight += item.quantity * item.product.weightInKg; // Assuming product has a weight field
-        // Ensure you have the price on the cart item or product relation
-        acc.totalPrice += item.quantity * item.product.price;
-        return acc;
-      },
-      { totalQuantity: 0, totalPrice: 0, totalWeight: 0 } // Initial values
-    );
-
-    // Return the original cart data along with the calculated totals
-    return {
-      ...cart,
-      totalQuantity: totals.totalQuantity,
-      totalWeight: totals.totalWeight,
-      totalPrice: totals.totalPrice,
-    };
-  } catch (err) {
-    throw err;
+  if (!cart) {
+    throw new AppError("Cart not found for user", 404);
   }
+
+  // Calculate total quantity and price using reduce
+  const totals = cart.items.reduce(
+    (acc, item) => {
+      acc.totalQuantity += item.quantity;
+      acc.totalWeight += item.quantity * item.product.weightInKg;
+      acc.totalPrice += item.quantity * item.product.price;
+      return acc;
+    },
+    { totalQuantity: 0, totalPrice: 0, totalWeight: 0 }
+  );
+
+  return {
+    ...cart,
+    totalQuantity: totals.totalQuantity,
+    totalWeight: totals.totalWeight,
+    totalPrice: totals.totalPrice,
+  };
 }
 
 export async function AddItemToCartService(
@@ -52,37 +47,61 @@ export async function AddItemToCartService(
   quantity: number
 ) {
   try {
-    // Find the user's cart
-    const cart = await prisma.carts.findFirst({
-      where: { userId },
-      include: { items: true }, // Include items in the cart
-    });
-    if (!cart) throw new Error("Cart not found for user");
-
-    // Check if the item already exists in the cart
-    const existingItem = cart.items.find(
-      (item) => item.productId === productId
-    );
-
-    if (existingItem) {
-      // If it exists, update the quantity
-      await prisma.cartItems.update({
-        where: { id: existingItem.id },
-        data: { quantity: existingItem.quantity + quantity },
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Verify product availability
+      const product = await tx.products.findUnique({
+        where: { id: productId },
+        select: { id: true, stock: true },
       });
-    } else {
-      const newItem = await prisma.cartItems.create({
-        data: {
-          cartId: cart.id,
-          productId,
-          quantity,
+
+      if (!product) throw new AppError("Product not found.", 404);
+      if (product.stock < quantity)
+        throw new AppError("Insufficient stock.", 400);
+
+      // 2. Get or create cart
+      const cart = await tx.carts.findFirst({
+        where: { userId },
+        include: { items: true },
+      });
+
+      if(!cart) throw new AppError("Cart not found", 404);
+
+      // 3. Upsert cart item
+      const existingItem = await tx.cartItems.findFirst({
+        where: { cartId: cart.id, productId },
+      });
+
+      if (existingItem) {
+        await tx.cartItems.update({
+          where: { id: existingItem.id },
+          data: { quantity: existingItem.quantity + quantity },
+        });
+      } else {
+        await tx.cartItems.create({
+          data: { cartId: cart.id, productId, quantity },
+        });
+      }
+
+      // 4. Return updated cart
+      return await tx.carts.findUnique({
+        where: { id: cart.id },
+        include: {
+          items: {
+            include: {
+              product: {
+                // Include product details if needed
+                select: { name: true, price: true, productPhotos: true },
+              },
+            },
+          },
         },
       });
+    });
 
-      return { ...cart, items: [...cart.items, newItem] };
-    }
-  } catch (err) {
-    throw err;
+    return result;
+  } catch (error) {
+    console.error("Error in AddItemToCartService:", error);
+    throw new AppError("Could not add item to cart.", 500);
   }
 }
 
@@ -97,15 +116,15 @@ export async function UpdateItemInCartService(
     });
     if (!cartItem) throw new Error("Item not found in cart");
 
-    // Update the item quantity
     const updatedItem = await prisma.cartItems.update({
       where: { id: cartItem.id },
       data: { quantity },
     });
 
     return updatedItem;
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    console.error("Can not update item in cart:", error);
+    throw new AppError("Could not update item cart.", 500);
   }
 }
 
@@ -121,7 +140,8 @@ export async function DeleteItemInCartService(itemId: string) {
     await prisma.cartItems.delete({
       where: { id: cartItem.id },
     });
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    console.error("Can not delete item in cart:", error);
+    throw new AppError("Could not delete item to cart.", 500);
   }
 }

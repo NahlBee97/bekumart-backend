@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { GetAllProvincesService } from "../services/provinceServices";
+import { AppError } from "../utils/appError";
 
 export async function GetAllProvincesController(
   req: Request,
@@ -9,11 +10,14 @@ export async function GetAllProvincesController(
   try {
     const provinces = await GetAllProvincesService();
 
-    res.status(200).send({
+    res.status(200).json({
       message: `Get all provinces success`,
       data: provinces,
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }
