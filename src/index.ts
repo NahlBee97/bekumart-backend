@@ -57,8 +57,8 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ message: "Internal Server Error" });
 });
 
-// app.listen(PORT, () => {
-//   console.log(`Backend server is running on http://localhost:${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`Backend server is running on http://localhost:${PORT}`);
+});
 
-export default app;
+// export default app;

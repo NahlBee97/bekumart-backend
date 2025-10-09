@@ -64,7 +64,7 @@ export async function GetUserInfoService(userId: string) {
 
   if (!token) throw new AppError("fail to generate token", 500);
 
-  return token;
+  return { user: payload, token };
 }
 
 export async function EditUserInfoService(

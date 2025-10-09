@@ -1,16 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { JsonWebTokenError, JwtPayload, TokenExpiredError, verify } from "jsonwebtoken";
-import { IUserReqParam } from "../custom.js";
+import { IUserReqParam } from "../custom";
 import { JWT_SECRET } from "../config";
-
-// Custom error class to handle HTTP status codes
-class AppError extends Error {
-  statusCode: number;
-  constructor(message: string, statusCode: number) {
-    super(message);
-    this.statusCode = statusCode;
-  }
-}
+import { AppError } from "../utils/appError";
 
 export async function VerifyToken(
   req: Request,

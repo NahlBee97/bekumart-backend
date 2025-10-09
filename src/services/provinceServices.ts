@@ -18,7 +18,6 @@ export async function fetchProvince() {
     try {
       cachedValue = await redis.get("provinces");
       if (cachedValue) {
-        console.log("Cache hit for provinces");
         return JSON.parse(cachedValue);
       }
     } catch (error) {

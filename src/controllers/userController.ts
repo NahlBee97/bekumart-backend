@@ -44,11 +44,11 @@ export async function GetUserInfoController(
   try {
     const userId = req.params.id as string;
 
-    const token = await GetUserInfoService(userId);
+    const user = await GetUserInfoService(userId);
 
     res.status(200).json({
       message: "Get user successfully",
-      data: token,
+      data: user,
     });
   } catch (error) {
     if (error instanceof AppError) {

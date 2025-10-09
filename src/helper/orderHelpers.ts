@@ -1,7 +1,8 @@
-import { FulfillmentTypes } from "@prisma/client";
+import { FulfillmentTypes, PaymentMethod } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../utils/appError";
 import { snap } from "../utils/midtrans";
+import { IOrderItem } from "../interfaces/orderInterfaces";
 
 export async function validateCartItems(items: any[], expectedTotal: number) {
   let calculatedTotal = 0;
@@ -38,14 +39,6 @@ export async function validateCartItems(items: any[], expectedTotal: number) {
 
     calculatedTotal += product.price * item.quantity;
   }
-
-  // Validate total price matches
-  if (Math.ceil(calculatedTotal) !== Math.ceil(expectedTotal)) {
-    throw new AppError(
-      `Cart total mismatch. Expected: ${expectedTotal}, Calculated: ${calculatedTotal}`,
-      400
-    );
-  }
 }
 
 export async function createPaymentTransaction(order: any, userId: string) {
@@ -66,7 +59,7 @@ export async function createPaymentTransaction(order: any, userId: string) {
     customer_details: {
       first_name: user.name,
       email: user.email,
-    }
+    },
   };
 
   const transaction = await snap.createTransaction(parameter);
@@ -77,20 +70,21 @@ export async function createPaymentTransaction(order: any, userId: string) {
 
   return {
     paymentToken: transaction.token,
-    transaction,
-  };
+  }
 }
 
 export async function createOrderTransaction({
   userId,
   cart,
   fulfillmentType,
+  paymentMethod,
   addressId,
   totalCheckoutPrice,
 }: {
   userId: string;
   cart: any;
   fulfillmentType: FulfillmentTypes;
+  paymentMethod: PaymentMethod
   addressId: string;
   totalCheckoutPrice: number;
 }) {
@@ -102,19 +96,18 @@ export async function createOrderTransaction({
         totalAmount: totalCheckoutPrice,
         totalWeight: cart.totalWeight,
         fulfillmentType,
-        paymentMethod: fulfillmentType === "DELIVERY" ? "ONLINE" : "INSTORE",
+        paymentMethod,
         addressId,
         status: "PENDING",
       },
     });
 
     // 2. Create order items
-    const orderItemsData = cart.items.map((item: any) => ({
+    const orderItemsData = cart.items.map((item: IOrderItem) => ({
       orderId: order.id,
       productId: item.productId,
       quantity: item.quantity,
       priceAtPurchase: item.product.price,
-      productName: item.product.name, // Store product name for history
     }));
 
     await tx.orderItems.createMany({

@@ -1,4 +1,4 @@
-import { FulfillmentTypes, OrderStatuses } from "@prisma/client";
+import { FulfillmentTypes, OrderStatuses, PaymentMethod } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { GetUserCartService } from "./cartServices";
 import { sendOrderStatusUpdateEmail } from "../helper/emailSender";
@@ -12,8 +12,9 @@ import {
 export async function CreateOrderService(
   userId: string,
   fulfillmentType: FulfillmentTypes,
+  paymentMethod: PaymentMethod,
   addressId: string,
-  totalCheckoutPrice: number,
+  totalCheckoutPrice: number
 ) {
   try {
     const cart = await GetUserCartService(userId);
@@ -42,22 +43,27 @@ export async function CreateOrderService(
       userId,
       cart,
       fulfillmentType,
+      paymentMethod,
       addressId,
       totalCheckoutPrice: Math.ceil(totalCheckoutPrice),
     });
 
     // Step 5: Create payment transaction
-    const { paymentToken, transaction } = await createPaymentTransaction(
-      newOrder,
-      userId
-    );
+    if (
+      (fulfillmentType === "DELIVERY" || fulfillmentType === "PICKUP") &&
+      paymentMethod === "ONLINE"
+    ) {
+      const { paymentToken } = await createPaymentTransaction(
+        newOrder,
+        userId
+      );
+      return {
+        newOrder,
+        paymentToken,
+      };
+    }
 
-    console.log("Midtrans transaction created:", transaction);
-
-    return {
-      order: newOrder,
-      paymentToken,
-    };
+    return { newOrder };
   } catch (error) {
     console.error("Error in CreateOrderService:", error);
     throw new AppError("Could not create order", 500);
