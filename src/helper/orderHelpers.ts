@@ -70,7 +70,7 @@ export async function createPaymentTransaction(order: any, userId: string) {
 
   return {
     paymentToken: transaction.token,
-  }
+  };
 }
 
 export async function createOrderTransaction({
@@ -84,7 +84,7 @@ export async function createOrderTransaction({
   userId: string;
   cart: any;
   fulfillmentType: FulfillmentTypes;
-  paymentMethod: PaymentMethod
+  paymentMethod: PaymentMethod;
   addressId: string;
   totalCheckoutPrice: number;
 }) {
@@ -119,6 +119,9 @@ export async function createOrderTransaction({
       const updatedProduct = await tx.products.update({
         where: { id: item.productId },
         data: {
+          sale: {
+            increment: item.quantity,
+          },
           stock: {
             decrement: item.quantity,
           },
