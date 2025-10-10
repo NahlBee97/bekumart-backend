@@ -1,9 +1,7 @@
 import bcrypt from "bcryptjs";
-import { JWT_SECRET } from "../config";
 import { getPublicIdFromUrl } from "../helper/fileUploadHelper";
 import { prisma } from "../lib/prisma";
 import cloudinary from "../utils/cloudinary";
-import { sign } from "jsonwebtoken";
 import { AppError } from "../utils/appError";
 
 export async function UploadProfileService(userId: string, fileUri: string) {
@@ -60,11 +58,7 @@ export async function GetUserInfoService(userId: string) {
     imageUrl: user.imageUrl,
   };
 
-  const token = sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
-
-  if (!token) throw new AppError("fail to generate token", 500);
-
-  return { user: payload, token };
+  return payload;
 }
 
 export async function EditUserInfoService(

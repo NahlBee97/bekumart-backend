@@ -1,10 +1,10 @@
 import bcrypt, { genSaltSync, hash } from "bcryptjs";
 import { ILogin, IRegister } from "../interfaces/authInterfaces";
 import { prisma } from "../lib/prisma";
-import { JWT_SECRET } from "../config";
 import jwt, { JwtPayload, verify } from "jsonwebtoken";
 import { FindUserByEmail } from "../helper/findUserByEmail";
 import { AppError } from "../utils/appError";
+import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from "../config";
 
 export async function RegisterService(userData: IRegister) {
   const { name, email, password } = userData;
@@ -53,7 +53,7 @@ export async function LoginService(userData: ILogin) {
 
   if (!checkPass) throw new AppError("Incorrect Password", 401);
 
-  const payload = {
+  const accessPayload = {
     id: user.id,
     email: user.email,
     name: user.name,
@@ -61,19 +61,25 @@ export async function LoginService(userData: ILogin) {
     isVerified: user.isVerified,
     imageUrl: user.imageUrl,
   };
+  
+  const refreshPayload = {
+    id: user.id,
+    role: user.role,
+  };
 
-  const token = jwt.sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
+  const accessToken = jwt.sign(accessPayload, String(JWT_ACCESS_SECRET), { expiresIn: "15m" });
+  const refreshToken = jwt.sign(refreshPayload, String(JWT_REFRESH_SECRET), { expiresIn: "7d" });
 
-  if (!token) throw new AppError("Failed to generate token", 500);
+  if (!accessToken && !refreshToken) throw new AppError("Failed to generate token", 500);
 
-  return token;
+  return { accessToken, refreshToken };
 }
 
 export async function SetPasswordService(password: string, token: string) {
   let email: string;
 
   try {
-    const decoded = verify(token, String(JWT_SECRET)) as JwtPayload;
+    const decoded = verify(token, String(JWT_ACCESS_SECRET)) as JwtPayload;
     email = decoded.email;
   } catch (error) {
     throw new AppError("Invalid or expired token.", 401);
@@ -96,4 +102,37 @@ export async function SetPasswordService(password: string, token: string) {
   } catch (error) {
     throw new AppError("Could not update password.", 500);
   }
+}
+
+export async function RefreshTokenService(refreshToken: string) {
+  const decoded = verify(refreshToken, String(JWT_REFRESH_SECRET)) as JwtPayload;
+
+  const userId = decoded.id;
+  console.log(userId);
+
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId
+    }
+  })
+
+  if (!user) throw new AppError("User not found", 404);
+
+  const accessPayload = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    isVerified: user.isVerified,
+    imageUrl: user.imageUrl,
+  };
+
+  const accessToken = jwt.sign(accessPayload, String(JWT_ACCESS_SECRET), {
+    expiresIn: "15m",
+  });
+
+  if (!accessToken)
+    throw new AppError("Failed to generate token", 500);
+
+  return accessToken;
 }

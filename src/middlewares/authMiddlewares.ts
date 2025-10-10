@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { JsonWebTokenError, JwtPayload, TokenExpiredError, verify } from "jsonwebtoken";
 import { IUserReqParam } from "../custom";
-import { JWT_SECRET } from "../config";
 import { AppError } from "../utils/appError";
+import { JWT_ACCESS_SECRET } from "../config";
 
 export async function VerifyToken(
   req: Request,
@@ -16,7 +16,7 @@ export async function VerifyToken(
       throw new AppError("Unauthorized: No token provided", 401);
     }
 
-    const decodedPayload = verify(token, String(JWT_SECRET)) as JwtPayload;
+    const decodedPayload = verify(token, String(JWT_ACCESS_SECRET)) as JwtPayload;
 
     if (!decodedPayload.id || !decodedPayload.role) {
       throw new AppError("Invalid token: Payload missing required fields", 401);

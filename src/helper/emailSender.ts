@@ -3,7 +3,7 @@ import fs from "fs";
 import handlebars from "handlebars";
 import { Transporter } from "../utils/nodemailer";
 import { IOrder } from "../interfaces/orderInterfaces";
-import { FE_URL, JWT_SECRET } from "../config";
+import { FE_URL, JWT_ACCESS_SECRET } from "../config";
 import { sign } from "jsonwebtoken";
 import { AppError } from "../utils/appError";
 
@@ -50,7 +50,7 @@ export async function VerifyResetPasswordEmail(email: string) {
     );
 
     const payload = { email };
-    const token = sign(payload, String(JWT_SECRET), { expiresIn: "1h" });
+    const token = sign(payload, String(JWT_ACCESS_SECRET), { expiresIn: "1h" });
 
     const templateSource = fs.readFileSync(templatePath, "utf-8");
     const compiledTemplate = handlebars.compile(templateSource);

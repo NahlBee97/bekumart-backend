@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { RegisterSchema, LoginSchema } from "../schemas/authSchemas";
 import {
   LoginService,
+  RefreshTokenService,
   RegisterService,
   SetPasswordService,
 } from "../services/authServices";
@@ -38,9 +39,9 @@ export async function LoginController(
   try {
     const userData: ILogin = LoginSchema.parse(req.body);
 
-    const user = await LoginService(userData);
+    const tokens = await LoginService(userData);
 
-    res.status(200).json({ message: `Login successfully`, data: user });
+    res.status(200).json({ message: `Login successfully`, tokens });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -75,6 +76,28 @@ export async function SetPasswordController(
     const { password, token } = req.body;
     await SetPasswordService(password, token);
     res.status(200).json({ message: `Set password success` });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+}
+
+export async function RefreshTokenController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const refreshToken = req.cookies.token as string;
+
+    const accessToken = await RefreshTokenService(refreshToken);
+
+    res.status(200).json({
+      message: "Update user password successfully",
+      accessToken,
+    });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { FE_URL, PORT } from "./config";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -29,7 +30,9 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json()); // Allows server to accept JSON data
+app.use(express.json());
+
+app.use(cookieParser());
 
 // --- Routes ---
 app.get('/', (req: Request, res: Response) => {

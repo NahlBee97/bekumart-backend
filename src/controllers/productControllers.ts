@@ -4,7 +4,6 @@ import {
   CreateProductSchema,
   UpdateProductSchema,
 } from "../schemas/productSchemas";
-import { bufferToDataURI } from "../helper/fileUploadHelper";
 import {
   CreateProductService,
   DeleteProductService,

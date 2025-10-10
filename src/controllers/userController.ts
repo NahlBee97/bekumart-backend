@@ -48,7 +48,7 @@ export async function GetUserInfoController(
 
     res.status(200).json({
       message: "Get user successfully",
-      data: user,
+      user,
     });
   } catch (error) {
     if (error instanceof AppError) {
