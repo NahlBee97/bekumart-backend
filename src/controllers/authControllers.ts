@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { RegisterSchema, LoginSchema } from "../schemas/authSchemas";
 import {
   LoginService,
+  LogOutService,
   RefreshTokenService,
   RegisterService,
   SetPasswordService,
@@ -42,6 +43,25 @@ export async function LoginController(
     const tokens = await LoginService(userData);
 
     res.status(200).json({ message: `Login successfully`, tokens });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+}
+
+export async function LogOutController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const refreshToken = req.cookies.token as string;
+
+    await LogOutService(refreshToken);
+
+    res.status(200).json({ message: `Log out successfully` });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

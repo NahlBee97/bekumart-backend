@@ -61,18 +61,44 @@ export async function LoginService(userData: ILogin) {
     isVerified: user.isVerified,
     imageUrl: user.imageUrl,
   };
-  
+
   const refreshPayload = {
     id: user.id,
     role: user.role,
   };
 
-  const accessToken = jwt.sign(accessPayload, String(JWT_ACCESS_SECRET), { expiresIn: "15m" });
-  const refreshToken = jwt.sign(refreshPayload, String(JWT_REFRESH_SECRET), { expiresIn: "7d" });
+  const accessToken = jwt.sign(accessPayload, String(JWT_ACCESS_SECRET), {
+    expiresIn: "15m",
+  });
+  const refreshToken = jwt.sign(refreshPayload, String(JWT_REFRESH_SECRET), {
+    expiresIn: "7d",
+  });
 
-  if (!accessToken && !refreshToken) throw new AppError("Failed to generate token", 500);
+  await prisma.tokens.updateMany({
+    where: { userId: user.id },
+    data: { isValid: false },
+  });
+
+  await prisma.tokens.create({
+    data: {
+      userId: user.id,
+      token: refreshToken,
+      updatedAt: new Date(),
+    },
+  });
+
+
+  if (!accessToken && !refreshToken)
+    throw new AppError("Failed to generate token", 500);
 
   return { accessToken, refreshToken };
+}
+
+export async function LogOutService(refreshToken: string) {
+  await prisma.tokens.update({
+    where: { token: refreshToken },
+    data: { isValid: false },
+  });
 }
 
 export async function SetPasswordService(password: string, token: string) {
@@ -93,11 +119,11 @@ export async function SetPasswordService(password: string, token: string) {
     const hashedPassword = await hash(password, salt);
     await prisma.users.update({
       where: {
-        id: user.id
+        id: user.id,
       },
       data: {
-        password: hashedPassword
-      }
+        password: hashedPassword,
+      },
     });
   } catch (error) {
     throw new AppError("Could not update password.", 500);
@@ -105,16 +131,26 @@ export async function SetPasswordService(password: string, token: string) {
 }
 
 export async function RefreshTokenService(refreshToken: string) {
-  const decoded = verify(refreshToken, String(JWT_REFRESH_SECRET)) as JwtPayload;
+  const authToken = await prisma.tokens.findUnique({
+    where: { token: refreshToken },
+  });
+
+  if (authToken?.isValid === false)
+    throw new AppError("The refresh token is invalid", 401);
+
+  const decoded = verify(
+    refreshToken,
+    String(JWT_REFRESH_SECRET)
+  ) as JwtPayload;
 
   const userId = decoded.id;
   console.log(userId);
 
   const user = await prisma.users.findUnique({
     where: {
-      id: userId
-    }
-  })
+      id: userId,
+    },
+  });
 
   if (!user) throw new AppError("User not found", 404);
 
@@ -131,8 +167,7 @@ export async function RefreshTokenService(refreshToken: string) {
     expiresIn: "15m",
   });
 
-  if (!accessToken)
-    throw new AppError("Failed to generate token", 500);
+  if (!accessToken) throw new AppError("Failed to generate token", 500);
 
   return accessToken;
 }

@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,7 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-
 // ENUMS for predefined choices
 enum UserRoles {
   CUSTOMER
@@ -17,8 +15,8 @@ enum UserRoles {
 }
 
 enum OrderStatuses {
-  PENDING      // Order placed, awaiting payment/processing
-  PROCESSING   // Payment received, being prepared
+  PENDING // Order placed, awaiting payment/processing
+  PROCESSING // Payment received, being prepared
   READY_FOR_PICKUP
   OUT_FOR_DELIVERY
   COMPLETED
@@ -37,83 +35,84 @@ enum PaymentMethod {
 
 // MODELS for database tables
 model Users {
+  id         String      @id @default(cuid())
+  email      String      @unique
+  name       String
+  password   String // Will be a hashed password
+  imageUrl   String? // Nullable, optional profile picture
+  isVerified Boolean     @default(false)
+  role       UserRoles   @default(CUSTOMER)
+  orders     Orders[]
+  addresses  Addresses[]
+  cart       Carts?
+  tokens     tokens[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Addresses {
+  id          String   @id @default(cuid())
+  receiver    String
+  userId      String
+  user        Users    @relation(fields: [userId], references: [id])
+  street      String
+  subdistrict String
+  district    String
+  city        String
+  province    String
+  postalCode  String
+  phone       String
+  latitude    Float?
+  longitude   Float?
+  isDefault   Boolean  @default(false)
+  orders      Orders[]
+}
+
+model Products {
+  id            String          @id @default(cuid())
+  name          String          @unique
+  description   String
+  price         Float // Store price in the smallest currency unit (e.g., Rupiah) as an Integer in production
+  stock         Int
+  weightInKg    Float // Crucial for delivery calculation
+  categoryId    String
+  sale          Int?
+  rating        Float? // Average rating, nullable if no ratings yet
+  category      Categories      @relation(fields: [categoryId], references: [id])
+  orderItems    OrderItems[]
+  cartItems     CartItems[]
+  productPhotos ProductPhotos[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model ProductPhotos {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String   // Will be a hashed password
-  imageUrl  String?  // Nullable, optional profile picture
-  isVerified Boolean  @default(false)
-  role      UserRoles @default(CUSTOMER)
-  orders    Orders[]
-  addresses Addresses[]
-  cart      Carts?
+  productId String
+  product   Products @relation(fields: [productId], references: [id])
+  imageUrl  String
+  isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Addresses {
-  id         String  @id @default(cuid())
-  receiver String
-  userId     String
-  user       Users    @relation(fields: [userId], references: [id])
-  street     String
-  subdistrict   String
-  district   String
-  city       String
-  province  String
-  postalCode String
-  phone     String
-  latitude   Float?
-  longitude  Float?
-  isDefault  Boolean @default(false)
-  orders     Orders[]
-}
-
-model Products {
-  id          String       @id @default(cuid())
-  name        String      @unique
-  description String
-  price       Float        // Store price in the smallest currency unit (e.g., Rupiah) as an Integer in production
-  stock       Int
-  weightInKg  Float        // Crucial for delivery calculation
-  categoryId  String
-  sale  Int?
-  rating      Float?      // Average rating, nullable if no ratings yet
-  category    Categories     @relation(fields: [categoryId], references: [id])
-  orderItems  OrderItems[]
-  cartItems  CartItems[]
-  productPhotos ProductPhotos[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
-model ProductPhotos {
-  id          String       @id @default(cuid())
-  productId     String
-  product       Products    @relation(fields: [productId], references: [id])
-  imageUrl String
-  isDefault  Boolean @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
 model Categories {
-  id       String    @id @default(cuid())
-  name     String    @unique
+  id       String     @id @default(cuid())
+  name     String     @unique
   products Products[]
 }
 
 model Carts {
-  id        String     @id @default(cuid())
-  userId    String     @unique // Each user has one cart
+  id        String      @id @default(cuid())
+  userId    String      @unique // Each user has one cart
   user      Users       @relation(fields: [userId], references: [id])
   items     CartItems[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 model CartItems {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   cartId    String
   cart      Carts    @relation(fields: [cartId], references: [id])
   productId String
@@ -124,27 +123,37 @@ model CartItems {
 }
 
 model Orders {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   userId          String
   user            Users            @relation(fields: [userId], references: [id])
   items           OrderItems[]
-  totalAmount     Float           
-  totalWeight    Float           @default(0) // Total weight of the order in kg
-  status          OrderStatuses     @default(PENDING)
+  totalAmount     Float
+  totalWeight     Float            @default(0) // Total weight of the order in kg
+  status          OrderStatuses    @default(PENDING)
   fulfillmentType FulfillmentTypes
   paymentMethod   PaymentMethod
-  addressId      String?         // Nullable, only for delivery orders
-  address        Addresses?      @relation(fields: [addressId], references: [id])
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  addressId       String? // Nullable, only for delivery orders
+  address         Addresses?       @relation(fields: [addressId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 model OrderItems {
-  id             String  @id @default(cuid())
-  orderId        String
-  order          Orders   @relation(fields: [orderId], references: [id])
-  productId      String
-  product        Products @relation(fields: [productId], references: [id])
-  quantity       Int
-  priceAtPurchase Float  // Price of the product at the time of order
-}        
+  id              String   @id @default(cuid())
+  orderId         String
+  order           Orders   @relation(fields: [orderId], references: [id])
+  productId       String
+  product         Products @relation(fields: [productId], references: [id])
+  quantity        Int
+  priceAtPurchase Float // Price of the product at the time of order
+}
+
+model tokens {
+  id        String   @id @default(cuid())
+  userId    String
+  user      Users    @relation(fields: [userId], references: [id])
+  token     String   @unique
+  isValid   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
