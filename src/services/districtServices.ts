@@ -46,7 +46,7 @@ export async function fetchDistrictsByCity(province: string, city: string) {
         const cacheKey = `${city.toLowerCase().trim()}_cities`;
         await redis.setex(
           cacheKey,
-          3600, // 1 hour TTL
+          259200,
           JSON.stringify(districts)
         );
         console.log(`Cached ${districts.length} districts for ${city}`);

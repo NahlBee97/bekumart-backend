@@ -39,7 +39,7 @@ export async function GetSubDistrictsByDistrictService(
          const cacheKey = `${city.toLowerCase().trim()}_cities`;
          await redis.setex(
            cacheKey,
-           3600, // 1 hour TTL
+           259200,
            JSON.stringify(subDistricts)
          );
          console.log(`Cached ${subDistricts.length} subdistricts for ${city}`);

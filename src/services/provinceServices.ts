@@ -4,14 +4,6 @@ import { redis } from "../lib/redis";
 import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
 import { AppError } from "../utils/appError";
 
-// Configuration
-const CACHE_CONFIG = {
-  TTL: 3600, // 1 hour
-  RETRY_ATTEMPTS: 3,
-  RETRY_DELAY: 1000, // 1 second
-  TIMEOUT: 10000, // 10 seconds
-};
-
 export async function fetchProvince() {
   try {
     let cachedValue;
@@ -31,7 +23,6 @@ export async function fetchProvince() {
           accept: "application/json",
           key: RAJAONGKIR_API_KEY,
         },
-        timeout: CACHE_CONFIG.TIMEOUT,
       }
     );
 
@@ -40,8 +31,7 @@ export async function fetchProvince() {
 
     if (provinces.length > 0) {
       try {
-        await redis.setex("provinces", 3600, JSON.stringify(provinces));
-        console.log(`Cached ${provinces.length} provinces`);
+        await redis.setex("provinces", 259200, JSON.stringify(provinces));
       } catch (error) {
         console.warn("Failed to cache provinces:", error);
       }
