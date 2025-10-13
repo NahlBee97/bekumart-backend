@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 
-export default async function SalesSummaryService() {
+export async function SalesSummaryService() {
     const salesData = await prisma.orders.aggregate({
       _sum: { totalAmount: true },
       _count: { id: true },
@@ -36,4 +36,66 @@ export default async function SalesSummaryService() {
     }));
 
     return { totalRevenue, totalOrders, averageOrderValue, chartData };
+}
+
+export async function ProductInsightsService() {
+  const bestSellersData = await prisma.orderItems.groupBy({
+    by: ["productId"],
+    _sum: { quantity: true },
+    orderBy: { _sum: { quantity: "desc" } },
+    take: 5,
+  });
+  const productDetails = await prisma.products.findMany({
+    where: { id: { in: bestSellersData.map((p) => p.productId) } },
+    select: { id: true, name: true },
+  });
+  const bestSellers = bestSellersData.map((item) => ({
+    name:
+      productDetails.find((p) => p.id === item.productId)?.name || "Unknown",
+    quantitySold: item._sum.quantity,
+  }));
+
+  // Low stock products
+  const lowStockProducts = await prisma.products.findMany({
+    where: { stock: { lt: 10 } },
+    orderBy: { stock: "asc" },
+    select: { name: true, stock: true },
+    take: 5,
+  });
+
+  return ({ bestSellers, lowStockProducts });
+}
+
+export async function CustomerInsightsService() {
+  const totalUsers = await prisma.users.count({ where: { role: "CUSTOMER" } });
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const newUsers = await prisma.users.count({
+    where: { role: "CUSTOMER", createdAt: { gte: thirtyDaysAgo } },
+  });
+
+  return ({ totalUsers, newUsers });
+}
+
+export async function OperationalSummaryService() {
+  // Order status breakdown
+  const statusCounts = await prisma.orders.groupBy({
+    by: ["status"],
+    _count: { status: true },
+  });
+
+  // Recent orders
+  const recentOrders = await prisma.orders.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      totalAmount: true,
+      status: true,
+      user: { select: { name: true } },
+    },
+  });
+
+  return ({ statusCounts, recentOrders });
 }
