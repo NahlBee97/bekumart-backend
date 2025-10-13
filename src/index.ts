@@ -22,6 +22,7 @@ import DistrictRouter from "./routes/districtRoutes";
 import SubDistrictRouter from "./routes/subDistrictRoutes";
 import AddressesRouter from "./routes/addressRoutes";
 import ShippingCostRouter from "./routes/shippingCostRoutes";
+import DashboardRouter from "./routes/dashboardRoutes"
 
 // cors
 app.use(
@@ -52,6 +53,7 @@ app.use("/api/districts", DistrictRouter);
 app.use("/api/sub-districts", SubDistrictRouter);
 app.use("/api/addresses", AddressesRouter);
 app.use("/api/shipping-cost", ShippingCostRouter);
+app.use("/api/dashboard", DashboardRouter);
 
 // --- Central Error Handler ---
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
