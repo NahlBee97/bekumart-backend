@@ -14,13 +14,14 @@ export async function CreateOrderController(
   next: NextFunction
 ) {
   try {
-    const { userId, fullfillmentType, paymentMethod, addressId, totalCheckoutPrice } =
+    const { userId, fullfillmentType, courier, paymentMethod, addressId, totalCheckoutPrice } =
       req.body;
 
     const newOrderData = await CreateOrderService(
       userId,
       fullfillmentType,
       paymentMethod,
+      courier,
       addressId,
       totalCheckoutPrice
     );

@@ -8,11 +8,12 @@ export default async function GetShippingCostController(
   next: NextFunction
 ) {
   try {
-    const addressId = req.params.addressId as string;
+    const { addressId, totalWeight } = req.body;
+    const couriers = await GetShippingCostService(addressId, totalWeight);
 
-    const shippingCost = await GetShippingCostService(addressId);
-
-    return res.status(200).json({ shippingCost });
+    return res
+      .status(200)
+      .json({ message: "successfully calculate shipping cost", couriers });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

@@ -4,6 +4,6 @@ import GetShippingCostController from "../controllers/shippingCostController";
 
 const router = Router();
 
-router.get("/:addressId", VerifyToken, GetShippingCostController);
+router.post("/", VerifyToken, GetShippingCostController);
 
 export default router;
