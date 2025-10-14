@@ -144,7 +144,6 @@ export async function RefreshTokenService(refreshToken: string) {
   ) as JwtPayload;
 
   const userId = decoded.id;
-  console.log(userId);
 
   const user = await prisma.users.findUnique({
     where: {

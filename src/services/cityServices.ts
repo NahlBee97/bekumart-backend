@@ -46,7 +46,6 @@ export async function fetchCitiesByProvince(province: string) {
           259200, // 1 hour TTL
           JSON.stringify(cities)
         );
-        console.log(`Cached ${cities.length} cities for ${province}`);
       } catch (error) {
         console.warn("Failed to cache cities result:", error);
       }

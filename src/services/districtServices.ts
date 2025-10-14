@@ -49,7 +49,6 @@ export async function fetchDistrictsByCity(province: string, city: string) {
           259200,
           JSON.stringify(districts)
         );
-        console.log(`Cached ${districts.length} districts for ${city}`);
       } catch (error) {
         console.warn("Failed to cache districts result:", error);
       }

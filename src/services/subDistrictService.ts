@@ -42,7 +42,6 @@ export async function GetSubDistrictsByDistrictService(
            259200,
            JSON.stringify(subDistricts)
          );
-         console.log(`Cached ${subDistricts.length} subdistricts for ${city}`);
        } catch (error) {
          console.warn("Failed to cache subdistricts result:", error);
        }
