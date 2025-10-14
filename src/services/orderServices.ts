@@ -13,6 +13,7 @@ export async function CreateOrderService(
   userId: string,
   fulfillmentType: FulfillmentTypes,
   paymentMethod: PaymentMethod,
+  courier: string,
   addressId: string,
   totalCheckoutPrice: number
 ) {
@@ -44,6 +45,7 @@ export async function CreateOrderService(
       cart,
       fulfillmentType,
       paymentMethod,
+      courier,
       addressId,
       totalCheckoutPrice: Math.ceil(totalCheckoutPrice),
     });

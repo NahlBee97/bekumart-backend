@@ -77,6 +77,7 @@ export async function createOrderTransaction({
   userId,
   cart,
   fulfillmentType,
+  courier,
   paymentMethod,
   addressId,
   totalCheckoutPrice,
@@ -84,6 +85,7 @@ export async function createOrderTransaction({
   userId: string;
   cart: any;
   fulfillmentType: FulfillmentTypes;
+  courier: string;
   paymentMethod: PaymentMethod;
   addressId: string;
   totalCheckoutPrice: number;
@@ -96,6 +98,7 @@ export async function createOrderTransaction({
         totalAmount: totalCheckoutPrice,
         totalWeight: cart.totalWeight,
         fulfillmentType,
+        courier,
         paymentMethod,
         addressId,
         status: "PENDING",
