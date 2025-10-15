@@ -7,6 +7,7 @@ import {
   UpdateOrderStatusService,
 } from "../services/orderServices";
 import { AppError } from "../utils/appError";
+import { createPaymentTransaction } from "../helper/orderHelpers";
 
 export async function CreateOrderController(
   req: Request,
@@ -14,8 +15,14 @@ export async function CreateOrderController(
   next: NextFunction
 ) {
   try {
-    const { userId, fullfillmentType, courier, paymentMethod, addressId, totalCheckoutPrice } =
-      req.body;
+    const {
+      userId,
+      fullfillmentType,
+      courier,
+      paymentMethod,
+      addressId,
+      totalCheckoutPrice,
+    } = req.body;
 
     const newOrderData = await CreateOrderService(
       userId,
@@ -37,6 +44,26 @@ export async function CreateOrderController(
   }
 }
 
+export async function PaymentTokenController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const order = req.body;
+
+    const paymentToken = await createPaymentTransaction(order);
+    res
+      .status(201)
+      .json({ message: "Payment token created successfully", paymentToken });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+}
+
 export async function UpdateOrderStatusController(
   req: Request,
   res: Response,
@@ -48,12 +75,10 @@ export async function UpdateOrderStatusController(
 
     const updatedOrder = await UpdateOrderStatusService(id, status);
 
-    res
-      .status(200)
-      .json({
-        message: "Order status updated successfully",
-        order: updatedOrder,
-      });
+    res.status(200).json({
+      message: "Order status updated successfully",
+      order: updatedOrder,
+    });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

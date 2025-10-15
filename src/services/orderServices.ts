@@ -55,9 +55,8 @@ export async function CreateOrderService(
       (fulfillmentType === "DELIVERY" || fulfillmentType === "PICKUP") &&
       paymentMethod === "ONLINE"
     ) {
-      const { paymentToken } = await createPaymentTransaction(
+      const paymentToken = await createPaymentTransaction(
         newOrder,
-        userId
       );
       return {
         newOrder,

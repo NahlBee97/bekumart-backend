@@ -27,8 +27,10 @@ export async function SetDefaultProductPhotoService(
 
   if (!photo) throw new AppError("Product photo not found", 404);
 
+
   const newPhoto = await prisma.$transaction(async (tx) => {
     await tx.productPhotos.updateMany({
+      where: { productId: photo.productId },
       data: { isDefault: false },
     });
 
@@ -41,7 +43,7 @@ export async function SetDefaultProductPhotoService(
     return updatedPhoto;
   });
 
-  if (!newPhoto) throw new AppError("can not set address to default", 500);
+  if (!newPhoto) throw new AppError("can not set photo to default", 500);
 
   return newPhoto;
 }

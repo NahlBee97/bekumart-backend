@@ -131,7 +131,7 @@ model Orders {
   totalWeight     Float            @default(0) // Total weight of the order in kg
   status          OrderStatuses    @default(PENDING)
   fulfillmentType FulfillmentTypes
-  courier String
+  courier String?
   paymentMethod   PaymentMethod
   addressId       String? // Nullable, only for delivery orders
   address         Addresses?       @relation(fields: [addressId], references: [id])

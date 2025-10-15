@@ -26,11 +26,11 @@ export async function getShippingCost(addressId: string, totalWeight: number) {
 
     const subDistricts = JSON.parse(cachedValue);
 
-    const subDistrictsId = subDistricts.find((sub: any) => sub.name === subdistrict ).id;
+    const subDistrictId = subDistricts.find((sub: any) => sub.name === subdistrict ).id;
 
     const data = {
       origin: 987,
-      destination: subDistrictsId,
+      destination: subDistrictId,
       weight: totalWeight * 1000, // must be in grams
       courier: "jne:jnt:pos",
       price: "lowest",
@@ -44,13 +44,37 @@ export async function getShippingCost(addressId: string, totalWeight: number) {
       },
     };
 
+    const cacheKey = `${subdistrict.toLowerCase().trim()}_couriers_${
+      data.weight
+    }`;
+
+    try {
+      const cachedValue = await redis.get(cacheKey);
+      if (cachedValue) {
+        return JSON.parse(cachedValue);
+      }
+    } catch (error) {
+      console.warn("Redis cache unavailable, proceeding without cache", error);
+    }
+
     const response = await axios.post(
       `${RAJAONGKIR_BASE_URL}/calculate/domestic-cost`,
       data,
       config
     );
+
+    const couriers = response.data.data;
+
+    if (couriers.length > 0) {
+      try {
+        const cacheKey = `${subdistrict.toLowerCase().trim()}_couriers_${data.weight}`;
+        await redis.setex(cacheKey, 259200, JSON.stringify(couriers));
+      } catch (error) {
+        console.warn("Failed to cache districts result:", error);
+      }
+    }
     
-    return response.data.data;
+    return couriers;
   } catch (error) {
     throw error;
   }

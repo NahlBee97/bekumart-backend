@@ -41,9 +41,9 @@ export async function validateCartItems(items: any[], expectedTotal: number) {
   }
 }
 
-export async function createPaymentTransaction(order: any, userId: string) {
+export async function createPaymentTransaction(order: any) {
   const user = await prisma.users.findUnique({
-    where: { id: userId },
+    where: { id: order.userId },
     select: { name: true, email: true },
   });
 
@@ -68,9 +68,8 @@ export async function createPaymentTransaction(order: any, userId: string) {
     throw new AppError("Failed to create payment transaction", 502);
   }
 
-  return {
-    paymentToken: transaction.token,
-  };
+  const paymentToken = transaction.token;
+  return paymentToken;
 }
 
 export async function createOrderTransaction({
