@@ -2,11 +2,42 @@ import { INewProduct, IUpdateProduct } from "../interfaces/productInterface";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../utils/appError";
 
-export async function GetProductsService() {
+export async function GetProductsService(search: string | undefined) {
   try {
-    const products = await prisma.products.findMany({
-      include: { category: true, productPhotos: true },
-    });
+    let products;
+
+    if (search !== undefined) {
+      // If there is a search term, filter by name OR category
+      products = await prisma.products.findMany({
+        where: {
+          OR: [
+            {
+              name: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              category: {
+                name: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+            },
+          ],
+        },
+        include: {
+          productPhotos: true,
+        },
+      });
+    } else {
+      // If there is no search term, get all products
+      products = await prisma.products.findMany({
+        include: { productPhotos: true },
+      });
+    }
+
     if (!products) throw new AppError("Products not found", 404);
     return products;
   } catch (error) {

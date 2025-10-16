@@ -19,7 +19,16 @@ export async function GetProductsController(
   next: NextFunction
 ) {
   try {
-    const products = await GetProductsService();
+    const { search } = req.query;
+
+    let searchQuery: string | undefined = undefined;
+
+    if (search) {
+      searchQuery = search as string;
+    }
+
+    const products = await GetProductsService(searchQuery);
+
     res
       .status(200)
       .json({ message: "Products retrieved successfully", data: products });

@@ -99,6 +99,7 @@ model ProductPhotos {
 model Categories {
   id       String     @id @default(cuid())
   name     String     @unique
+  imageUrl String?
   products Products[]
 }
 
