@@ -45,7 +45,8 @@ model Users {
   orders     Orders[]
   addresses  Addresses[]
   cart       Carts?
-  tokens     tokens[]
+  tokens     Tokens[]
+  reviews    Reviews[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }
@@ -82,6 +83,7 @@ model Products {
   orderItems    OrderItems[]
   cartItems     CartItems[]
   productPhotos ProductPhotos[]
+  reviews       Reviews[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 }
@@ -132,7 +134,7 @@ model Orders {
   totalWeight     Float            @default(0) // Total weight of the order in kg
   status          OrderStatuses    @default(PENDING)
   fulfillmentType FulfillmentTypes
-  courier String?
+  courier         String?
   paymentMethod   PaymentMethod
   addressId       String? // Nullable, only for delivery orders
   address         Addresses?       @relation(fields: [addressId], references: [id])
@@ -150,12 +152,35 @@ model OrderItems {
   priceAtPurchase Float // Price of the product at the time of order
 }
 
-model tokens {
+model Tokens {
   id        String   @id @default(cuid())
   userId    String
   user      Users    @relation(fields: [userId], references: [id])
   token     String   @unique
   isValid   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Reviews {
+  id           String         @id @default(cuid())
+  userId       String
+  user         Users          @relation(fields: [userId], references: [id])
+  productId    String
+  product      Products       @relation(fields: [productId], references: [id])
+  review       String
+  rating       Int
+  likes Int?
+  reviewPhotos ReviewPhotos[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model ReviewPhotos {
+  id        String   @id @default(cuid())
+  reviewId  String
+  review    Reviews  @relation(fields: [reviewId], references: [id])
+  imageUrl  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

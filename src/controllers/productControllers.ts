@@ -19,15 +19,7 @@ export async function GetProductsController(
   next: NextFunction
 ) {
   try {
-    const { search } = req.query;
-
-    let searchQuery: string | undefined = undefined;
-
-    if (search) {
-      searchQuery = search as string;
-    }
-
-    const products = await GetProductsService(searchQuery);
+    const products = await GetProductsService(req.query);
 
     res
       .status(200)

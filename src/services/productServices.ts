@@ -2,41 +2,84 @@ import { INewProduct, IUpdateProduct } from "../interfaces/productInterface";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../utils/appError";
 
-export async function GetProductsService(search: string | undefined) {
+export async function GetProductsService(querys: {
+  search?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  rating?: string;
+}) {
   try {
-    let products;
+    const { search, minPrice, maxPrice, rating } = querys;
 
-    if (search !== undefined) {
-      // If there is a search term, filter by name OR category
-      products = await prisma.products.findMany({
-        where: {
-          OR: [
-            {
+    // Build where conditions based on available queries
+    const whereConditions: any = {
+      AND: [] // Using AND to combine all filters
+    };
+
+    // Add search condition if provided
+    if (search) {
+      whereConditions.AND.push({
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            category: {
               name: {
                 contains: search,
                 mode: "insensitive",
               },
             },
-            {
-              category: {
-                name: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-            },
-          ],
-        },
-        include: {
-          productPhotos: true,
-        },
-      });
-    } else {
-      // If there is no search term, get all products
-      products = await prisma.products.findMany({
-        include: { productPhotos: true },
+          },
+        ],
       });
     }
+
+    // Add price range conditions if provided
+    if (minPrice) {
+      whereConditions.AND.push({
+        price: {
+          gte: parseInt(minPrice),
+        },
+      });
+    }
+
+    if (maxPrice) {
+      whereConditions.AND.push({
+        price: {
+          lte: parseInt(maxPrice),
+        },
+      });
+    }
+
+    // Add rating condition if provided
+    if (rating) {
+      whereConditions.AND.push({
+        rating: {
+          gte: parseFloat(rating),
+        },
+      });
+    }
+
+    // If no filters are applied, remove the AND array
+    if (whereConditions.AND.length === 0) {
+      delete whereConditions.AND;
+    }
+
+    // Get products with all applicable filters
+    const products = await prisma.products.findMany({
+      where: whereConditions,
+      include: {
+        productPhotos: true,
+        category: true,
+      },
+      orderBy: {
+        createdAt: 'desc' // Show newest products first
+      },
+    });
 
     if (!products) throw new AppError("Products not found", 404);
     return products;
