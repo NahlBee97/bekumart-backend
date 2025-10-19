@@ -43,9 +43,9 @@ export async function GetProductReviewsByUserIdService(userId: string) {
 
 export async function CreateProductReviewService(
   productId: string,
-  reviewData: { userId: string; review: string; rating: number }
+  reviewData: { userId: string; desc: string; rating: number }
 ) {
-  const { userId, review, rating } = reviewData;
+  const { userId, desc, rating } = reviewData;
 
   const product = await prisma.products.findFirst({
     where: { id: productId },
@@ -57,7 +57,7 @@ export async function CreateProductReviewService(
     data: {
       userId,
       productId,
-      review,
+      desc,
       rating,
       updatedAt: new Date(),
     },
@@ -66,4 +66,55 @@ export async function CreateProductReviewService(
   if (!newReview) throw new AppError("Failed to create new review", 500);
 
   return newReview;
+}
+
+export async function LikeReviewService(reviewId: string, userId: string) {
+  const review = await prisma.reviews.findFirst({
+    where: { id: reviewId },
+  });
+
+  if (!review) throw new AppError("Review Not Found", 404);
+
+  await prisma.reviewLikes.create({
+    data: { reviewId, userId },
+  });
+
+  const updatedReview = await prisma.reviews.update({
+    where: { id: reviewId },
+    data: {
+      likeCount: (review.likeCount as number) + 1,
+    },
+  });
+
+  if (!updatedReview) throw new AppError("Failed to like review", 500);
+
+  return updatedReview;
+}
+
+export async function UnlikeReviewService(reviewId: string, userId: string) {
+  const review = await prisma.reviews.findFirst({
+    where: { id: reviewId },
+  });
+
+  if (!review) throw new AppError("Review Not Found", 404);
+
+  await prisma.reviewLikes.delete({
+    where: {
+      userId_reviewId: {
+        userId,
+        reviewId,
+      },
+    },
+  });
+
+  const updatedReview = await prisma.reviews.update({
+    where: { id: reviewId },
+    data: {
+      likeCount: (review.likeCount as number) - 1,
+    },
+  });
+
+  if (!updatedReview) throw new AppError("Failed to unlike review", 500);
+
+  return updatedReview;
 }

@@ -19,42 +19,42 @@ const productIds = [
 // Some sample reviews to make the data feel real
 const sampleReviews = [
   {
-    review:
+    desc:
       "Produknya luar biasa! Kualitasnya sangat baik dan pengirimannya cepat. Sangat direkomendasikan.",
     rating: 5,
-    likes: 15,
+    likeCount: 15,
   },
   {
-    review:
+    desc:
       "Cukup bagus untuk harganya. Sesuai dengan deskripsi, meskipun ada sedikit kekurangan.",
     rating: 4,
-    likes: 8,
+    likeCount: 8,
   },
   {
-    review: "Tidak seperti yang saya harapkan. Kualitasnya kurang memuaskan.",
+    desc: "Tidak seperti yang saya harapkan. Kualitasnya kurang memuaskan.",
     rating: 2,
-    likes: 1,
+    likeCount: 1,
   },
   {
-    review: "Sangat puas! Akan beli lagi di toko ini. Pelayanannya juga ramah.",
+    desc: "Sangat puas! Akan beli lagi di toko ini. Pelayanannya juga ramah.",
     rating: 5,
-    likes: 22,
+    likeCount: 22,
   },
   {
-    review:
+    desc:
       "Pengiriman agak lambat, tapi produknya oke. Berfungsi dengan baik.",
     rating: 3,
-    likes: 4,
+    likeCount: 4,
   },
   {
-    review: "Keren banget! Desainnya bagus dan bahannya premium.",
+    desc: "Keren banget! Desainnya bagus dan bahannya premium.",
     rating: 5,
-    likes: 18,
+    likeCount: 18,
   },
   {
-    review: "Biasa saja, tidak ada yang istimewa. Sesuai harga lah.",
+    desc: "Biasa saja, tidak ada yang istimewa. Sesuai harga lah.",
     rating: 3,
-    likes: 2,
+    likeCount: 2,
   },
 ];
 
@@ -73,9 +73,9 @@ async function main() {
         // If no review exists for this user and product, create a new one.
         userId: userId,
         productId: productId,
-        review: randomReview.review,
+        desc: randomReview.desc,
         rating: randomReview.rating,
-        likes: randomReview.likes,
+        likeCount: randomReview.likeCount,
       },
     });
   }

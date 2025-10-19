@@ -35,20 +35,21 @@ enum PaymentMethod {
 
 // MODELS for database tables
 model Users {
-  id         String      @id @default(cuid())
-  email      String      @unique
+  id         String        @id @default(cuid())
+  email      String        @unique
   name       String
   password   String // Will be a hashed password
   imageUrl   String? // Nullable, optional profile picture
-  isVerified Boolean     @default(false)
-  role       UserRoles   @default(CUSTOMER)
+  isVerified Boolean       @default(false)
+  role       UserRoles     @default(CUSTOMER)
   orders     Orders[]
   addresses  Addresses[]
   cart       Carts?
   tokens     Tokens[]
   reviews    Reviews[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  likes      ReviewLikes[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 }
 
 model Addresses {
@@ -168,9 +169,10 @@ model Reviews {
   user         Users          @relation(fields: [userId], references: [id])
   productId    String
   product      Products       @relation(fields: [productId], references: [id])
-  review       String
+  desc         String
   rating       Int
-  likes Int?
+  likeCount    Int?
+  likes        ReviewLikes[]
   reviewPhotos ReviewPhotos[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
@@ -185,4 +187,18 @@ model ReviewPhotos {
   imageUrl  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ReviewLikes {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId String
+  user   Users  @relation(fields: [userId], references: [id])
+
+  reviewId String
+  review   Reviews @relation(fields: [reviewId], references: [id])
+  
+
+  @@unique([userId, reviewId])
 }
