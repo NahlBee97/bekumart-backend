@@ -2,14 +2,14 @@ import { INewProduct, IUpdateProduct } from "../interfaces/productInterface";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../utils/appError";
 
-export async function GetProductsService(querys: {
+export async function GetProductsService(queries: {
   search?: string;
   minPrice?: string;
   maxPrice?: string;
   rating?: string;
 }) {
   try {
-    const { search, minPrice, maxPrice, rating } = querys;
+    const { search, minPrice, maxPrice, rating } = queries;
 
     // Build where conditions based on available queries
     const whereConditions: any = {

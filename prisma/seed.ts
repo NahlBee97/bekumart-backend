@@ -3,9 +3,6 @@ import { PrismaClient } from "@prisma/client";
 // Instantiate Prisma Client
 const prisma = new PrismaClient();
 
-// The user ID you provided
-const userId = "cmgel71rn0002vnhkd3926w5k";
-
 // Product IDs to be reviewed
 const productIds = [
   "cmgdab7ty0003vnd4w3dfoxec",
@@ -16,72 +13,105 @@ const productIds = [
   "cmgdabecz000dvnd4jfb1send",
 ];
 
-// Some sample reviews to make the data feel real
+// A predefined list of 10 user IDs
+const userIds = [
+  "cmgcztcnn0000vn1gim1spua0",
+  "cmgel71rn0002vnhkd3926w5k",
+  "cmggcgwpk0000vnv46wnxc22q",
+  "cmggj00t70000vnh06f6y5j1e",
+  "cmghvuepn0000vnd0nluz11nf",
+];
+
+// Expanded sample reviews for more variety
 const sampleReviews = [
   {
-    desc:
-      "Produknya luar biasa! Kualitasnya sangat baik dan pengirimannya cepat. Sangat direkomendasikan.",
+    desc: "Produknya luar biasa! Kualitasnya sangat baik dan pengirimannya cepat. Sangat direkomendasikan.",
     rating: 5,
-    likeCount: 15,
+    likeCount: 25,
   },
   {
-    desc:
-      "Cukup bagus untuk harganya. Sesuai dengan deskripsi, meskipun ada sedikit kekurangan.",
+    desc: "Cukup bagus untuk harganya. Sesuai dengan deskripsi, meskipun ada sedikit kekurangan.",
     rating: 4,
     likeCount: 8,
   },
   {
-    desc: "Tidak seperti yang saya harapkan. Kualitasnya kurang memuaskan.",
+    desc: "Tidak seperti yang saya harapkan. Kualitasnya kurang memuaskan dan bahannya terasa murah.",
     rating: 2,
     likeCount: 1,
   },
   {
-    desc: "Sangat puas! Akan beli lagi di toko ini. Pelayanannya juga ramah.",
+    desc: "Sangat puas! Akan beli lagi di toko ini. Pelayanannya juga ramah dan responsif.",
     rating: 5,
-    likeCount: 22,
+    likeCount: 32,
   },
   {
-    desc:
-      "Pengiriman agak lambat, tapi produknya oke. Berfungsi dengan baik.",
+    desc: "Pengiriman agak lambat, tapi produknya oke. Berfungsi dengan baik sejauh ini.",
     rating: 3,
     likeCount: 4,
   },
   {
-    desc: "Keren banget! Desainnya bagus dan bahannya premium.",
+    desc: "Keren banget! Desainnya bagus dan bahannya premium. Terlihat lebih mahal dari harganya.",
     rating: 5,
     likeCount: 18,
   },
   {
-    desc: "Biasa saja, tidak ada yang istimewa. Sesuai harga lah.",
+    desc: "Biasa saja, tidak ada yang istimewa. Sesuai harga lah, jangan berharap lebih.",
     rating: 3,
     likeCount: 2,
+  },
+  {
+    desc: "Awalnya ragu, tapi ternyata produknya bagus. Packing aman dan rapi. Mantap!",
+    rating: 4,
+    likeCount: 11,
+  },
+  {
+    desc: "Barang sampai dengan selamat. Belum dicoba, semoga awet dan tidak ada masalah.",
+    rating: 4,
+    likeCount: 6,
+  },
+  {
+    desc: "Mengecewakan. Produk tidak berfungsi sama sekali. Proses pengembalian dana juga rumit.",
+    rating: 1,
+    likeCount: 0,
   },
 ];
 
 async function main() {
+  console.log("Cleaning up old reviews...");
+  await prisma.reviews.deleteMany({});
+
   console.log("Start seeding reviews...");
 
+  // For each product, create one review from each predefined user ID
+  let totalReviewsCreated = 0;
   for (const productId of productIds) {
-    // Pick a random review from the sample data
-    const randomReview =
-      sampleReviews[Math.floor(Math.random() * sampleReviews.length)];
+    const reviewsData = [];
+    for (const userId of userIds) {
+      // Pick a random review from the sample data
+      const randomReview =
+        sampleReviews[Math.floor(Math.random() * sampleReviews.length)];
 
-    // Use `upsert` to create a review if it doesn't exist, or update it if it does.
-    // This prevents errors if the script is run multiple times for the same user and product.
-    await prisma.reviews.create({
-      data: {
-        // If no review exists for this user and product, create a new one.
+      reviewsData.push({
         userId: userId,
         productId: productId,
         desc: randomReview.desc,
         rating: randomReview.rating,
         likeCount: randomReview.likeCount,
-      },
+      });
+    }
+
+    // Use createMany for efficiency
+    await prisma.reviews.createMany({
+      data: reviewsData,
     });
+    totalReviewsCreated += reviewsData.length;
+    console.log(
+      `- Added ${reviewsData.length} reviews for product ${productId}`
+    );
   }
 
   console.log(
-    `Seeding finished. Upserted ${productIds.length} reviews for user ${userId}.`
+    `\nSeeding finished. Created ${totalReviewsCreated} total reviews.`
   );
 }
 

@@ -2,6 +2,7 @@ import { prisma } from "../lib/prisma";
 import { AppError } from "../utils/appError";
 
 export async function GetProductReviewsService(productId: string) {
+  // First check if product exists
   const product = await prisma.products.findFirst({
     where: { id: productId },
   });
@@ -12,11 +13,24 @@ export async function GetProductReviewsService(productId: string) {
     where: { productId },
     include: {
       reviewPhotos: true,
-      user: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          imageUrl: true,
+        },
+      },
     },
+    orderBy: [
+      { createdAt: "desc" }, // Newest first
+      { likeCount: "desc" }, // Most liked second
+    ],
   });
 
-  if (!reviews) throw new AppError("Reviews Not Found", 404);
+  if (reviews.length === 0) {
+    throw new AppError("Failed to fetch reviews", 500);
+  }
 
   return reviews;
 }
@@ -117,4 +131,13 @@ export async function UnlikeReviewService(reviewId: string, userId: string) {
   if (!updatedReview) throw new AppError("Failed to unlike review", 500);
 
   return updatedReview;
+}
+export async function GetUserLikeReviewsService(userId: string) {
+  const likes = await prisma.reviewLikes.findMany({
+    where: { userId },
+  });
+
+  if (!likes) throw new AppError("Likes Not Found", 404);
+
+  return likes;
 }

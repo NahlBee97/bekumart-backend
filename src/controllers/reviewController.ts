@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/appError";
-import { CreateProductReviewService, GetProductReviewsByUserIdService, GetProductReviewsService, LikeReviewService, UnlikeReviewService } from "../services/reviewServices";
+import { CreateProductReviewService, GetProductReviewsByUserIdService, GetProductReviewsService, GetUserLikeReviewsService, LikeReviewService, UnlikeReviewService } from "../services/reviewServices";
 
 export async function GetProductReviewsController(
   req: Request,
@@ -102,6 +102,27 @@ export async function UnlikeReviewController(
     return res
       .status(200)
       .json({ message: "successfully unlike a review", review });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+}
+
+export async function GetUserLikeReviewsController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = req.user?.id as string;
+
+    const likes = await GetUserLikeReviewsService(userId);
+
+    return res
+      .status(200)
+      .json({ message: "successfully retrieved likes", likes });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
