@@ -25,6 +25,7 @@ import ShippingCostRouter from "./routes/shippingCostRoutes";
 import DashboardRouter from "./routes/dashboardRoutes"
 import ReviewRouter from "./routes/reviewRoutes"
 import ReviewPhotoRouter from "./routes/reviewPhotosRoutes"
+import ContactRouter from "./routes/contactRoutes"
 
 // cors
 app.use(
@@ -58,6 +59,7 @@ app.use("/api/shipping-cost", ShippingCostRouter);
 app.use("/api/dashboard", DashboardRouter);
 app.use("/api/reviews", ReviewRouter);
 app.use("/api/review-photos", ReviewPhotoRouter);
+app.use("/api/contact", ContactRouter);
 
 // --- Central Error Handler ---
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {

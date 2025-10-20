@@ -71,3 +71,39 @@ export async function VerifyResetPasswordEmail(email: string) {
     throw new AppError("Could not send password reset email.", 500);
   }
 }
+
+export async function SendEmail(data: {
+  email: string;
+  name: string;
+  message: string;
+}) {
+  try {
+    const { email, name, message } = data;
+
+    const templatePath = path.join(
+      __dirname,
+      "../emails",
+      "sendEmail.hbs"
+    );
+
+    const templateSource = fs.readFileSync(templatePath, "utf-8");
+    const compiledTemplate = handlebars.compile(templateSource);
+
+    const html = compiledTemplate({
+      email,
+      name,
+      message
+    });
+
+    await Transporter.sendMail({
+      from: name + ":" + email,
+      to: "nahalilmuchtar2@gmail.com",
+      replyTo: email,
+      subject: `New Contact Form Submission from ${name}`,
+      html,
+    });
+  } catch (error) {
+    // Re-throw a standardized error
+    throw new AppError("Error sending email.", 500);
+  }
+}
