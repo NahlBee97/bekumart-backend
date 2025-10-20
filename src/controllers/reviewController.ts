@@ -1,6 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/appError";
-import { CreateProductReviewService, GetProductReviewsByUserIdService, GetProductReviewsService, GetUserLikeReviewsService, LikeReviewService, UnlikeReviewService } from "../services/reviewServices";
+import {
+  CreateProductReviewService,
+  GetProductReviewsByUserIdService,
+  GetProductReviewsService,
+  GetUserLikeReviewsService,
+  LikeReviewService,
+  UnlikeReviewService,
+} from "../services/reviewServices";
+import { bufferToDataURI } from "../helper/fileUploadHelper";
 
 export async function GetProductReviewsController(
   req: Request,
@@ -51,13 +59,31 @@ export async function CreateProductReviewController(
 ) {
   try {
     const { productId } = req.params;
-    const reviewData = req.body;
+    const userId = req.user?.id as string;
+    const { desc, rating } = req.body;
+    const { files } = req;
+
+    if (files?.length === 0) throw new Error("File not found");
+
+    let fileUris = [];
+
+    if (Array.isArray(files) && files.length > 0) {
+      for (const file of files) {
+        const fileUri = bufferToDataURI(file.buffer, file.mimetype);
+        fileUris.push(fileUri);
+      }
+    }
+
+    const reviewData = {
+      userId,
+      desc,
+      rating,
+      fileUris,
+    };
 
     const review = await CreateProductReviewService(productId, reviewData);
 
-    return res
-      .status(200)
-      .json({ message: "successfully retrieved review", review });
+    return res.status(200).json({ message: "successfully retrieved review" });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

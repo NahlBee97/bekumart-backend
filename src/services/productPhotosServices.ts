@@ -97,6 +97,7 @@ export async function AddProductPhotoService(
     where: { id: productId },
   });
   if (!existingProduct) throw new AppError("Product not found", 404);
+  
 
   let publicId = `products/product_${productId}_${Date.now()}`; // Default for new images
 
