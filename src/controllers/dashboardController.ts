@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/appError";
-import { CustomerInsightsService, OperationalSummaryService, ProductInsightsService, SalesSummaryService } from "../services/dashboardServices";
+import { CustomerInsightsService, CustomerOriginSummaryService, OperationalSummaryService, ProductInsightsService, SalesSummaryService } from "../services/dashboardServices";
 
 export async function SalesSummaryController(
   req: Request,
@@ -76,3 +76,25 @@ export async function OperationalSummaryController(
     next(error);
   }
 }
+
+export async function CustomerOriginSummaryController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const customerOriginSummary = await CustomerOriginSummaryService();
+    res
+      .status(200)
+      .json({
+        message: "Customer Origin summary data retrieved successfully",
+        summary: customerOriginSummary,
+      });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+}
+

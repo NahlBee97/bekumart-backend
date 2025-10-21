@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { RoleGuard, VerifyToken } from "../middlewares/authMiddlewares";
-import { CustomerInsightsController, OperationalSummaryController, ProductInsightsController, SalesSummaryController } from "../controllers/dashboardController";
+import { CustomerInsightsController, CustomerOriginSummaryController, OperationalSummaryController, ProductInsightsController, SalesSummaryController } from "../controllers/dashboardController";
 const router = Router();
 
 router.get("/sales-summary", VerifyToken, RoleGuard, SalesSummaryController);
@@ -16,6 +16,12 @@ router.get(
   VerifyToken,
   RoleGuard,
   OperationalSummaryController
+);
+router.get(
+  "/origin-summary",
+  VerifyToken,
+  RoleGuard,
+  CustomerOriginSummaryController
 );
 
 export default router;
