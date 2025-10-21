@@ -64,10 +64,10 @@ model Addresses {
   province    String
   postalCode  String
   phone       String
-  latitude    Float?
-  longitude   Float?
   isDefault   Boolean  @default(false)
   orders      Orders[]
+   createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 }
 
 model Products {
@@ -79,7 +79,7 @@ model Products {
   weightInKg    Float // Crucial for delivery calculation
   categoryId    String
   sale          Int?
-  rating        Float? // Average rating, nullable if no ratings yet
+  rating          Int?
   category      Categories      @relation(fields: [categoryId], references: [id])
   orderItems    OrderItems[]
   cartItems     CartItems[]

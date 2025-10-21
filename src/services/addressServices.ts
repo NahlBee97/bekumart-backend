@@ -1,8 +1,6 @@
-import axios from "axios";
 import { IAddress } from "../interfaces/addressesInterface";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../utils/appError";
-import { geocodeAddress } from "../helper/geocodeAddress";
 
 export async function GetAddressesByUserIdService(userId: string) {
   try {
@@ -27,23 +25,6 @@ export async function EditAddressByIdService(
 
     if (!existingAddress) throw new AppError("Address not found.", 404);
 
-    let latitude = existingAddress.latitude;
-    let longitude = existingAddress.longitude;
-
-    const needsGeocoding =
-      addressData.subdistrict || addressData.district || addressData.city;
-
-    if (needsGeocoding) {
-      const coords = await geocodeAddress({
-        subdistrict: addressData.subdistrict ?? existingAddress.subdistrict,
-        district: addressData.district ?? existingAddress.district,
-        city: addressData.city ?? existingAddress.city,
-      });
-
-      latitude = coords.latitude;
-      longitude = coords.longitude;
-    }
-
     // Update address
     const updatedAddress = await prisma.addresses.update({
       where: { id: addressId },
@@ -55,8 +36,6 @@ export async function EditAddressByIdService(
         province: addressData.province ?? existingAddress.province,
         postalCode: addressData.postalCode ?? existingAddress.postalCode,
         phone: addressData.phone ?? existingAddress.phone,
-        latitude,
-        longitude,
       },
     });
 
@@ -128,22 +107,10 @@ export async function CreateAddressService(userId: string, bodyData: IAddress) {
   try {
     const { subdistrict, district, city } = bodyData;
 
-    const addressDetailData = await axios.get(
-      `https://nominatim.openstreetmap.org/search?q=${subdistrict}%20${district}%20${city}&format=jsonv2&addressdetails=1&countrycodes=id`
-    );
-
-    if (addressDetailData.data.lenght === 0)
-      throw new Error("Can not get the coordinates");
-
-    const latitude = Number(addressDetailData.data[0].lat);
-    const longitude = Number(addressDetailData.data[0].lon);
-
     const address = await prisma.addresses.create({
       data: {
         ...bodyData,
         userId,
-        latitude,
-        longitude,
       },
     });
     return address;

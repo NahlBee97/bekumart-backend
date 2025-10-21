@@ -1,5 +1,5 @@
 import axios from "axios";
-import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
+import { ORIGIN_SUBDISTRICT_ID, RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../utils/appError";
 import { GetUserCartService } from "../services/cartServices";
@@ -29,7 +29,7 @@ export async function getShippingCost(addressId: string, totalWeight: number) {
     const subDistrictId = subDistricts.find((sub: any) => sub.name === subdistrict ).id;
 
     const data = {
-      origin: 987,
+      origin: ORIGIN_SUBDISTRICT_ID,
       destination: subDistrictId,
       weight: totalWeight * 1000, // must be in grams
       courier: "jne:jnt:pos",

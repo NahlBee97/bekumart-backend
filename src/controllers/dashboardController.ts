@@ -8,7 +8,9 @@ export async function SalesSummaryController(
   next: NextFunction
 ) {
   try {
-    const salesSummary = await SalesSummaryService();
+    const value = Number(req.query.value);
+    
+    const salesSummary = await SalesSummaryService(value);
     res
       .status(200)
       .json({ message: "Sales data retrieved successfully", salesSummary });

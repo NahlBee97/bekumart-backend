@@ -68,6 +68,25 @@ export async function CreateProductReviewService(
 
   if (!newReview) throw new AppError("Failed to create new review", 500);
 
+  const reviews = await prisma.reviews.aggregate({
+    where: {
+      productId
+    },
+    _avg: {
+      rating: true
+    }
+  })
+
+  await prisma.products.update({
+    where: {
+      id: productId
+    },
+    data: {
+      rating: reviews._avg.rating
+    }
+  })
+
+
   let num = 0;
   for (const fileUri of fileUris) {
     num++;

@@ -10,7 +10,5 @@ export interface IAddress {
   province: string;
   postalCode: string;
   phone: string;
-  latitude: number | null;
-  longitude: number | null;
   isDefault: boolean;
 }

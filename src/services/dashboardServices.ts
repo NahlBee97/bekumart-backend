@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 
-export async function SalesSummaryService() {
+export async function SalesSummaryService(value: number) {
   const salesData = await prisma.orders.aggregate({
     _sum: { totalAmount: true },
     _count: { id: true },
@@ -12,11 +12,13 @@ export async function SalesSummaryService() {
   const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
   // Data for sales chart (last 30 days)
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const startDate = new Date();
+
+  startDate.setDate(startDate.getDate() - (value ? value : 30));
+
   const salesOverTime = await prisma.orders.findMany({
     where: {
-      createdAt: { gte: thirtyDaysAgo },
+      createdAt: { gte: startDate },
       status: { not: "CANCELLED" },
     },
     select: { createdAt: true, totalAmount: true },
