@@ -105,14 +105,21 @@ export async function DeleteAddressByIdService(addressId: string) {
 }
 export async function CreateAddressService(userId: string, bodyData: IAddress) {
   try {
-    const { subdistrict, district, city } = bodyData;
+    const address = await prisma.$transaction(async (tx) => {
+      await tx.addresses.updateMany({
+        where: {
+          userId,
+        },
+        data: { isDefault: false },
+      });
 
-    const address = await prisma.addresses.create({
-      data: {
-        ...bodyData,
-        userId,
-      },
+      const newdAddress = await tx.addresses.create({
+        data: { ...bodyData, userId, isDefault: true, updatedAt: new Date() },
+      });
+
+      return newdAddress;
     });
+
     return address;
   } catch (error) {
     throw error;

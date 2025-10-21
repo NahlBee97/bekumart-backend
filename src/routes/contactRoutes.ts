@@ -4,6 +4,6 @@ import { ContactController } from "../controllers/contactController";
 
 const router = Router();
 
-router.post("/", VerifyToken, ContactController);
+router.post("/", ContactController);
 
 export default router;
