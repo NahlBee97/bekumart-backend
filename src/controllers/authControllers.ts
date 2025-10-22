@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { RegisterSchema, LoginSchema } from "../schemas/authSchemas";
 import {
+  CheckService,
   LoginService,
   LogOutService,
   RefreshTokenService,
@@ -46,7 +47,10 @@ export async function LoginController(
 
     const sevenDayInMs = 7 * 24 * 60 * 60 * 1000;
 
-    res.status(200).cookie("token", refreshToken, {maxAge: sevenDayInMs, httpOnly: true }).json({ message: `Login successfully`, accessToken });
+    res
+      .status(200)
+      .cookie("token", refreshToken, { maxAge: sevenDayInMs, httpOnly: true })
+      .json({ message: `Login successfully`, accessToken });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -65,10 +69,12 @@ export async function LogOutController(
 
     await LogOutService(refreshToken);
 
-    res.status(200).json({ message: `Log out successfully` });
+    res.status(200).clearCookie("token", { httpOnly: true }).json({ message: `Log out successfully` });
   } catch (error) {
     if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
+      return res
+        .status(error.statusCode)
+        .json({ message: error.message });
     }
     next(error);
   }
@@ -121,6 +127,34 @@ export async function RefreshTokenController(
     res.status(200).json({
       message: "Update user password successfully",
       accessToken,
+    });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+}
+
+export async function CheckController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const refreshToken = req.cookies.token as string;
+
+    if (!refreshToken) {
+      res
+        .status(200)
+        .json({ message: "not logged in yet", status: { isLoggedIn: false } });
+    }
+
+    const status = await CheckService(refreshToken);
+
+    res.status(200).json({
+      message: "Get User Successfully",
+      status,
     });
   } catch (error) {
     if (error instanceof AppError) {

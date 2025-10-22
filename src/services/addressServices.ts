@@ -6,6 +6,7 @@ export async function GetAddressesByUserIdService(userId: string) {
   try {
     const addresses = await prisma.addresses.findMany({
       where: { userId },
+      orderBy: { createdAt: "asc" }
     });
     return addresses;
   } catch (error) {

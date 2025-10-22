@@ -87,7 +87,6 @@ export async function LoginService(userData: ILogin) {
     },
   });
 
-
   if (!accessToken && !refreshToken)
     throw new AppError("Failed to generate token", 500);
 
@@ -169,4 +168,30 @@ export async function RefreshTokenService(refreshToken: string) {
   if (!accessToken) throw new AppError("Failed to generate token", 500);
 
   return accessToken;
+}
+
+export async function CheckService(refreshToken: string) {
+  const authToken = await prisma.tokens.findUnique({
+    where: { token: refreshToken },
+  });
+
+  if (authToken?.isValid === false)
+    throw new AppError("The refresh token is invalid", 401);
+
+  const decoded = verify(
+    refreshToken,
+    String(JWT_REFRESH_SECRET)
+  ) as JwtPayload;
+
+  const userId = decoded.id;
+
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) throw new AppError("User not found", 404);
+
+  return { isLoggedIn: true };
 }

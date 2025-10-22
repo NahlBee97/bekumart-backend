@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { LoginController, LogOutController, RefreshTokenController, RegisterController, SetPasswordController, VerifyResetPasswordController } from "../controllers/authControllers";
+import {  CheckController, LoginController, LogOutController, RefreshTokenController, RegisterController, SetPasswordController, VerifyResetPasswordController } from "../controllers/authControllers";
 
 const router = Router();
 
+router.get("/check", CheckController);
 router.get("/refresh-token", RefreshTokenController);
 router.post("/register", RegisterController);
 router.post("/login", LoginController);
