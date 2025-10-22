@@ -138,6 +138,7 @@ export async function GetAllOrderService() {
   try {
     const orders = await prisma.orders.findMany({
       include: { user: true },
+      orderBy: {createdAt: "desc"}
     });
     return orders;
   } catch (err) {

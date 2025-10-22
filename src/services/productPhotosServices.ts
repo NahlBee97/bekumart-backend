@@ -7,6 +7,7 @@ export async function GetProductPhotosService(productId: string) {
   try {
     const photos = await prisma.productPhotos.findMany({
       where: { productId },
+      orderBy: { createdAt: "desc" },
     });
 
     return photos;
@@ -26,7 +27,6 @@ export async function SetDefaultProductPhotoService(
   });
 
   if (!photo) throw new AppError("Product photo not found", 404);
-
 
   const newPhoto = await prisma.$transaction(async (tx) => {
     await tx.productPhotos.updateMany({
@@ -97,7 +97,6 @@ export async function AddProductPhotoService(
     where: { id: productId },
   });
   if (!existingProduct) throw new AppError("Product not found", 404);
-  
 
   let publicId = `products/product_${productId}_${Date.now()}`; // Default for new images
 

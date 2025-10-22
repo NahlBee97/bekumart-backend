@@ -16,6 +16,7 @@ export async function GetProductReviewsService(productId: string) {
       reviewPhotos: true,
       user: true,
     },
+    orderBy: { createdAt: "desc" }
   });
 
   if (reviews.length === 0) {
@@ -37,6 +38,7 @@ export async function GetProductReviewsByUserIdService(userId: string) {
     include: {
       user: true,
     },
+    orderBy: { createdAt: "desc"}
   });
 
   if (!reviews) throw new AppError("Reviews Not Found", 404);
@@ -162,6 +164,7 @@ export async function UnlikeReviewService(reviewId: string, userId: string) {
 export async function GetUserLikeReviewsService(userId: string) {
   const likes = await prisma.reviewLikes.findMany({
     where: { userId },
+    orderBy: { createdAt: "desc"}
   });
 
   if (!likes) throw new AppError("Likes Not Found", 404);
