@@ -42,7 +42,11 @@ export async function LoginController(
 
     const tokens = await LoginService(userData);
 
-    res.status(200).json({ message: `Login successfully`, tokens });
+    const { accessToken, refreshToken } = tokens;
+
+    const sevenDayInMs = 7 * 24 * 60 * 60 * 1000;
+
+    res.status(200).cookie("token", refreshToken, {maxAge: sevenDayInMs, httpOnly: true }).json({ message: `Login successfully`, accessToken });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
