@@ -55,9 +55,7 @@ export async function CreateOrderService(
       (fulfillmentType === "DELIVERY" || fulfillmentType === "PICKUP") &&
       paymentMethod === "ONLINE"
     ) {
-      const paymentToken = await createPaymentTransaction(
-        newOrder,
-      );
+      const paymentToken = await createPaymentTransaction(newOrder);
       return {
         newOrder,
         paymentToken,
@@ -134,12 +132,23 @@ export async function GetUserOrdersService(userId: string) {
   }
 }
 
-export async function GetAllOrderService() {
+export async function GetAllOrderService( status: OrderStatuses ) {
   try {
-    const orders = await prisma.orders.findMany({
-      include: { user: true },
-      orderBy: {createdAt: "desc"}
-    });
+    let orders;
+
+    if (status) {
+      orders = await prisma.orders.findMany({
+        where: { status },
+        include: { user: true },
+        orderBy: { createdAt: "desc" },
+      });
+    } else {
+      orders = await prisma.orders.findMany({
+        include: { user: true },
+        orderBy: { createdAt: "desc" },
+      });
+    }
+
     return orders;
   } catch (err) {
     throw new AppError("can not get orders item", 500);

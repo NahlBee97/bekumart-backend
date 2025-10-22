@@ -99,7 +99,11 @@ export async function OperationalSummaryService() {
     },
   });
 
-  return { statusCounts, recentOrders };
+  const totalOrders = await prisma.orders.aggregate({
+    _count: {id: true}
+  })
+
+  return { statusCounts, recentOrders, totalOrders };
 }
 
 export async function CustomerOriginSummaryService() {

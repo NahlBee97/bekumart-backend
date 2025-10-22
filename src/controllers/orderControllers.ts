@@ -8,6 +8,7 @@ import {
 } from "../services/orderServices";
 import { AppError } from "../utils/appError";
 import { createPaymentTransaction } from "../helper/orderHelpers";
+import { OrderStatuses } from "@prisma/client";
 
 export async function CreateOrderController(
   req: Request,
@@ -135,7 +136,7 @@ export async function GetAllOrderController(
   next: NextFunction
 ) {
   try {
-    const orders = await GetAllOrderService();
+    const orders = await GetAllOrderService(req.query.status as OrderStatuses);
 
     res
       .status(200)
