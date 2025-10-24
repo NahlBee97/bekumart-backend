@@ -67,7 +67,7 @@ export async function LogOutController(
   try {
     const refreshToken = req.cookies.token as string;
 
-    await LogOutService(refreshToken);
+    if (refreshToken) await LogOutService(refreshToken);
 
     res.status(200).clearCookie("token", { httpOnly: true }).json({ message: `Log out successfully` });
   } catch (error) {
@@ -122,10 +122,16 @@ export async function RefreshTokenController(
   try {
     const refreshToken = req.cookies.token as string;
 
+    if (!refreshToken) {
+      return res
+        .status(200)
+        .json({ message: "no active session", accessToken: null });
+    }
+
     const accessToken = await RefreshTokenService(refreshToken);
 
     res.status(200).json({
-      message: "Update user password successfully",
+      message: "Refresh token successfully",
       accessToken,
     });
   } catch (error) {
@@ -145,15 +151,16 @@ export async function CheckController(
     const refreshToken = req.cookies.token as string;
 
     if (!refreshToken) {
-      res
-        .status(200)
-        .json({ message: "not logged in yet", status: { isLoggedIn: false } });
+      return res.status(200).json({
+        message: "Check User Successfully",
+        status: { isLoggedIn: false },
+      });
     }
 
     const status = await CheckService(refreshToken);
 
     res.status(200).json({
-      message: "Get User Successfully",
+      message: "Check User Successfully",
       status,
     });
   } catch (error) {

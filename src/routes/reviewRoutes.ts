@@ -6,7 +6,7 @@ import { upload } from "../middlewares/fileUpload.middleware";
 const router = Router();
 
 
-router.get("/like", GetUserLikeReviewsController);
+router.get("/likes", GetUserLikeReviewsController);
 router.get("/:productId", GetProductReviewsController);
 router.get("/user/:userId", GetProductReviewsByUserIdController);
 router.post("/:productId", VerifyToken, upload.array("files"), CreateProductReviewController);

@@ -1,7 +1,12 @@
 import bcrypt, { genSaltSync, hash } from "bcryptjs";
 import { ILogin, IRegister } from "../interfaces/authInterfaces";
 import { prisma } from "../lib/prisma";
-import jwt, { JwtPayload, verify } from "jsonwebtoken";
+import jwt, {
+  JsonWebTokenError,
+  JwtPayload,
+  TokenExpiredError,
+  verify,
+} from "jsonwebtoken";
 import { FindUserByEmail } from "../helper/findUserByEmail";
 import { AppError } from "../utils/appError";
 import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from "../config";
@@ -94,6 +99,12 @@ export async function LoginService(userData: ILogin) {
 }
 
 export async function LogOutService(refreshToken: string) {
+  const authToken = await prisma.tokens.findUnique({
+    where: { token: refreshToken },
+  });
+
+  if (authToken?.isValid === false) return;
+
   await prisma.tokens.update({
     where: { token: refreshToken },
     data: { isValid: false },
@@ -130,68 +141,91 @@ export async function SetPasswordService(password: string, token: string) {
 }
 
 export async function RefreshTokenService(refreshToken: string) {
-  const authToken = await prisma.tokens.findUnique({
-    where: { token: refreshToken },
-  });
+  try {
+    const authToken = await prisma.tokens.findUnique({
+      where: { token: refreshToken },
+    });
 
-  if (authToken?.isValid === false)
-    throw new AppError("The refresh token is invalid", 401);
+    if (!authToken) {
+      throw new AppError("Session not found. Please log in again", 401);
+    }
 
-  const decoded = verify(
-    refreshToken,
-    String(JWT_REFRESH_SECRET)
-  ) as JwtPayload;
+    if (authToken.isValid === false) {
+      throw new AppError("Session is invalid. Please log in again", 401);
+    }
 
-  const userId = decoded.id;
+    const decoded = verify(
+      refreshToken,
+      String(JWT_REFRESH_SECRET)
+    ) as JwtPayload;
 
-  const user = await prisma.users.findUnique({
-    where: {
-      id: userId,
-    },
-  });
+    const accessPayload = {
+      id: decoded.id,
+      email: decoded.email,
+      name: decoded.name,
+      role: decoded.role,
+      isVerified: decoded.isVerified,
+      imageUrl: decoded.imageUrl,
+    };
 
-  if (!user) throw new AppError("User not found", 404);
+    // 5. Sign the new access token
+    const accessToken = jwt.sign(accessPayload, String(JWT_ACCESS_SECRET), {
+      expiresIn: "15m",
+    });
 
-  const accessPayload = {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-    isVerified: user.isVerified,
-    imageUrl: user.imageUrl,
-  };
+    return accessToken;
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      throw new AppError("Session expired. Please log in again", 401);
+    }
 
-  const accessToken = jwt.sign(accessPayload, String(JWT_ACCESS_SECRET), {
-    expiresIn: "15m",
-  });
+    if (error instanceof JsonWebTokenError) {
+      throw new AppError("Invalid session token. Please log in again", 401);
+    }
 
-  if (!accessToken) throw new AppError("Failed to generate token", 500);
-
-  return accessToken;
+    throw error;
+  }
 }
 
 export async function CheckService(refreshToken: string) {
-  const authToken = await prisma.tokens.findUnique({
-    where: { token: refreshToken },
-  });
+  try {
+    const authToken = await prisma.tokens.findUnique({
+      where: { token: refreshToken },
+    });
 
-  if (authToken?.isValid === false)
-    throw new AppError("The refresh token is invalid", 401);
+    if (!authToken) {
+      throw new AppError("Session not found. Please log in again", 401);
+    }
 
-  const decoded = verify(
-    refreshToken,
-    String(JWT_REFRESH_SECRET)
-  ) as JwtPayload;
+    if (authToken.isValid === false) {
+      throw new AppError("Session is invalid. Please log in again", 401);
+    }
 
-  const userId = decoded.id;
+    const decoded = verify(
+      refreshToken,
+      String(JWT_REFRESH_SECRET)
+    ) as JwtPayload;
 
-  const user = await prisma.users.findUnique({
-    where: {
-      id: userId,
-    },
-  });
+    const userId = decoded.id;
 
-  if (!user) throw new AppError("User not found", 404);
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+    });
 
-  return { isLoggedIn: true };
+    if (!user) {
+      throw new AppError("User associated with this token not found", 404);
+    }
+
+    return { isLoggedIn: true };
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      throw new AppError("Session expired. Please log in again", 401);
+    }
+
+    if (error instanceof JsonWebTokenError) {
+      throw new AppError("Invalid session token. Please log in again", 401);
+    }
+
+    throw error;
+  }
 }

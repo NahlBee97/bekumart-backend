@@ -11,18 +11,18 @@ async function main() {
   // We delete from "child" tables before "parent" tables.
   await prisma.$transaction([
     prisma.reviewLikes.deleteMany({}),
-    prisma.reviewPhotos.deleteMany({}),
-    prisma.reviews.deleteMany({}),
-    prisma.orderItems.deleteMany({}),
-    prisma.cartItems.deleteMany({}),
-    prisma.productPhotos.deleteMany({}),
-    prisma.tokens.deleteMany({}),
-    prisma.orders.deleteMany({}),
-    prisma.addresses.deleteMany({}),
-    prisma.carts.deleteMany({}),
-    prisma.products.deleteMany({}),
-    prisma.categories.deleteMany({}),
-    prisma.users.deleteMany({}),
+    // prisma.reviewPhotos.deleteMany({}),
+    // prisma.reviews.deleteMany({}),
+    // prisma.orderItems.deleteMany({}),
+    // prisma.cartItems.deleteMany({}),
+    // prisma.productPhotos.deleteMany({}),
+    // prisma.tokens.deleteMany({}),
+    // prisma.orders.deleteMany({}),
+    // prisma.addresses.deleteMany({}),
+    // prisma.carts.deleteMany({}),
+    // prisma.products.deleteMany({}),
+    // prisma.categories.deleteMany({}),
+    // prisma.users.deleteMany({}),
   ]);
 
   console.log('✅ Database has been successfully cleared.');
