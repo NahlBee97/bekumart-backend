@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { RegisterSchema, LoginSchema } from "../schemas/authSchemas";
 import {
   CheckService,
+  GoogleLoginService,
   LoginService,
   LogOutService,
   RefreshTokenService,
@@ -51,6 +52,30 @@ export async function LoginController(
       .status(200)
       .cookie("token", refreshToken, { maxAge: sevenDayInMs, httpOnly: true })
       .json({ message: `Login successfully`, accessToken });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+}
+
+export async function GoogleLoginController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const tokens = await GoogleLoginService(req.body);
+
+    const { accessToken, refreshToken } = tokens;
+
+    const sevenDayInMs = 7 * 24 * 60 * 60 * 1000;
+
+    res
+      .status(200)
+      .cookie("token", refreshToken, { maxAge: sevenDayInMs, httpOnly: true })
+      .json({ message: `Login with google successfully`, accessToken });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

@@ -98,6 +98,81 @@ export async function LoginService(userData: ILogin) {
   return { accessToken, refreshToken };
 }
 
+export async function GoogleLoginService(userData: {name: string; email:string}) {
+  const { name, email } = userData;
+
+  const user = await FindUserByEmail(email);
+
+  let newUser = user;
+
+  if (!user) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash("Password@123", salt);
+  
+    if (!hashedPassword) throw new AppError("Failed hashing password", 500);
+  
+    newUser = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.users.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          updatedAt: new Date(),
+        },
+      });
+  
+      if (!createdUser) throw new AppError("Create new user failed", 500);
+  
+      const cart = await tx.carts.create({
+        data: { userId: createdUser.id },
+      });
+  
+      if (!cart) throw new AppError("Failed to create cart", 500);
+  
+      return createdUser;
+    });
+  }
+
+  const accessPayload = {
+    id: newUser?.id,
+    email: newUser?.email,
+    name: newUser?.name,
+    role: newUser?.role,
+    isVerified: newUser?.isVerified,
+    imageUrl: newUser?.imageUrl,
+  };
+
+  const refreshPayload = {
+    id: newUser?.id,
+    role: newUser?.role,
+  };
+
+  const accessToken = jwt.sign(accessPayload, String(JWT_ACCESS_SECRET), {
+    expiresIn: "15m",
+  });
+  const refreshToken = jwt.sign(refreshPayload, String(JWT_REFRESH_SECRET), {
+    expiresIn: "7d",
+  });
+
+  await prisma.tokens.updateMany({
+    where: { userId: newUser?.id },
+    data: { isValid: false },
+  });
+
+  await prisma.tokens.create({
+    data: {
+      userId: newUser?.id as string,
+      token: refreshToken,
+      updatedAt: new Date(),
+    },
+  });
+
+  if (!accessToken && !refreshToken)
+    throw new AppError("Failed to generate token", 500);
+
+  return { accessToken, refreshToken };
+}
+
 export async function LogOutService(refreshToken: string) {
   const authToken = await prisma.tokens.findUnique({
     where: { token: refreshToken },
@@ -159,13 +234,23 @@ export async function RefreshTokenService(refreshToken: string) {
       String(JWT_REFRESH_SECRET)
     ) as JwtPayload;
 
+    const userId = decoded.id;
+
+    const user = await prisma.users.findFirst({
+      where: {
+        id: userId
+      }
+    })
+
+    if(!user) throw new AppError("user not found", 404);
+
     const accessPayload = {
-      id: decoded.id,
-      email: decoded.email,
-      name: decoded.name,
-      role: decoded.role,
-      isVerified: decoded.isVerified,
-      imageUrl: decoded.imageUrl,
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      isVerified: user.isVerified,
+      imageUrl: user.imageUrl,
     };
 
     // 5. Sign the new access token

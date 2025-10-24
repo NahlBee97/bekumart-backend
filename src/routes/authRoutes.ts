@@ -1,11 +1,12 @@
 import { Router } from "express";
-import {  CheckController, LoginController, LogOutController, RefreshTokenController, RegisterController, SetPasswordController, VerifyResetPasswordController } from "../controllers/authControllers";
+import {  CheckController, GoogleLoginController, LoginController, LogOutController, RefreshTokenController, RegisterController, SetPasswordController, VerifyResetPasswordController } from "../controllers/authControllers";
 
 const router = Router();
 
 router.get("/check", CheckController);
 router.get("/refresh-token", RefreshTokenController);
 router.post("/register", RegisterController);
+router.post("/google-login", GoogleLoginController);
 router.post("/login", LoginController);
 router.post("/logout", LogOutController);
 router.post("/verify-reset", VerifyResetPasswordController);
