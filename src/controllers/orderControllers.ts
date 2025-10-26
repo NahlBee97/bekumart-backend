@@ -51,7 +51,7 @@ export async function PaymentTokenController(
   next: NextFunction
 ) {
   try {
-    const order = req.body;
+    const {order} = req.body;
 
     const paymentToken = await createPaymentTransaction(order);
     res
@@ -78,7 +78,7 @@ export async function UpdateOrderStatusController(
 
     res.status(200).json({
       message: "Order status updated successfully",
-      order: updatedOrder,
+      updatedOrder,
     });
   } catch (error) {
     if (error instanceof AppError) {
@@ -100,7 +100,7 @@ export async function GetOrderItemsByOrderIdController(
 
     res
       .status(200)
-      .json({ message: "Order items retrives successfully", data: orderItems });
+      .json({ message: "Order items retrives successfully", orderItems });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -121,7 +121,7 @@ export async function GetUserOrdersController(
 
     res
       .status(200)
-      .json({ message: "Get user orders successfully", data: orders });
+      .json({ message: "Get user orders successfully", orders });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -140,7 +140,7 @@ export async function GetAllOrderController(
 
     res
       .status(200)
-      .json({ message: "Get all orders successfully", data: orders });
+      .json({ message: "Get all orders successfully", orders });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

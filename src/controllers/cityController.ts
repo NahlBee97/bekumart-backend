@@ -8,13 +8,13 @@ export async function GetCitiesByProvinceController(
   next: NextFunction
 ) {
   try {
-    const { province } = req.params as { province: string };
+    const { province } = req.params;
 
     const cities = await GetCitiesByProvinceService(province);
 
     res.status(200).json({
       message: `Get cities by province success`,
-      data: cities,
+      cities,
     });
   } catch (error) {
     if (error instanceof AppError) {

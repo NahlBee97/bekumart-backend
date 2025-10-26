@@ -1,17 +1,48 @@
 import { z } from "zod";
 
 export const RegisterSchema = z.object({
-  name: z.string().min(3, "Username must be at least 3 characters long"),
-  email: z.email("Please provide a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
-  // Add any other fields from your IRegister interface
+  body: z.object({
+    name: z.string().min(3, "Nama minimal 3 karakter"),
+    email: z.email("Email tidak valid"),
+    password: z
+      .string()
+      .min(8, "Password minimal 8 karakter")
+      .regex(
+        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+        "Password harus mengandung huruf, angka, dan karakter khusus"
+      ),
+  }),
 });
 
 export const LoginSchema = z.object({
-  email: z.email("Please provide a valid email"),
-  password: z.string().min(1, "Password is required"),
+  body: z.object({
+    email: z.email("Email tidak valid"),
+    password: z.string().min(1, "Password wajib diisi"),
+  }),
 });
 
-// Create types from schemas to use in your services/controllers
-export type RegisterInput = z.infer<typeof RegisterSchema>;
-export type LoginInput = z.infer<typeof LoginSchema>;
+export const GoogleLoginSchema = z.object({
+  body: z.object({
+    name: z.string().min(3, "Nama minimal 3 karakter"),
+    email: z.email("Email tidak valid"),
+  }),
+});
+
+export const ChangePasswordSchema = z.object({
+  body: z.object({
+    token: z.string().min(1, "Token wajib diisi"),
+    password: z
+      .string()
+      .min(8, "Password minimal 8 karakter")
+      .regex(
+        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+        "Password harus mengandung huruf, angka, dan karakter khusus"
+      ),
+  }),
+});
+
+export const VerifyResetPasswordSchema = z.object({
+  body: z.object({
+    email: z.email("Email tidak valid"),
+  }),
+});

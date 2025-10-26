@@ -41,7 +41,11 @@ export async function validateCartItems(items: any[], expectedTotal: number) {
   }
 }
 
-export async function createPaymentTransaction(order: any) {
+export async function createPaymentTransaction(order: {
+  id: string;
+  userId: string;
+  totalAmount: number;
+}) {
   const user = await prisma.users.findUnique({
     where: { id: order.userId },
     select: { name: true, email: true },

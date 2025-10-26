@@ -23,7 +23,7 @@ export async function GetProductsController(
 
     res
       .status(200)
-      .json({ message: "Products retrieved successfully", data: products });
+      .json({ message: "Products retrieved successfully", products });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -42,7 +42,7 @@ export async function GetProductsByIdController(
     const product = await GetProductByIdService(productId);
     res
       .status(200)
-      .json({ message: "Product retrieved successfully", data: product });
+      .json({ message: "Product retrieved successfully", product });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -57,11 +57,11 @@ export async function CreateProductController(
   next: NextFunction
 ) {
   try {
-    const productData: INewProduct = CreateProductSchema.parse(req.body);
+    const productData = req.body as INewProduct;
     const newProduct = await CreateProductService(productData);
     res
       .status(201)
-      .json({ message: "Product created successfully", data: newProduct });
+      .json({ message: "Product created successfully", newProduct });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -77,11 +77,11 @@ export async function UpdateProductController(
 ) {
   try {
     const productId = req.params.id as string;
-    const productData: IUpdateProduct = UpdateProductSchema.parse(req.body);
+    const productData = req.body as IUpdateProduct;
     const updatedProduct = await UpdateProductService(productId, productData);
     res
       .status(200)
-      .json({ message: "Product updated successfully", data: updatedProduct });
+      .json({ message: "Product updated successfully", updatedProduct });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

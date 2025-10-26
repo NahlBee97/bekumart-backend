@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { RegisterSchema, LoginSchema } from "../schemas/authSchemas";
 import {
   CheckService,
   GoogleLoginService,
@@ -19,13 +18,13 @@ export async function RegisterController(
   next: NextFunction
 ) {
   try {
-    const userData: IRegister = RegisterSchema.parse(req.body);
+    const userData = req.body as IRegister;
 
     const newUser = await RegisterService(userData);
 
     res
       .status(201)
-      .json({ message: `New user created successfully`, data: newUser });
+      .json({ message: `New user created successfully`, newUser });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -40,7 +39,7 @@ export async function LoginController(
   next: NextFunction
 ) {
   try {
-    const userData: ILogin = LoginSchema.parse(req.body);
+    const userData = req.body as ILogin;
 
     const tokens = await LoginService(userData);
 
@@ -94,12 +93,13 @@ export async function LogOutController(
 
     if (refreshToken) await LogOutService(refreshToken);
 
-    res.status(200).clearCookie("token", { httpOnly: true }).json({ message: `Log out successfully` });
+    res
+      .status(200)
+      .clearCookie("token", { httpOnly: true })
+      .json({ message: `Log out successfully` });
   } catch (error) {
     if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ message: error.message });
+      return res.status(error.statusCode).json({ message: error.message });
     }
     next(error);
   }

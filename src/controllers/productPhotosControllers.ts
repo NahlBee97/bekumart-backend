@@ -13,7 +13,7 @@ export async function GetProductPhotosController(
     const photos = await GetProductPhotosService(productId);
     res
       .status(200)
-      .json({ message: "Product photos retrieved successfully", data: photos });
+      .json({ message: "Product photos retrieved successfully", photos });
   } catch (error) {
     if (error instanceof AppError) {
           return res.status(error.statusCode).json({ message: error.message });
@@ -33,7 +33,7 @@ export async function SetDefaultProductPhotoController(
     const updatedPhoto = await SetDefaultProductPhotoService(productId, isDefault);
     res
       .status(200)
-      .json({ message: "Product photo updated successfully", data: updatedPhoto });
+      .json({ message: "Product photo updated successfully", updatedPhoto });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -88,7 +88,7 @@ export async function AddProductPhotoController(
 
     res.status(200).json({
       message: `Image uploaded and URL saved successfully!`,
-      data: newPhoto,
+      newPhoto,
     });
   } catch (error) {
     if (error instanceof AppError) {

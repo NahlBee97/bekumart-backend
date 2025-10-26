@@ -1,13 +1,46 @@
 import { Router } from "express";
-import { CreateAddressController, DeleteAddressByIdController, EditAddressByIdController, GetAddressesByUserIdController, SetDefaultAddressController } from "../controllers/addressControllers";
+import {
+  CreateAddressController,
+  DeleteAddressByIdController,
+  EditAddressByIdController,
+  GetAddressesByUserIdController,
+  SetDefaultAddressController,
+} from "../controllers/addressControllers";
 import { VerifyToken } from "../middlewares/authMiddlewares";
+import { validateRequest } from "../middlewares/validationMiddleware";
+import {
+  createAddressSchema,
+  editAddressSchema,
+} from "../schemas/addressSchemas";
+import { idParamSchema } from "../schemas/paramsSchemas";
 
 const router = Router();
 
-router.get("/:userId", VerifyToken, GetAddressesByUserIdController);
-router.post("/", VerifyToken, CreateAddressController);
-router.put("/:id", VerifyToken, EditAddressByIdController);
-router.patch("/:id", VerifyToken, SetDefaultAddressController);
-router.delete("/:id", VerifyToken, DeleteAddressByIdController);
+router.get("/", VerifyToken, GetAddressesByUserIdController);
+router.post(
+  "/",
+  VerifyToken,
+  validateRequest(createAddressSchema),
+  CreateAddressController
+);
+router.put(
+  "/:id",
+  VerifyToken,
+  validateRequest(idParamSchema),
+  validateRequest(editAddressSchema),
+  EditAddressByIdController
+);
+router.patch(
+  "/:id",
+  VerifyToken,
+  validateRequest(idParamSchema),
+  SetDefaultAddressController
+);
+router.delete(
+  "/:id",
+  VerifyToken,
+  validateRequest(idParamSchema),
+  DeleteAddressByIdController
+);
 
 export default router;

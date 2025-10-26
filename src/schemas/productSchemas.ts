@@ -1,23 +1,14 @@
 import { z } from "zod";
 
 export const CreateProductSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
-  description: z.string().min(1, "Product description is required"),
-  price: z.number().min(0, "Price must be a positive number"),
-  stock: z.number().min(0, "Stock must be a positive number"),
-  weightInKg: z.number().min(0, "Weight must be a positive number"),
-  categoryId: z.string().min(1, "Category ID is required"),
+  body: z.object({
+    name: z.string().min(3, "Nama produk minimal 3 karakter"),
+    description: z.string().min(10, "Deskripsi produk minimal 10 karakter"),
+    price: z.number().min(0, "Harga tidak boleh negatif"),
+    stock: z.number().int().min(0, "Stok tidak boleh negatif"),
+    weightInKg: z.number().min(0, "Berat tidak boleh negatif"),
+    categoryId: z.string().min(1, "Kategori wajib diisi"),
+  }),
 });
 
-export const UpdateProductSchema = z.object({
-    name: z.string().min(1).optional(),
-    description: z.string().min(1).optional(),
-    price: z.number().min(0).optional(),
-    stock: z.number().min(0).optional(),
-    weightInKg: z.number().min(0).optional(),
-    categoryId: z.string().min(1).optional(),
-});
-
-// Create types from schemas to use in your services/controllers
-export type CreateProductInput = z.infer<typeof CreateProductSchema>;
-export type UpdateProductInput = z.infer<typeof UpdateProductSchema>;
+export const UpdateProductSchema = CreateProductSchema.partial();

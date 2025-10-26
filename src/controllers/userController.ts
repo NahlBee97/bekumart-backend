@@ -71,7 +71,7 @@ export async function EditUserInfoController(
 
     res.status(200).json({
       message: "Edit user successfully",
-      data: updatedUser,
+      updatedUser,
     });
   } catch (error) {
     if (error instanceof AppError) {
@@ -94,7 +94,7 @@ export async function ChangeUserPasswordController(
 
     res.status(200).json({
       message: "Update user password successfully",
-      data: updatedUser,
+      updatedUser,
     });
   } catch (error) {
     if (error instanceof AppError) {

@@ -59,11 +59,9 @@ export async function CreateProductReviewController(
 ) {
   try {
     const { productId } = req.params;
-    const userId = req.user?.id as string;
     const { desc, rating } = req.body;
     const { files } = req;
-
-    if (files?.length === 0) throw new Error("File not found");
+    const userId = req.user?.id as string;
 
     let fileUris = [];
 
@@ -83,7 +81,7 @@ export async function CreateProductReviewController(
 
     const review = await CreateProductReviewService(productId, reviewData);
 
-    return res.status(200).json({ message: "successfully retrieved review" });
+    return res.status(200).json({ message: "successfully retrieved review", review });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

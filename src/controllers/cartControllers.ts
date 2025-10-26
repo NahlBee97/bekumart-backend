@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { AddItemToCartService, DeleteItemInCartService, GetUserCartService, UpdateItemInCartService } from "../services/cartServices";
+import {
+  AddItemToCartService,
+  DeleteItemInCartService,
+  GetUserCartService,
+  UpdateItemInCartService,
+} from "../services/cartServices";
 import type { IAddItem } from "../interfaces/cartInterfaces";
-import { AddItemToCartSchema } from "../schemas/cartSchemas";
 import { AppError } from "../utils/appError";
 
 export async function GetUserCartController(
@@ -10,14 +14,14 @@ export async function GetUserCartController(
   next: NextFunction
 ) {
   try {
-    const userId = req.params.userId as string;
+    const { userId } = req.params;
     const cart = await GetUserCartService(userId);
-    res.status(200).json({ message: "User cart retrieved", data: cart });
+    res.status(200).json({ message: "User cart retrieved", cart });
   } catch (error) {
     if (error instanceof AppError) {
-          return res.status(error.statusCode).json({ message: error.message });
-        }
-        next(error);
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
   }
 }
 
@@ -27,12 +31,13 @@ export async function AddItemToCartController(
   next: NextFunction
 ) {
   try {
-    const itemData: IAddItem = AddItemToCartSchema.parse(req.body);
-
-    const { userId, productId, quantity } = itemData;
+    const userId = req.user?.id as string;
+    const { productId, quantity } = req.body as IAddItem;
 
     const cart = await AddItemToCartService(userId, productId, quantity);
-    res.status(200).json({ message: "Item added to cart successfully", data: cart });
+    res
+      .status(200)
+      .json({ message: "Item added to cart successfully", cart });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -47,11 +52,13 @@ export async function UpdateItemInCartController(
   next: NextFunction
 ) {
   try {
-    const { itemId } = req.params as { itemId: string };
+    const { itemId } = req.params;
     const { quantity } = req.body;
 
     const cart = await UpdateItemInCartService(itemId, quantity);
-    res.status(200).json({ message: "Item updated in cart successfully", data: cart });
+    res
+      .status(200)
+      .json({ message: "Item updated in cart successfully", cart });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

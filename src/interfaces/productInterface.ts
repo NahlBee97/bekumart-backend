@@ -1,6 +1,3 @@
-import type { ICartItem } from "./cartInterfaces.ts";
-import type { IOrderItem } from "./orderInterfaces.ts";
-
 export interface INewProduct {
   name: string;
   description: string;

@@ -11,7 +11,7 @@ export default async function GetCategoriesController(
     const categories = await GetCategoriesService();
     res.status(200).json({
       message: "Categories fetched successfully",
-      data: categories,
+      categories,
     });
   } catch (error) {
     if (error instanceof AppError) {

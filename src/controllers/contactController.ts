@@ -8,13 +8,7 @@ export async function ContactController(
   next: NextFunction
 ) {
   try {
-    const { email, name, message } = req.body;
-
-    const data = {
-      email, name, message
-    }
-
-    await ContactService(data);
+    await ContactService(req.body);
 
     return res.status(200).json({ message: "successfully end email" });
   } catch (error) {

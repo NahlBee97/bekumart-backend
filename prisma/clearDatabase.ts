@@ -10,7 +10,7 @@ async function main() {
   // The order of deletion is important to avoid foreign key constraint errors.
   // We delete from "child" tables before "parent" tables.
   await prisma.$transaction([
-    prisma.reviewLikes.deleteMany({}),
+    // prisma.reviewLikes.deleteMany({}),
     // prisma.reviewPhotos.deleteMany({}),
     // prisma.reviews.deleteMany({}),
     // prisma.orderItems.deleteMany({}),

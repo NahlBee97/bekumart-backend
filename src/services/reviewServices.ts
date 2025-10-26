@@ -16,7 +16,7 @@ export async function GetProductReviewsService(productId: string) {
       reviewPhotos: true,
       user: true,
     },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
   });
 
   if (reviews.length === 0) {
@@ -38,7 +38,7 @@ export async function GetProductReviewsByUserIdService(userId: string) {
     include: {
       user: true,
     },
-    orderBy: { createdAt: "desc"}
+    orderBy: { createdAt: "desc" },
   });
 
   if (!reviews) throw new AppError("Reviews Not Found", 404);
@@ -48,7 +48,12 @@ export async function GetProductReviewsByUserIdService(userId: string) {
 
 export async function CreateProductReviewService(
   productId: string,
-  reviewData: { userId: string; desc: string; rating: string; fileUris: string[] }
+  reviewData: {
+    userId: string;
+    desc: string;
+    rating: string;
+    fileUris: string[];
+  }
 ) {
   const { userId, desc, rating, fileUris } = reviewData;
 
@@ -72,41 +77,43 @@ export async function CreateProductReviewService(
 
   const reviews = await prisma.reviews.aggregate({
     where: {
-      productId
+      productId,
     },
     _avg: {
-      rating: true
-    }
-  })
+      rating: true,
+    },
+  });
 
   await prisma.products.update({
     where: {
-      id: productId
+      id: productId,
     },
     data: {
-      rating: reviews._avg.rating
+      rating: reviews._avg.rating,
+    },
+  });
+
+  if (fileUris.length > 0) {
+    let num = 0;
+
+    for (const fileUri of fileUris) {
+      num++;
+      let publicId = `reviews/review_${newReview.id}_${num}_${Date.now()}`; // Default for new images
+      // Upload the image to Cloudinary
+      const uploadResult = await cloudinary.uploader.upload(fileUri, {
+        public_id: publicId,
+        overwrite: true,
+        folder: "reviews",
+      });
+
+      const imageUrl = uploadResult.secure_url;
+
+      await prisma.reviewPhotos.create({
+        data: { imageUrl, reviewId: newReview.id, updatedAt: new Date() },
+      });
     }
-  })
-
-
-  let num = 0;
-  for (const fileUri of fileUris) {
-    num++;
-    let publicId = `reviews/review_${newReview.id}_${num}_${Date.now()}`; // Default for new images
-    // Upload the image to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(fileUri, {
-      public_id: publicId,
-      overwrite: true,
-      folder: "reviews",
-    });
-  
-    const imageUrl = uploadResult.secure_url;
-  
-    await prisma.reviewPhotos.create({
-      data: { imageUrl, reviewId: newReview.id, updatedAt: new Date() },
-    });
   }
-  
+
   return newReview;
 }
 
@@ -164,12 +171,10 @@ export async function UnlikeReviewService(reviewId: string, userId: string) {
 export async function GetUserLikeReviewsService(userId: string) {
   const likes = await prisma.reviewLikes.findMany({
     where: { userId },
-    orderBy: { createdAt: "desc"}
+    orderBy: { createdAt: "desc" },
   });
 
   if (!likes) throw new AppError("Likes Not Found", 404);
 
   return likes;
 }
-
-
