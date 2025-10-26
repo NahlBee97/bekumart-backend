@@ -6,11 +6,11 @@ export async function GetAddressesByUserIdService(userId: string) {
   try {
     const addresses = await prisma.addresses.findMany({
       where: { userId },
-      orderBy: { createdAt: "asc" }
+      orderBy: { createdAt: "asc" },
     });
     return addresses;
   } catch (error) {
-    console.error("can not get addresses:", error)
+    console.error("can not get addresses:", error);
     throw new AppError("Can not get addresses", 500);
   }
 }
@@ -30,13 +30,14 @@ export async function EditAddressByIdService(
     const updatedAddress = await prisma.addresses.update({
       where: { id: addressId },
       data: {
-        street: addressData.street ?? existingAddress.street,
-        subdistrict: addressData.subdistrict ?? existingAddress.subdistrict,
-        district: addressData.district ?? existingAddress.district,
-        city: addressData.city ?? existingAddress.city,
-        province: addressData.province ?? existingAddress.province,
-        postalCode: addressData.postalCode ?? existingAddress.postalCode,
-        phone: addressData.phone ?? existingAddress.phone,
+        receiver: addressData.receiver || existingAddress.receiver,
+        street: addressData.street || existingAddress.street,
+        subdistrict: addressData.subdistrict || existingAddress.subdistrict,
+        district: addressData.district || existingAddress.district,
+        city: addressData.city || existingAddress.city,
+        province: addressData.province || existingAddress.province,
+        postalCode: addressData.postalCode || existingAddress.postalCode,
+        phone: addressData.phone || existingAddress.phone,
       },
     });
 
@@ -49,32 +50,30 @@ export async function EditAddressByIdService(
 
 export async function SetDefaultAddressService(
   addressId: string,
-  userId: string,
-  isDefault: boolean
+  userId: string
 ) {
   try {
     const result = await prisma.$transaction(async (tx) => {
       const address = await tx.addresses.findUnique({
-        where: {
-          id: addressId,
-          userId: userId,
-        },
+        where: { id: addressId },
       });
 
-      if (!address) {
+      // Check for existence AND ownership in one go
+      if (!address || address.userId !== userId) {
         throw new AppError("Address not found", 404);
       }
 
       await tx.addresses.updateMany({
         where: {
           userId,
+          id: { not: addressId }, // Optimization: Don't update the target address
         },
         data: { isDefault: false },
       });
 
       const updatedAddress = await tx.addresses.update({
         where: { id: addressId },
-        data: { isDefault },
+        data: { isDefault:true },
       });
 
       return updatedAddress;
@@ -86,6 +85,7 @@ export async function SetDefaultAddressService(
     throw new AppError("Could not set default address.", 500);
   }
 }
+
 export async function DeleteAddressByIdService(addressId: string) {
   try {
     const address = await prisma.addresses.findUnique({
@@ -101,7 +101,7 @@ export async function DeleteAddressByIdService(addressId: string) {
     });
   } catch (error) {
     console.error("Error deleting address:", error);
-    throw new AppError("Could not delete address", 500)
+    throw new AppError("Could not delete address", 500);
   }
 }
 export async function CreateAddressService(userId: string, bodyData: IAddress) {

@@ -18,7 +18,7 @@ export async function GetAddressesByUserIdController(
     const addresses = await GetAddressesByUserIdService(userId);
     res
       .status(200)
-      .json({ message: "Addresses retrieved successfully", data: addresses });
+      .json({ message: "Addresses retrieved successfully", addresses });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -55,8 +55,8 @@ export async function SetDefaultAddressController(
 ) {
   try {
     const addressId = req.params.id as string;
-    const { isDefault, userId } = req.body;
-    const updatedAddress = await SetDefaultAddressService(addressId, userId, isDefault);
+    const userId = req.user?.id as string;
+    const updatedAddress = await SetDefaultAddressService(addressId, userId);
     res.status(200).json({
       message: "Set default address successfully",
       data: updatedAddress,

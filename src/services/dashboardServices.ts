@@ -128,5 +128,7 @@ export async function CustomerOriginSummaryService() {
     count: item._count.subdistrict,
   }));
 
+  console.log(customerOrigins);
+
   return customerOrigins;
 }
