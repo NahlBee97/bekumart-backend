@@ -22,7 +22,7 @@ export async function CreateOrderController(
       courier,
       paymentMethod,
       addressId,
-      totalCheckoutPrice,
+      totalAmount,
     } = req.body;
 
     const newOrderData = await CreateOrderService(
@@ -31,7 +31,7 @@ export async function CreateOrderController(
       paymentMethod,
       courier,
       addressId,
-      totalCheckoutPrice
+      totalAmount
     );
 
     res

@@ -12,7 +12,7 @@ export async function GetAllProvincesController(
 
     res.status(200).json({
       message: `Get all provinces success`,
-      data: provinces,
+      provinces,
     });
   } catch (error) {
     if (error instanceof AppError) {

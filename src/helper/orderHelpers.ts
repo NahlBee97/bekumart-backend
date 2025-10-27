@@ -83,7 +83,7 @@ export async function createOrderTransaction({
   courier,
   paymentMethod,
   addressId,
-  totalCheckoutPrice,
+  totalAmount,
 }: {
   userId: string;
   cart: any;
@@ -91,14 +91,14 @@ export async function createOrderTransaction({
   courier: string;
   paymentMethod: PaymentMethod;
   addressId: string;
-  totalCheckoutPrice: number;
+  totalAmount: number;
 }) {
   return await prisma.$transaction(async (tx) => {
     // 1. Create order
     const order = await tx.orders.create({
       data: {
         userId,
-        totalAmount: totalCheckoutPrice,
+        totalAmount,
         totalWeight: cart.totalWeight,
         fulfillmentType,
         courier,

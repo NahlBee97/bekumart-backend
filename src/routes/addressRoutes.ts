@@ -12,11 +12,11 @@ import {
   createAddressSchema,
   editAddressSchema,
 } from "../schemas/addressSchemas";
-import { idParamSchema } from "../schemas/paramsSchemas";
+import { idParamSchema, userIdParamSchema } from "../schemas/paramsSchemas";
 
 const router = Router();
 
-router.get("/", VerifyToken, GetAddressesByUserIdController);
+router.get("/:userId", validateRequest(userIdParamSchema), VerifyToken, GetAddressesByUserIdController);
 router.post(
   "/",
   VerifyToken,

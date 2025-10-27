@@ -12,7 +12,7 @@ export async function GetSubDistrictsByDistrictController(
     const province = req.query.province as string;
     const district = req.query.district as string;
 
-    const districts = await GetSubDistrictsByDistrictService(
+    const subDistricts = await GetSubDistrictsByDistrictService(
       province,
       city,
       district
@@ -20,7 +20,7 @@ export async function GetSubDistrictsByDistrictController(
 
     res.status(200).json({
       message: `Get sub-districts by district success`,
-      data: districts,
+      subDistricts,
     });
   } catch (error) {
     if (error instanceof AppError) {

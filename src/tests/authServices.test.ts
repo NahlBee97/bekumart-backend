@@ -5,7 +5,7 @@ import jwt, { sign } from "jsonwebtoken";
 import { LoginService, RegisterService } from "../services/authServices";
 import { FindUserByEmail } from "../helper/findUserByEmail";
 import { mockedPrisma } from "./mockPrisma";
-import { JWT_SECRET } from "../config";
+import { JWT_ACCESS_SECRET } from "../config";
 
 jest.mock("../helper/findUserByEmail", () => ({
   FindUserByEmail: jest.fn(),
@@ -184,7 +184,7 @@ describe("Login Service", () => {
     );
     expect(mockedSign).toHaveBeenCalledWith(
       expectedPayload,
-      String(JWT_SECRET),
+      String(JWT_ACCESS_SECRET),
       {
         expiresIn: "1h",
       }

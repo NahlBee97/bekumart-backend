@@ -14,7 +14,7 @@ export async function GetAddressesByUserIdController(
   next: NextFunction
 ) {
   try {
-    const userId = req.user?.id as string;
+    const { userId } = req.params;
     const addresses = await GetAddressesByUserIdService(userId);
     res
       .status(200)

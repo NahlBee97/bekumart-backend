@@ -15,7 +15,7 @@ export async function GetDistrictsByCityController(
 
     res.status(200).json({
       message: `Get districts by city success`,
-      data: districts,
+      districts,
     });
   } catch (error) {
     if (error instanceof AppError) {

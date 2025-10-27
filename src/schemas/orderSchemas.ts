@@ -7,7 +7,7 @@ export const createOrderSchema = z.object({
     courier: z.string().min(1, "Nama kurir wajib ada"),
     fullfillmentType: z.string().min(1, "Pemenuhan Order Wajib Ada"),
     paymentMethod: z.string().min(1, "Metode pembayaran wajib ada"),
-    totalCheckoutPrice: z.number().min(0, "Harga total wajib ada"),
+    totalAmount: z.number().min(0, "Harga total wajib ada"),
   }),
 });
 

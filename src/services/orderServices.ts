@@ -15,7 +15,7 @@ export async function CreateOrderService(
   paymentMethod: PaymentMethod,
   courier: string,
   addressId: string,
-  totalCheckoutPrice: number
+  totalAmount: number
 ) {
   try {
     const cart = await GetUserCartService(userId);
@@ -37,7 +37,7 @@ export async function CreateOrderService(
       }
     }
 
-    await validateCartItems(cart.items, totalCheckoutPrice);
+    await validateCartItems(cart.items, totalAmount);
 
     // Step 4: Create order in transaction
     const newOrder = await createOrderTransaction({
@@ -47,7 +47,7 @@ export async function CreateOrderService(
       paymentMethod,
       courier,
       addressId,
-      totalCheckoutPrice: Math.ceil(totalCheckoutPrice),
+      totalAmount: Math.ceil(totalAmount),
     });
 
     // Step 5: Create payment transaction
