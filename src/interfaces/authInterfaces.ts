@@ -1,7 +1,4 @@
 import type { UserRoles } from "@prisma/client";
-import type { IOrder } from "./orderInterfaces.ts";
-import type { IAddress } from "./addressesInterface.ts";
-import type { ICart } from "./cartInterfaces.ts";
 
 export interface IRegister {
     name: string;
@@ -19,7 +16,7 @@ export interface IUser {
   id: string;
   email: string;
   name: string;
-  password: string;
+  password: string | null;
   imageUrl: string | null;
   isVerified: boolean;
   role: UserRoles;

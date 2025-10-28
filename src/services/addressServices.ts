@@ -10,100 +10,10 @@ export async function GetAddressesByUserIdService(userId: string) {
     });
     return addresses;
   } catch (error) {
-    console.error("can not get addresses:", error);
     throw new AppError("Can not get addresses", 500);
   }
 }
 
-export async function EditAddressByIdService(
-  addressId: string,
-  addressData: IAddress
-) {
-  try {
-    const existingAddress = await prisma.addresses.findUnique({
-      where: { id: addressId },
-    });
-
-    if (!existingAddress) throw new AppError("Address not found.", 404);
-
-    // Update address
-    const updatedAddress = await prisma.addresses.update({
-      where: { id: addressId },
-      data: {
-        receiver: addressData.receiver || existingAddress.receiver,
-        street: addressData.street || existingAddress.street,
-        subdistrict: addressData.subdistrict || existingAddress.subdistrict,
-        district: addressData.district || existingAddress.district,
-        city: addressData.city || existingAddress.city,
-        province: addressData.province || existingAddress.province,
-        postalCode: addressData.postalCode || existingAddress.postalCode,
-        phone: addressData.phone || existingAddress.phone,
-      },
-    });
-
-    return updatedAddress;
-  } catch (error) {
-    console.error("Could not update address:", error);
-    throw new AppError("Could not update address.", 500);
-  }
-}
-
-export async function SetDefaultAddressService(
-  addressId: string,
-  userId: string
-) {
-  try {
-    const result = await prisma.$transaction(async (tx) => {
-      const address = await tx.addresses.findUnique({
-        where: { id: addressId },
-      });
-
-      // Check for existence AND ownership in one go
-      if (!address || address.userId !== userId) {
-        throw new AppError("Address not found", 404);
-      }
-
-      await tx.addresses.updateMany({
-        where: {
-          userId,
-          id: { not: addressId }, // Optimization: Don't update the target address
-        },
-        data: { isDefault: false },
-      });
-
-      const updatedAddress = await tx.addresses.update({
-        where: { id: addressId },
-        data: { isDefault:true },
-      });
-
-      return updatedAddress;
-    });
-
-    return result;
-  } catch (error) {
-    console.error("Error setting address to default:", error);
-    throw new AppError("Could not set default address.", 500);
-  }
-}
-
-export async function DeleteAddressByIdService(addressId: string) {
-  try {
-    const address = await prisma.addresses.findUnique({
-      where: {
-        id: addressId,
-      },
-    });
-
-    if (!address) throw new Error("Address not found");
-
-    await prisma.addresses.delete({
-      where: { id: addressId },
-    });
-  } catch (error) {
-    console.error("Error deleting address:", error);
-    throw new AppError("Could not delete address", 500);
-  }
-}
 export async function CreateAddressService(userId: string, bodyData: IAddress) {
   try {
     const address = await prisma.$transaction(async (tx) => {
@@ -123,6 +33,107 @@ export async function CreateAddressService(userId: string, bodyData: IAddress) {
 
     return address;
   } catch (error) {
-    throw error;
+    throw new AppError("Can not create address", 500);
+  }
+}
+
+export async function EditAddressByIdService(
+  addressId: string,
+  addressData: Partial<IAddress>
+) {
+  let existingAddress;
+  try {
+    existingAddress = await prisma.addresses.findUnique({
+      where: { id: addressId },
+    });
+  } catch (findError) {
+    throw new AppError("Error finding address.", 500);
+  }
+
+  if (!existingAddress) {
+    throw new AppError("Address not found", 404);
+  }
+
+  try {
+    const updatedAddress = await prisma.addresses.update({
+      where: { id: addressId },
+      data: {
+        receiver: addressData.receiver || existingAddress.receiver,
+        street: addressData.street || existingAddress.street,
+        subdistrict: addressData.subdistrict || existingAddress.subdistrict,
+        district: addressData.district || existingAddress.district,
+        city: addressData.city || existingAddress.city,
+        province: addressData.province || existingAddress.province,
+        postalCode: addressData.postalCode || existingAddress.postalCode,
+        phone: addressData.phone || existingAddress.phone,
+      },
+    });
+    return updatedAddress;
+  } catch (updateError) {
+    throw new AppError("Failed to update address", 500);
+  }
+}
+
+export async function SetDefaultAddressService(
+  addressId: string,
+  userId: string
+) {
+  let address;
+
+  try {
+    address = await prisma.addresses.findUnique({
+      where: { id: addressId },
+    });
+  } catch (findError) {
+    throw new AppError("Error finding address.", 500);
+  }
+
+  if (!address || address.userId !== userId) {
+    throw new AppError("Address not found", 404);
+  }
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.addresses.updateMany({
+        where: {
+          userId,
+          id: { not: addressId },
+        },
+        data: { isDefault: false },
+      });
+
+      const updatedAddress = await tx.addresses.update({
+        where: { id: addressId },
+        data: { isDefault: true },
+      });
+
+      return updatedAddress;
+    });
+    return result;
+  } catch (error) {
+    throw new AppError("Could not set default address.", 500);
+  }
+}
+
+export async function DeleteAddressByIdService(addressId: string) {
+  let address;
+  try {
+    address = await prisma.addresses.findUnique({
+      where: {
+        id: addressId,
+      },
+    });
+  } catch (error) {
+    throw new AppError("Error finding address.", 500);
+  }
+
+  if (!address) throw new AppError("Address not found", 404);
+
+  try {
+    await prisma.addresses.delete({
+      where: { id: addressId },
+    });
+  } catch (error) {
+    throw new AppError("Could not delete address", 500);
   }
 }
