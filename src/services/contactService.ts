@@ -5,5 +5,9 @@ export async function ContactService(data: {
   email: string;
   message: string;
 }) {
-  await SendEmail(data);
+  try {
+    await SendEmail(data);
+  } catch (error) {
+    throw error;
+  }
 }

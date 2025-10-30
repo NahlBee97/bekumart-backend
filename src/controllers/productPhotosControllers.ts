@@ -35,9 +35,7 @@ export async function SetDefaultProductPhotoController(
       .status(200)
       .json({ message: "Product photo updated successfully", updatedPhoto });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -63,9 +61,7 @@ export async function UpdateProductPhotoController(
       data: imageUrl,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -91,9 +87,7 @@ export async function AddProductPhotoController(
       newPhoto,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -113,9 +107,7 @@ export async function DeleteProductPhotoController(
       data: deletedPhoto,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

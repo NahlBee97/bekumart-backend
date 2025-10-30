@@ -10,7 +10,7 @@ export async function GetAddressesByUserIdService(userId: string) {
     });
     return addresses;
   } catch (error) {
-    throw new AppError("Can not get addresses", 500);
+    throw error;
   }
 }
 
@@ -33,7 +33,7 @@ export async function CreateAddressService(userId: string, bodyData: IAddress) {
 
     return address;
   } catch (error) {
-    throw new AppError("Can not create address", 500);
+    throw error;
   }
 }
 
@@ -41,20 +41,15 @@ export async function EditAddressByIdService(
   addressId: string,
   addressData: Partial<IAddress>
 ) {
-  let existingAddress;
   try {
-    existingAddress = await prisma.addresses.findUnique({
+    const existingAddress = await prisma.addresses.findUnique({
       where: { id: addressId },
     });
-  } catch (findError) {
-    throw new AppError("Error finding address.", 500);
-  }
 
-  if (!existingAddress) {
-    throw new AppError("Address not found", 404);
-  }
+    if (!existingAddress) {
+      throw new AppError("Address not found", 404);
+    }
 
-  try {
     const updatedAddress = await prisma.addresses.update({
       where: { id: addressId },
       data: {
@@ -69,8 +64,8 @@ export async function EditAddressByIdService(
       },
     });
     return updatedAddress;
-  } catch (updateError) {
-    throw new AppError("Failed to update address", 500);
+  } catch (error) {
+    throw error;
   }
 }
 
@@ -78,21 +73,15 @@ export async function SetDefaultAddressService(
   addressId: string,
   userId: string
 ) {
-  let address;
-
   try {
-    address = await prisma.addresses.findUnique({
+    const address = await prisma.addresses.findUnique({
       where: { id: addressId },
     });
-  } catch (findError) {
-    throw new AppError("Error finding address.", 500);
-  }
 
-  if (!address || address.userId !== userId) {
-    throw new AppError("Address not found", 404);
-  }
+    if (!address || address.userId !== userId) {
+      throw new AppError("Address not found", 404);
+    }
 
-  try {
     const result = await prisma.$transaction(async (tx) => {
       await tx.addresses.updateMany({
         where: {
@@ -111,29 +100,24 @@ export async function SetDefaultAddressService(
     });
     return result;
   } catch (error) {
-    throw new AppError("Could not set default address.", 500);
+    throw error;
   }
 }
 
 export async function DeleteAddressByIdService(addressId: string) {
-  let address;
   try {
-    address = await prisma.addresses.findUnique({
+    const address = await prisma.addresses.findUnique({
       where: {
         id: addressId,
       },
     });
-  } catch (error) {
-    throw new AppError("Error finding address.", 500);
-  }
 
-  if (!address) throw new AppError("Address not found", 404);
+    if (!address) throw new AppError("Address not found", 404);
 
-  try {
     await prisma.addresses.delete({
       where: { id: addressId },
     });
   } catch (error) {
-    throw new AppError("Could not delete address", 500);
+    throw error;
   }
 }

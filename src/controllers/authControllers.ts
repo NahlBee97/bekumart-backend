@@ -26,9 +26,7 @@ export async function RegisterController(
       .status(201)
       .json({ message: `New user created successfully`, newUser });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -52,9 +50,7 @@ export async function LoginController(
       .cookie("token", refreshToken, { maxAge: sevenDayInMs, httpOnly: true })
       .json({ message: `Login successfully`, accessToken });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -76,9 +72,7 @@ export async function GoogleLoginController(
       .cookie("token", refreshToken, { maxAge: sevenDayInMs, httpOnly: true })
       .json({ message: `Login with google successfully`, accessToken });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -98,9 +92,7 @@ export async function LogOutController(
       .clearCookie("token", { httpOnly: true })
       .json({ message: `Log out successfully` });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -115,9 +107,7 @@ export async function VerifyResetPasswordController(
     await VerifyResetPasswordEmail(email);
     res.status(200).json({ message: `Send email success` });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -132,9 +122,7 @@ export async function SetPasswordController(
     await SetPasswordService(password, token);
     res.status(200).json({ message: `Set password success` });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -160,9 +148,7 @@ export async function RefreshTokenController(
       accessToken,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -189,9 +175,7 @@ export async function CheckController(
       status,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

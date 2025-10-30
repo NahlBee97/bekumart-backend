@@ -29,9 +29,7 @@ export async function UploadProfileController(
       message: "Upload profile successfully",
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -51,9 +49,7 @@ export async function GetUserInfoController(
       user,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -74,9 +70,7 @@ export async function EditUserInfoController(
       updatedUser,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -97,9 +91,7 @@ export async function ChangeUserPasswordController(
       updatedUser,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

@@ -1,13 +1,14 @@
 import { prisma } from "../lib/prisma";
-import { AppError } from "../utils/appError";
 
 export async function GetReviewPhotosService(reviewId: string) {
-  const reviewPhotos = await prisma.reviewPhotos.findMany({
-    where: { reviewId },
-    orderBy: { createdAt: "desc" }
-  });
+  try {
+    const reviewPhotos = await prisma.reviewPhotos.findMany({
+      where: { reviewId },
+      orderBy: { createdAt: "desc" },
+    });
 
-  if (!reviewPhotos) throw new AppError("Review Photos Not Found", 404);
-
-  return reviewPhotos;
+    return reviewPhotos;
+  } catch (error) {
+    throw error;
+  }
 }

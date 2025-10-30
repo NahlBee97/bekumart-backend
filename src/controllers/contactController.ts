@@ -12,9 +12,7 @@ export async function ContactController(
 
     return res.status(200).json({ message: "successfully end email" });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

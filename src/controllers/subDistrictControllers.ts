@@ -23,9 +23,7 @@ export async function GetSubDistrictsByDistrictController(
       subDistricts,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

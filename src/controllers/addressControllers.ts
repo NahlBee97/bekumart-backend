@@ -20,9 +20,7 @@ export async function GetAddressesByUserIdController(
       .status(200)
       .json({ message: "Berhasil mengambil daftar alamat", addresses });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -41,9 +39,7 @@ export async function EditAddressByIdController(
       .status(200)
       .json({ message: "Berhasil mengubah alamat", updatedAddress });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -66,9 +62,7 @@ export async function SetDefaultAddressController(
       updatedAddress,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -83,9 +77,7 @@ export async function DeleteAddressByIdController(
     await DeleteAddressByIdService(addressId);
     res.status(200).json({ message: "Berhasil menghapus alamat" });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -103,9 +95,7 @@ export async function CreateAddressController(
       .status(201)
       .json({ message: "Create Address successfully", newAddress });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

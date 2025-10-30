@@ -26,6 +26,7 @@ import DashboardRouter from "./routes/dashboardRoutes"
 import ReviewRouter from "./routes/reviewRoutes"
 import ReviewPhotoRouter from "./routes/reviewPhotosRoutes"
 import ContactRouter from "./routes/contactRoutes"
+import { globalErrorHandler } from "./middlewares/errorHandler";
 
 // cors
 app.use(
@@ -62,11 +63,7 @@ app.use("/api/review-photos", ReviewPhotoRouter);
 app.use("/api/contact", ContactRouter);
 
 // --- Central Error Handler ---
-app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error("UNHANDLED ERROR:", error); // Log the error for debugging
-
-  res.status(500).json({ message: "Internal Server Error" });
-});
+app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`Backend server is running on http://localhost:${PORT}`);

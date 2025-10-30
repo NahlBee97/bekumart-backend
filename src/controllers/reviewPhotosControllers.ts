@@ -16,9 +16,7 @@ export async function GetReviewPhotosController(
       .status(200)
       .json({ message: "successfully retrieved review photos", reviewPhotos });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

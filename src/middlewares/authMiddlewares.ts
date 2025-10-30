@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { JsonWebTokenError, JwtPayload, TokenExpiredError, verify } from "jsonwebtoken";
+import { JwtPayload, verify } from "jsonwebtoken";
 import { IUserReqParam } from "../custom";
 import { AppError } from "../utils/appError";
 import { JWT_ACCESS_SECRET } from "../config";
@@ -25,14 +25,8 @@ export async function VerifyToken(
     req.user = decodedPayload as IUserReqParam;
 
     next();
-  } catch (err) {
-    if (err instanceof TokenExpiredError) {
-      return next(new AppError("Unauthorized: Token has expired", 401));
-    }
-    if (err instanceof JsonWebTokenError) {
-      return next(new AppError("Unauthorized: Invalid token", 401));
-    }
-    next(err);
+  } catch (error) {
+    next(error);
   }
 }
 

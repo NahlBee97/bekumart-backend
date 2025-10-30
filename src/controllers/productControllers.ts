@@ -25,9 +25,7 @@ export async function GetProductsController(
       .status(200)
       .json({ message: "Products retrieved successfully", products });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -44,9 +42,7 @@ export async function GetProductsByIdController(
       .status(200)
       .json({ message: "Product retrieved successfully", product });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -63,9 +59,7 @@ export async function CreateProductController(
       .status(201)
       .json({ message: "Product created successfully", newProduct });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -83,9 +77,7 @@ export async function UpdateProductController(
       .status(200)
       .json({ message: "Product updated successfully", updatedProduct });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -100,9 +92,7 @@ export async function DeleteProductController(
     await DeleteProductService(productId);
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

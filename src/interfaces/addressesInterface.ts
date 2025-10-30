@@ -1,4 +1,3 @@
-// Corresponds to the 'Addresses' model
 export interface IAddress {
   id: string;
   receiver: string;

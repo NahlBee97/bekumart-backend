@@ -1,6 +1,6 @@
-import type { FulfillmentTypes, OrderStatuses, PaymentMethod } from "@prisma/client";
-import type { IUser } from "./authInterfaces.ts";
-import type { IProduct } from "./productInterface.ts";
+import { FulfillmentTypes, OrderStatuses, PaymentMethod } from "@prisma/client";
+import { IUser } from "./authInterfaces";
+import { IProduct } from "./productInterface";
 
 // Corresponds to the 'Orders' model
 export interface IOrder {

@@ -18,9 +18,7 @@ export async function GetUserCartController(
     const cart = await GetUserCartService(userId);
     res.status(200).json({ message: "User cart retrieved", cart });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -34,14 +32,12 @@ export async function AddItemToCartController(
     const userId = req.user?.id as string;
     const { productId, quantity } = req.body as IAddItem;
 
-    const cart = await AddItemToCartService(userId, productId, quantity);
+    await AddItemToCartService(userId, productId, quantity);
     res
       .status(200)
-      .json({ message: "Item added to cart successfully", cart });
+      .json({ message: "Item added to cart successfully"});
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -60,9 +56,7 @@ export async function UpdateItemInCartController(
       .status(200)
       .json({ message: "Item updated in cart successfully", cart });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -78,9 +72,7 @@ export async function DeleteItemInCartController(
     await DeleteItemInCartService(itemId);
     res.status(200).json({ message: "Item deleted from cart successfully" });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

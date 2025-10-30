@@ -37,7 +37,7 @@ export async function CreateOrderService(
       }
     }
 
-    await validateCartItems(cart.items, totalAmount);
+    await validateCartItems(cart.items);
 
     // Step 4: Create order in transaction
     const newOrder = await createOrderTransaction({
@@ -64,8 +64,7 @@ export async function CreateOrderService(
 
     return { newOrder };
   } catch (error) {
-    console.error("Error in CreateOrderService:", error);
-    throw new AppError("Could not create order", 500);
+    throw error;
   }
 }
 
@@ -82,7 +81,7 @@ export async function UpdateOrderStatusService(
         items: {
           include: {
             product: {
-              include: { category: true },
+              include: { category: true, productPhotos: true},
             },
           },
         },
@@ -92,7 +91,7 @@ export async function UpdateOrderStatusService(
     sendOrderStatusUpdateEmail(updatedOrder);
     return updatedOrder;
   } catch (error) {
-    throw new AppError("can not update oreder status", 500);
+    throw error;
   }
 }
 
@@ -111,11 +110,11 @@ export async function GetOrderItemsByOrderIdService(orderId: string) {
       },
     });
 
-    if (!orderItems) throw new AppError("order items not found", 404);
+    if (orderItems.length === 0) throw new AppError("order items not found", 404);
 
     return orderItems;
   } catch (error) {
-    throw new AppError("can not get order item", 500);
+    throw error;
   }
 }
 
@@ -127,8 +126,8 @@ export async function GetUserOrdersService(userId: string) {
       },
     });
     return orders;
-  } catch (err) {
-    throw new AppError("can not get orders", 500);
+  } catch (error) {
+    throw error;
   }
 }
 
@@ -150,7 +149,7 @@ export async function GetAllOrderService( status: OrderStatuses ) {
     }
 
     return orders;
-  } catch (err) {
-    throw new AppError("can not get orders item", 500);
+  } catch (error) {
+    throw error;
   }
 }

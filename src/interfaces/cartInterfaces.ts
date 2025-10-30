@@ -1,5 +1,4 @@
-import type { IUser } from "./authInterfaces.ts";
-import type { IProduct } from "./productInterface.ts";
+import { IProduct } from "./productInterface";
 
 export interface IAddItem {
   userId: string;
@@ -11,7 +10,6 @@ export interface IAddItem {
 export interface ICart {
   id: string;
   userId: string;
-  user: IUser;
   items: ICartItem[];
   createdAt: Date;
   updatedAt: Date;

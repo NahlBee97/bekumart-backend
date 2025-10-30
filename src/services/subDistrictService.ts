@@ -14,13 +14,11 @@ export async function GetSubDistrictsByDistrictService(
 
     if (!districtId) throw new AppError(`subdistrict not found'`, 404);
 
-    try {
-      const cachedValue = await redis.get(`${district.toLowerCase()}_sub_districts`);
-      if (cachedValue) {
-        return JSON.parse(cachedValue);
-      }
-    } catch (error) {
-      console.warn("Redis cache unavailable, proceeding without cache", error);
+    const cacheKey = `${city.toLowerCase().trim()}_cities`;
+    const cachedValue = await redis.get(cacheKey);
+
+    if (cachedValue) {
+      return JSON.parse(cachedValue);
     }
 
     const response = await axios.get(
@@ -32,46 +30,13 @@ export async function GetSubDistrictsByDistrictService(
 
     const subDistricts = response.data.data;
 
-    if (!subDistricts) throw new AppError("can not get subdistricts", 500);
+    if (subDistricts.length === 0)
+      throw new AppError("can not get subdistricts", 500);
 
-     if (subDistricts.length > 0) {
-       try {
-         const cacheKey = `${city.toLowerCase().trim()}_cities`;
-         await redis.setex(
-           cacheKey,
-           259200,
-           JSON.stringify(subDistricts)
-         );
-       } catch (error) {
-         console.warn("Failed to cache subdistricts result:", error);
-       }
-     }
+    await redis.setex(cacheKey, 259200, JSON.stringify(subDistricts));
 
     return subDistricts;
   } catch (error) {
-    console.error(`Error fetching subdistricts for ${district}:`, error);
-
-    if (axios.isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
-
-      switch (status) {
-        case 400:
-          throw new AppError(`Invalid request for cities: ${message}`, 400);
-        case 401:
-          throw new AppError("Invalid API key for cities service", 500);
-        case 404:
-          throw new AppError(`subdistricts not found for district: ${district}`, 404);
-        case 429:
-          throw new AppError("Rate limit exceeded for cities API", 429);
-        default:
-          throw new AppError(
-            `Cities service unavailable: ${message}`,
-            status || 503
-          );
-      }
-    }
-
-    throw new AppError(`Unable to fetch subdistricts for districts: ${district}`, 500);
+    throw error;
   }
 }

@@ -1,5 +1,9 @@
 import axios from "axios";
-import { ORIGIN_SUBDISTRICT_ID, RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
+import {
+  ORIGIN_SUBDISTRICT_ID,
+  RAJAONGKIR_API_KEY,
+  RAJAONGKIR_BASE_URL,
+} from "../config";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../utils/appError";
 import { GetUserCartService } from "../services/cartServices";
@@ -21,12 +25,20 @@ export async function getShippingCost(addressId: string, totalWeight: number) {
 
     if (!cart?.items.length) throw new AppError("Cart is empty", 404);
 
-    const cachedValue = await redis.get(`${district.toLowerCase()}_sub_districts`);
+    const cachedValue = await redis.get(
+      `${district.toLowerCase()}_sub_districts`
+    );
+
     if (!cachedValue) throw new AppError("Can not get subdistricts", 500);
 
     const subDistricts = JSON.parse(cachedValue);
 
-    const subDistrictId = subDistricts.find((sub: any) => sub.name === subdistrict ).id;
+    const subDistrictId = subDistricts.find(
+      (sub: any) => sub.name === subdistrict
+    ).id;
+
+    if (!subDistrictId)
+      throw new AppError("Subdistrict data not found for UnknownPlace", 404);
 
     const data = {
       origin: ORIGIN_SUBDISTRICT_ID,
@@ -43,20 +55,17 @@ export async function getShippingCost(addressId: string, totalWeight: number) {
         "content-type": "application/x-www-form-urlencoded",
       },
     };
-
+    
     const cacheKey = `${subdistrict.toLowerCase().trim()}_couriers_${
       data.weight
     }`;
-
-    try {
-      const cachedValue = await redis.get(cacheKey);
-      if (cachedValue) {
-        return JSON.parse(cachedValue);
-      }
-    } catch (error) {
-      console.warn("Redis cache unavailable, proceeding without cache", error);
+    
+    const couriersCachedValue = await redis.get(cacheKey);
+    
+    if (couriersCachedValue) {
+      return JSON.parse(couriersCachedValue);
     }
-
+    
     const response = await axios.post(
       `${RAJAONGKIR_BASE_URL}/calculate/domestic-cost`,
       data,
@@ -65,15 +74,11 @@ export async function getShippingCost(addressId: string, totalWeight: number) {
 
     const couriers = response.data.data;
 
-    if (couriers.length > 0) {
-      try {
-        const cacheKey = `${subdistrict.toLowerCase().trim()}_couriers_${data.weight}`;
-        await redis.setex(cacheKey, 259200, JSON.stringify(couriers));
-      } catch (error) {
-        console.warn("Failed to cache districts result:", error);
-      }
-    }
-    
+    if (couriers.length === 0)
+      throw new AppError("Can not fetch couriers", 500);
+
+    await redis.setex(cacheKey, 259200, JSON.stringify(couriers));
+
     return couriers;
   } catch (error) {
     throw error;

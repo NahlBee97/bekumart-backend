@@ -4,16 +4,36 @@ import {
   EditAddressByIdService,
   GetAddressesByUserIdService,
   SetDefaultAddressService,
-} from "../services/addressServices";
-import { AppError } from "../utils/appError";
-import {
-  addresses,
+} from "../../services/addressServices";
+import { AppError } from "../../utils/appError";
+import { mockedPrisma } from "../mockPrisma";
+
+const addressId = "string";
+const userId = "string";
+const addresses = [
+  {
+    id: addressId,
+    receiver: "string",
+    userId,
+    street: "string",
+    subdistrict: "string",
+    district: "string",
+    city: "string",
+    province: "string",
+    postalCode: "string",
+    phone: "string",
+    isDefault: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+const newAddress = {
+  ...addresses[0],
+};
+const dataToUpdate = {
+  ...addresses[0],
   addressId,
-  dataToUpdate,
-  newAddress,
-  userId,
-} from "./addressConstant";
-import { mockedPrisma } from "./mockPrisma";
+};
 
 describe("GetAddressesByUserIdService", () => {
   beforeEach(() => {
@@ -30,21 +50,6 @@ describe("GetAddressesByUserIdService", () => {
     });
 
     expect(result).toEqual(addresses);
-  });
-
-  it("should throw error if get addresses fails", async () => {
-    const dbError = new Error("Database connection error");
-
-    mockedPrisma.addresses.findMany.mockRejectedValue(dbError);
-
-    await expect(GetAddressesByUserIdService(userId)).rejects.toThrow(
-      new AppError("Can not get addresses", 500)
-    );
-
-    expect(mockedPrisma.addresses.findMany).toHaveBeenCalledWith({
-      where: { userId },
-      orderBy: { createdAt: "asc" },
-    });
   });
 });
 
@@ -74,46 +79,6 @@ describe("CreateAddressService", () => {
       data: { ...newAddress, updatedAt: expect.any(Date) },
     });
     expect(result).toEqual(newAddress);
-  });
-
-  it("should throw error if update other address fails", async () => {
-    mockedPrisma.addresses.updateMany.mockImplementation(() => {
-      throw Error;
-    });
-
-    await expect(
-      CreateAddressService(userId, { ...newAddress })
-    ).rejects.toThrow(AppError);
-
-    expect(mockedPrisma.$transaction).toHaveBeenCalled();
-    expect(mockedPrisma.addresses.updateMany).toHaveBeenCalledWith({
-      where: {
-        userId,
-      },
-      data: { isDefault: false },
-    });
-    expect(mockedPrisma.addresses.create).not.toHaveBeenCalled();
-  });
-
-  it("should throw error if create new address fails", async () => {
-    mockedPrisma.addresses.create.mockImplementation(() => {
-      throw Error;
-    });
-
-    await expect(
-      CreateAddressService(userId, { ...newAddress })
-    ).rejects.toThrow(AppError);
-
-    expect(mockedPrisma.$transaction).toHaveBeenCalled();
-    expect(mockedPrisma.addresses.updateMany).toHaveBeenCalledWith({
-      where: {
-        userId,
-      },
-      data: { isDefault: false },
-    });
-    expect(mockedPrisma.addresses.create).toHaveBeenCalledWith({
-      data: { ...newAddress, updatedAt: expect.any(Date) },
-    });
   });
 });
 
@@ -165,32 +130,6 @@ describe("EditAddressByIdService", () => {
     });
     expect(mockedPrisma.addresses.update).not.toHaveBeenCalled();
   });
-
-  it("should throw error if update address fails", async () => {
-    const dbError = new AppError("Failed to update address", 500);
-    mockedPrisma.addresses.update.mockRejectedValue(new Error("DB Error"));
-
-    await expect(
-      EditAddressByIdService(addressId, dataToUpdate)
-    ).rejects.toThrow(dbError);
-
-    expect(mockedPrisma.addresses.findUnique).toHaveBeenCalledWith({
-      where: { id: addressId },
-    });
-    expect(mockedPrisma.addresses.update).toHaveBeenCalledWith({
-      where: { id: addressId },
-      data: {
-        receiver: dataToUpdate.receiver || addresses[0].receiver,
-        street: dataToUpdate.street || addresses[0].street,
-        subdistrict: dataToUpdate.subdistrict || addresses[0].subdistrict,
-        district: dataToUpdate.district || addresses[0].district,
-        city: dataToUpdate.city || addresses[0].city,
-        province: dataToUpdate.province || addresses[0].province,
-        postalCode: dataToUpdate.postalCode || addresses[0].postalCode,
-        phone: dataToUpdate.phone || addresses[0].phone,
-      },
-    });
-  });
 });
 
 describe("SetDefaultAddressService", () => {
@@ -235,20 +174,6 @@ describe("SetDefaultAddressService", () => {
     });
   });
 
-  it("should throw error if error finding address", async () => {
-    const findError = new Error("Database error");
-    mockedPrisma.addresses.findUnique.mockRejectedValue(findError);
-
-    await expect(SetDefaultAddressService(addressId, userId)).rejects.toThrow(
-      new AppError("Error finding address.", 500)
-    );
-
-    expect(mockedPrisma.addresses.findUnique).toHaveBeenCalledWith({
-      where: { id: addressId },
-    });
-    expect(mockedPrisma.$transaction).not.toHaveBeenCalled();
-  });
-
   it("should throw error if address not found", async () => {
     mockedPrisma.addresses.findUnique.mockResolvedValue(null);
 
@@ -277,53 +202,6 @@ describe("SetDefaultAddressService", () => {
     });
     expect(mockedPrisma.$transaction).not.toHaveBeenCalled();
   });
-
-  it("should throw error if updateMany addresses to false fails", async () => {
-    const updateError = new Error("Update failed");
-    mockedPrisma.addresses.updateMany.mockRejectedValue(updateError);
-
-    await expect(SetDefaultAddressService(addressId, userId)).rejects.toThrow(
-      new AppError("Could not set default address.", 500)
-    );
-
-    expect(mockedPrisma.addresses.findUnique).toHaveBeenCalledWith({
-      where: { id: addressId },
-    });
-    expect(mockedPrisma.$transaction).toHaveBeenCalled();
-    expect(mockedPrisma.addresses.updateMany).toHaveBeenCalledWith({
-      where: {
-        userId,
-        id: { not: addressId },
-      },
-      data: { isDefault: false },
-    });
-    expect(mockedPrisma.addresses.update).not.toHaveBeenCalled();
-  });
-
-  it("should throw error if update address to default fails", async () => {
-    const updateError = new Error("Update failed");
-    mockedPrisma.addresses.update.mockRejectedValue(updateError);
-
-    await expect(SetDefaultAddressService(addressId, userId)).rejects.toThrow(
-      new AppError("Could not set default address.", 500)
-    );
-
-    expect(mockedPrisma.addresses.findUnique).toHaveBeenCalledWith({
-      where: { id: addressId },
-    });
-    expect(mockedPrisma.$transaction).toHaveBeenCalled();
-    expect(mockedPrisma.addresses.updateMany).toHaveBeenCalledWith({
-      where: {
-        userId,
-        id: { not: addressId },
-      },
-      data: { isDefault: false },
-    });
-    expect(mockedPrisma.addresses.update).toHaveBeenCalledWith({
-      where: { id: addressId },
-      data: { isDefault: true },
-    });
-  });
 });
 
 describe("DeleteAddressByIdService", () => {
@@ -345,23 +223,6 @@ describe("DeleteAddressByIdService", () => {
     });
   });
 
-  it("should throw error if error finding address", async () => {
-    const findError = new Error("Database error");
-
-    mockedPrisma.addresses.findUnique.mockImplementation(() => {
-      throw findError;
-    });
-
-    await expect(DeleteAddressByIdService(addressId)).rejects.toThrow(
-      new AppError("Error finding address.", 500)
-    );
-
-    expect(mockedPrisma.addresses.findUnique).toHaveBeenCalledWith({
-      where: { id: addressId },
-    });
-    expect(mockedPrisma.addresses.delete).not.toHaveBeenCalledWith();
-  });
-
   it("should throw error if address not found", async () => {
     const notFoundError = new AppError("Address not found", 404);
 
@@ -375,24 +236,5 @@ describe("DeleteAddressByIdService", () => {
       where: { id: addressId },
     });
     expect(mockedPrisma.addresses.delete).not.toHaveBeenCalledWith();
-  });
-
-  it("should throw error if fail to delete address", async () => {
-    const deleteError = new AppError("Could not delete address", 500);
-
-    mockedPrisma.addresses.delete.mockImplementation(() => {
-      throw deleteError;
-    });
-
-    await expect(DeleteAddressByIdService(addressId)).rejects.toThrow(
-      deleteError
-    );
-
-    expect(mockedPrisma.addresses.findUnique).toHaveBeenCalledWith({
-      where: { id: addressId },
-    });
-    expect(mockedPrisma.addresses.delete).toHaveBeenCalledWith({
-      where: { id: addressId },
-    });
   });
 });

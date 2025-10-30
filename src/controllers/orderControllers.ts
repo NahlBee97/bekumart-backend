@@ -38,9 +38,7 @@ export async function CreateOrderController(
       .status(201)
       .json({ message: "Order created successfully", order: newOrderData });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+   
     next(error);
   }
 }
@@ -58,9 +56,7 @@ export async function PaymentTokenController(
       .status(201)
       .json({ message: "Payment token created successfully", paymentToken });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+   
     next(error);
   }
 }
@@ -81,9 +77,7 @@ export async function UpdateOrderStatusController(
       updatedOrder,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+   
     next(error);
   }
 }
@@ -102,9 +96,7 @@ export async function GetOrderItemsByOrderIdController(
       .status(200)
       .json({ message: "Order items retrives successfully", orderItems });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+   
     next(error);
   }
 }
@@ -123,9 +115,7 @@ export async function GetUserOrdersController(
       .status(200)
       .json({ message: "Get user orders successfully", orders });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+   
     next(error);
   }
 }
@@ -142,9 +132,7 @@ export async function GetAllOrderController(
       .status(200)
       .json({ message: "Get all orders successfully", orders });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+   
     next(error);
   }
 }

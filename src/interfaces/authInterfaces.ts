@@ -1,4 +1,4 @@
-import type { UserRoles } from "@prisma/client";
+import { UserRoles } from "@prisma/client";
 
 export interface IRegister {
     name: string;

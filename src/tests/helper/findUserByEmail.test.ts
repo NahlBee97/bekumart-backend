@@ -1,7 +1,7 @@
 import { UserRoles } from "@prisma/client";
-import { IUser } from "../interfaces/authInterfaces";
-import { mockedPrisma } from "./mockPrisma";
-import { FindUserByEmail } from "../helper/findUserByEmail";
+import { IUser } from "../../interfaces/authInterfaces";
+import { mockedPrisma } from "../mockPrisma";
+import { FindUserByEmail } from "../../helper/findUserByEmail";
 
 describe("find user by email", () => {
   it("should get user by email", async () => {

@@ -5,9 +5,15 @@ export async function GetShippingCostService(
   addressId: string,
   totalWeight: number
 ) {
-  if (totalWeight > 100) throw new AppError("Order weight is too heavy", 400);
+  try {
+    if (totalWeight > 100) throw new AppError("Order weight is too heavy", 400);
 
-  const couriers = await getShippingCost(addressId, totalWeight);
+    const couriers = await getShippingCost(addressId, totalWeight);
 
-  return couriers;
+    if (couriers.length === 0) throw new AppError("Fails to get couriers", 500);
+
+    return couriers;
+  } catch (error) {
+    throw error;
+  }
 }

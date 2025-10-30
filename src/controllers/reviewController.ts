@@ -148,9 +148,7 @@ export async function GetUserLikeReviewsController(
       .status(200)
       .json({ message: "successfully retrieved likes", likes });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+   
     next(error);
   }
 }

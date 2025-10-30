@@ -18,9 +18,7 @@ export async function GetDistrictsByCityController(
       districts,
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

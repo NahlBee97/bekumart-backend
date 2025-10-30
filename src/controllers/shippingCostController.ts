@@ -15,9 +15,7 @@ export default async function GetShippingCostController(
       .status(200)
       .json({ message: "successfully calculate shipping cost", couriers });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+   
     next(error);
   }
 }

@@ -15,9 +15,7 @@ export async function SalesSummaryController(
       .status(200)
       .json({ message: "Sales data retrieved successfully", salesSummary });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -33,9 +31,7 @@ export async function ProductInsightsController(
       .status(200)
       .json({ message: "Product insights data retrieved successfully", productInsights });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -51,9 +47,7 @@ export async function CustomerInsightsController(
       .status(200)
       .json({ message: "Customer insights data retrieved successfully", customerInsights });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -72,9 +66,7 @@ export async function OperationalSummaryController(
         operationalSummary,
       });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }
@@ -93,9 +85,7 @@ export async function CustomerOriginSummaryController(
         summary: customerOriginSummary,
       });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
+    
     next(error);
   }
 }

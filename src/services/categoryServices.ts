@@ -6,7 +6,6 @@ export async function GetCategoriesService() {
     const categories = await prisma.categories.findMany();
     return categories;
   } catch (error) {
-    console.error("can not get categories:", error);
     throw new AppError("can not get categories", 500);
   }
 }
