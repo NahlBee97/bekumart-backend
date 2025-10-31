@@ -65,8 +65,10 @@ app.use("/api/contact", ContactRouter);
 // --- Central Error Handler ---
 app.use(globalErrorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Backend server is running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Backend server is running on http://localhost:${PORT}`);
+  });
+}
 
-// export default app;
+export default app;
