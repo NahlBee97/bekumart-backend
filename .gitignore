@@ -1,6 +1,8 @@
 node_modules
+coverage
 dist
 # Keep environment variables out of version control
 .env
+.env.test
 
 /generated/prisma
