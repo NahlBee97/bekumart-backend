@@ -3,7 +3,7 @@ import { z } from "zod";
 export const createOrderSchema = z.object({
   body: z.object({
     userId: z.string().min(1, "User ID wajib ada"),
-    addressId: z.string().min(1, "Alamat pengiriman wajib ada"),
+    addressId: z.string().optional(),
     courier: z.string().min(1, "Nama kurir wajib ada"),
     fullfillmentType: z.string().min(1, "Pemenuhan Order Wajib Ada"),
     paymentMethod: z.string().min(1, "Metode pembayaran wajib ada"),
