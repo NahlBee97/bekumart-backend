@@ -47,7 +47,13 @@ export async function LoginController(
 
     res
       .status(200)
-      .cookie("token", refreshToken, { maxAge: sevenDayInMs, httpOnly: true })
+      .cookie("token", refreshToken, {
+        maxAge: sevenDayInMs,
+        httpOnly: true,
+        sameSite: "none",
+        domain: FE_URL,
+        path: "/",
+      })
       .json({ message: `Login successfully`, accessToken });
   } catch (error) {
     
