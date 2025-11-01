@@ -1,20 +1,30 @@
-name: bekumart
+name: Node.js CI
 
 on:
+  push:
+    branches: "main"
   pull_request:
-    branches:
-      - main
+    branches: "main"
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
-    container:
-      image: node:22
-    steps:
-      - uses: actions/checkout@v3
-        with: 
-          node-version: 22
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.15.0'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Build project
+        run: npm run build --if-present
