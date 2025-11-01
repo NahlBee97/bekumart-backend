@@ -51,8 +51,6 @@ export async function LoginController(
         maxAge: sevenDayInMs,
         httpOnly: true,
         sameSite: "none",
-        domain: FE_URL,
-        path: "/",
       })
       .json({ message: `Login successfully`, accessToken });
   } catch (error) {
@@ -79,8 +77,6 @@ export async function GoogleLoginController(
         maxAge: sevenDayInMs,
         httpOnly: true,
         sameSite: "none",
-        domain: FE_URL,
-        path: "/",
       })
       .json({ message: `Login with google successfully`, accessToken });
   } catch (error) {
