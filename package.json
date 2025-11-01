@@ -6,8 +6,7 @@
     "test": "jest --verbose",
     "dev": "nodemon",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "db:clear": "ts-node prisma/clearDatabase.ts"
+    "start": "node dist/index.js"
   },
   "repository": {
     "type": "git",
