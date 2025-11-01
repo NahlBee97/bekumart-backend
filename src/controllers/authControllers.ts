@@ -9,7 +9,6 @@ import {
   SetPasswordService,
 } from "../services/authServices";
 import type { ILogin, IRegister } from "../interfaces/authInterfaces";
-import { AppError } from "../utils/appError";
 import { VerifyResetPasswordEmail } from "../helper/emailSender";
 
 export async function RegisterController(

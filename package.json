@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "test:unit": "jest --verbose --config jest.unit.config.js",
-    "test:integration": "npx dotenv-cli -e .env.test -- jest --verbose --forceExit --detectOpenHandles --config jest.integration.config.js",
+    "test": "jest --verbose",
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/index.js",

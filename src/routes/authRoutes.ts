@@ -22,10 +22,12 @@ const router = Router();
 
 router.get("/check", CheckController);
 router.get("/refresh-token", RefreshTokenController);
-router.post("/register", validateRequest(RegisterSchema), RegisterController);
-router.post("/google-login", validateRequest(GoogleLoginSchema), GoogleLoginController);
+
 router.post("/login", validateRequest(LoginSchema), LoginController);
+router.post("/google-login", validateRequest(GoogleLoginSchema), GoogleLoginController);
 router.post("/logout", LogOutController);
+router.post("/register", validateRequest(RegisterSchema), RegisterController);
+
 router.post(
   "/verify-reset",
   validateRequest(VerifyResetPasswordSchema),
