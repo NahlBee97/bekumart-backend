@@ -9,7 +9,7 @@ export const districtQuerySchema = z.object({
 
 export const salesSummarySchema = z.object({
   query: z.object({
-    value: z.number("wajib angka").optional(),
+    value: z.string("Should be a string").optional(),
   }),
 });
 
