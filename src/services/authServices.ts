@@ -1,4 +1,4 @@
-import bcrypt, { genSaltSync, hash } from "bcryptjs";
+import bcrypt from "bcryptjs";
 import { ILogin, IRegister } from "../interfaces/authInterfaces";
 import { prisma } from "../lib/prisma";
 import jwt, { JwtPayload, verify } from "jsonwebtoken";
@@ -19,7 +19,7 @@ export async function RegisterService(userData: IRegister) {
 
     if (!hashedPassword) throw new AppError("Failed hashing password", 500);
 
-    const newUser = await prisma.$transaction(async (tx) => {
+    const newUser = await prisma.$transaction(async (tx: any) => {
       const createdUser = await tx.users.create({
         data: {
           name,
@@ -78,7 +78,7 @@ export async function LoginService(userData: ILogin) {
     if (!accessToken || !refreshToken)
       throw new AppError("Failed to generate token", 500);
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.tokens.updateMany({
         where: { userId: user.id },
         data: { isValid: false },
@@ -111,7 +111,7 @@ export async function GoogleLoginService(userData: {
     let newUser = user;
 
     if (!user) {
-      newUser = await prisma.$transaction(async (tx) => {
+      newUser = await prisma.$transaction(async (tx: any) => {
         const createdUser = await tx.users.create({
           data: {
             name,
@@ -151,7 +151,7 @@ export async function GoogleLoginService(userData: {
     if (!accessToken || !refreshToken)
       throw new AppError("Failed to generate token", 500);
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.tokens.updateMany({
         where: { userId: newUser?.id },
         data: { isValid: false },
