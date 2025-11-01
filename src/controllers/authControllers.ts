@@ -10,6 +10,7 @@ import {
 } from "../services/authServices";
 import type { ILogin, IRegister } from "../interfaces/authInterfaces";
 import { VerifyResetPasswordEmail } from "../helper/emailSender";
+import { FE_URL } from "../config";
 
 export async function RegisterController(
   req: Request,
@@ -68,7 +69,13 @@ export async function GoogleLoginController(
 
     res
       .status(200)
-      .cookie("token", refreshToken, { maxAge: sevenDayInMs, httpOnly: true })
+      .cookie("token", refreshToken, {
+        maxAge: sevenDayInMs,
+        httpOnly: true,
+        sameSite: "none",
+        domain: FE_URL,
+        path: "/",
+      })
       .json({ message: `Login with google successfully`, accessToken });
   } catch (error) {
     
