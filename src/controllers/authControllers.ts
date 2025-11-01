@@ -49,6 +49,7 @@ export async function LoginController(
       .status(200)
       .cookie("token", refreshToken, {
         maxAge: sevenDayInMs,
+        secure: true,
         httpOnly: true,
         sameSite: "none",
       })
@@ -75,6 +76,7 @@ export async function GoogleLoginController(
       .status(200)
       .cookie("token", refreshToken, {
         maxAge: sevenDayInMs,
+        secure: true,
         httpOnly: true,
         sameSite: "none",
       })
