@@ -10,7 +10,6 @@ import {
 } from "../services/authServices";
 import type { ILogin, IRegister } from "../interfaces/authInterfaces";
 import { VerifyResetPasswordEmail } from "../helper/emailSender";
-import { FE_URL } from "../config";
 
 export async function RegisterController(
   req: Request,
