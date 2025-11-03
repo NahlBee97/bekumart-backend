@@ -178,6 +178,9 @@ describe("DeleteProductService", () => {
     cartItems: { deleteMany: jest.fn() },
     orderItems: { deleteMany: jest.fn() },
     productPhotos: { deleteMany: jest.fn() },
+    reviews: { deleteMany: jest.fn() },
+    reviewPhotos: { deleteMany: jest.fn() },
+    reviewLikes: { deleteMany: jest.fn() },
     products: { delete: jest.fn() },
   };
 
@@ -198,15 +201,30 @@ describe("DeleteProductService", () => {
 
     expect(mockedPrisma.$transaction).toHaveBeenCalledTimes(1);
 
-    expect(mockTx.cartItems.deleteMany).toHaveBeenCalledWith({
-      where: { productId: "prod-1" },
-    });
-    expect(mockTx.orderItems.deleteMany).toHaveBeenCalledWith({
-      where: { productId: "prod-1" },
-    });
     expect(mockTx.productPhotos.deleteMany).toHaveBeenCalledWith({
       where: { productId: "prod-1" },
     });
+
+    expect(mockTx.cartItems.deleteMany).toHaveBeenCalledWith({
+      where: { productId: "prod-1" },
+    });
+
+    expect(mockTx.orderItems.deleteMany).toHaveBeenCalledWith({
+      where: { productId: "prod-1" },
+    });
+
+    expect(mockTx.reviewLikes.deleteMany).toHaveBeenCalledWith({
+      where: { review: { productId: "prod-1" } },
+    });
+
+    expect(mockTx.reviewPhotos.deleteMany).toHaveBeenCalledWith({
+      where: { review: { productId: "prod-1" } },
+    });
+
+    expect(mockTx.reviews.deleteMany).toHaveBeenCalledWith({
+      where: { productId: "prod-1" },
+    });
+
     expect(mockTx.products.delete).toHaveBeenCalledWith({
       where: { id: "prod-1" },
     });

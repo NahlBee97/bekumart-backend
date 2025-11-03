@@ -154,6 +154,10 @@ export async function DeleteProductService(productId: string) {
     if (!existingProduct) throw new AppError("Product not found", 404);
 
     await prisma.$transaction(async (tx) => {
+      await tx.productPhotos.deleteMany({
+        where: { productId },
+      });
+
       await tx.cartItems.deleteMany({
         where: { productId },
       });
@@ -162,7 +166,15 @@ export async function DeleteProductService(productId: string) {
         where: { productId },
       });
 
-      await tx.productPhotos.deleteMany({
+      await tx.reviewLikes.deleteMany({
+        where: { review: { productId } },
+      });
+
+      await tx.reviewPhotos.deleteMany({
+        where: { review: { productId } },
+      });
+
+      await tx.reviews.deleteMany({
         where: { productId },
       });
 

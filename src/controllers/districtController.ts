@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { GetDistrictsByCityService } from "../services/districtServices";
-import { AppError } from "../utils/appError";
 
 export async function GetDistrictsByCityController(
   req: Request,

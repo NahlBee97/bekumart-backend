@@ -2,8 +2,8 @@ import z from "zod";
 
 export const districtQuerySchema = z.object({
   query: z.object({
-    city: z.string().min(1, "ID kota wajib ada"),
-    province: z.string().min(1, "ID provinsi wajib ada"),
+    city: z.string().min(1, "kota wajib ada"),
+    province: z.string().min(1, "provinsi wajib ada"),
   }),
 });
 

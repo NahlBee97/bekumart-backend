@@ -42,7 +42,7 @@ export function globalErrorHandler(
     message = error.response?.data.meta.message;
   }
 
-  console.error({error: true, status, message});
+  console.error(error);
 
   if (status && message) {
     return res.status(status).json({
