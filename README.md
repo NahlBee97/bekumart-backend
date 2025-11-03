@@ -17,6 +17,7 @@ This is the backend server for BekuMart, a full-stack frozen food e-commerce pla
 * **Database Management:** Uses **Prisma** as an ORM for type-safe database queries against a PostgreSQL (Supabase) database.
 * **Redis:** Cache the regional and shipping fee data to prevent over request to rajaongkir API.
 * **Unit Tested:** Core business logic (services) is covered by a comprehensive **Jest** unit test suite.
+* **Github Action:** Set flow to check code before new push or merge pull-request reach the main branch.
 
 ---
 
@@ -31,6 +32,7 @@ This is the backend server for BekuMart, a full-stack frozen food e-commerce pla
 * **Delivery Fee:** Rajaongkir API
 * **Payments:** Midtrans
 * **Testing:** Jest
+* **CI/CD:** GitHub Action
 * **Deployment:** Vercel
 
 ---
