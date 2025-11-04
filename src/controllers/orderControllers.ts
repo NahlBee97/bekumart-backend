@@ -49,9 +49,7 @@ export async function PaymentTokenController(
   next: NextFunction
 ) {
   try {
-    const {order} = req.body;
-
-    const paymentToken = await createPaymentTransaction(order);
+    const paymentToken = await createPaymentTransaction(req.body);
     res
       .status(201)
       .json({ message: "Payment token created successfully", paymentToken });
