@@ -52,7 +52,7 @@ export async function VerifyResetPasswordEmail(email: string) {
     });
 
     await Transporter.sendMail({
-      from: "EOHelper",
+      from: "Bekumart",
       to: email,
       subject: "Reset Password",
       html,

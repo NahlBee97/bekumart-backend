@@ -1,18 +1,48 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <div>
-        <h2>Hi {{email}}</h2>
-        <h3>To reset your password we need your confirmation</h3>
-        <h2>Please click the button below</h2>
-        <a href="{{fe_url}}" target="_blank">
-            <button >Reset Password</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Reset Request</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+      'Segoe UI Symbol'; margin: 0; padding: 0; background-color: #f4f4f7;
+      color: #333; } .container { max-width: 600px; margin: 20px auto;
+      background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px;
+      overflow: hidden; } .header { background-color: #4A90E2; color: #ffffff;
+      padding: 20px; text-align: center; } .header h1 { margin: 0; font-size:
+      24px; } .content { padding: 30px; line-height: 1.6; text-align: center; /*
+      Center-align text for this simple email */ } .button { display:
+      inline-block; background-color: #4A90E2; color: #ffffff; padding: 12px
+      25px; text-decoration: none; border-radius: 5px; margin-top: 20px;
+      margin-bottom: 20px; font-weight: bold; } .footer { background-color:
+      #f4f4f7; padding: 20px; text-align: center; font-size: 12px; color: #777;
+      } .footer p { margin: 5px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Password Reset Request</h1>
+      </div>
+      <div class="content">
+        <p style="font-size: 18px;">Hi {{email}},</p>
+        <p>Someone (hopefully you) requested a password reset for your account.
+          To set a new password, please click the button below.</p>
+        <p>If you did not make this request, you can safely ignore this email.</p>
+
+        <a href="{{fe_url}}" target="_blank" class="button">
+          Reset Your Password T
         </a>
+
+        <p style="font-size: 12px; color: #777;">This link will expire in 1
+          hour.</p>
+      </div>
+      <div class="footer">
+        <p>&copy; 2025 BekuMart. All rights reserved.</p>
+        <p>{{companyAddress}}</p>
+      </div>
     </div>
-</body>
+
+  </body>
 </html>

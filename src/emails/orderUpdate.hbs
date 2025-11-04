@@ -122,35 +122,8 @@ color: #777;
         <p>Sorry, Your order has been cancelled.</p>
         {{/if}}
 
-        <div class="order-summary">
-            <h3>Order Summary</h3>
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Quantity</th>
-                        <th style="text-align: right;">Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each items}}
-                    <tr>
-                        <td>{{this.name}}</td>
-                        <td>{{this.quantity}}</td>
-                        <td style="text-align: right;">{{this.price}}</td>
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
-            <div class="totals">
-                <p>Total: <strong>{{total}}</strong></p>
-            </div>
-        </div>
-
-        <a href="{{orderUrl}}" class="button">View Your Order Details</a>
-    </div>
     <div class="footer">
-        <p>&copy; {{currentYear}} {{companyName}}. All rights reserved.</p>
+        <p>&copy; 2025 BekuMart. All rights reserved.</p>
         <p>{{companyAddress}}</p>
     </div>
 </div>
