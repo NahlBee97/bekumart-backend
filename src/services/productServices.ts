@@ -104,8 +104,11 @@ export async function GetProductByIdService(productId: string) {
 
 export async function CreateProductService(productData: INewProduct) {
   try {
+    console.log(productData);
+    const newData = { ...productData, categoryId: productData.categoryId };
+
     const newProduct = await prisma.products.create({
-      data: productData,
+      data: newData,
     });
     return newProduct;
   } catch (error) {
