@@ -116,7 +116,7 @@ describe('VerifyResetPasswordEmail', () => {
     );
 
     expect(mockedSendMail).toHaveBeenCalledWith({
-      from: 'EOHelper',
+      from: "BekuMart",
       to: email,
       subject: 'Reset Password',
       html: fakeTemplate,
