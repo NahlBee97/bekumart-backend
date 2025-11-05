@@ -124,6 +124,7 @@ export async function GetUserOrdersService(userId: string) {
       where: {
         userId,
       },
+      orderBy: { createdAt: "desc" },
     });
     return orders;
   } catch (error) {

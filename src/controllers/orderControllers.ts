@@ -66,6 +66,7 @@ export async function UpdateOrderStatusController(
 ) {
   try {
     const id = req.params.id as string;
+
     const { status } = req.body;
 
     const updatedOrder = await UpdateOrderStatusService(id, status);

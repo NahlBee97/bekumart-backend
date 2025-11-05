@@ -241,6 +241,7 @@ describe("GetUserOrdersService", () => {
     expect(result).toEqual(mockOrders);
     expect(mockedPrisma.orders.findMany).toHaveBeenCalledWith({
       where: { userId: "user-1" },
+      orderBy: { createdAt: "desc" },
     });
   });
 });
