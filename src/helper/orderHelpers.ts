@@ -5,6 +5,10 @@ import { snap } from "../utils/midtrans";
 import { IOrderItem } from "../interfaces/orderInterfaces";
 import { ICartItem } from "../interfaces/cartInterfaces";
 
+// Recomputes the cart total strictly from DB prices and returns it.
+// This value - never a client-supplied number - must be what actually
+// gets charged/stored, otherwise a user can tamper with the request
+// body and pay whatever amount they want.
 export async function validateCartItems(items: ICartItem[]) {
   try {
     let calculatedTotal = 0;
@@ -34,16 +38,10 @@ export async function validateCartItems(items: ICartItem[]) {
         );
       }
 
-      // Validate price hasn't changed
-      if (product.price !== item.product.price) {
-        throw new AppError(
-          `Price has changed for "${item.product.name}". Please refresh your cart`,
-          400
-        );
-      }
-
       calculatedTotal += product.price * item.quantity;
     }
+
+    return calculatedTotal;
   } catch (error) {
     throw error;
   }

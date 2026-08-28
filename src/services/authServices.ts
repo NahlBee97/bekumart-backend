@@ -1,10 +1,37 @@
 import bcrypt from "bcryptjs";
+import axios from "axios";
 import { ILogin, IRegister } from "../interfaces/authInterfaces";
 import { prisma } from "../lib/prisma";
 import jwt, { JwtPayload, verify } from "jsonwebtoken";
 import { FindUserByEmail } from "../helper/findUserByEmail";
 import { AppError } from "../utils/appError";
 import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from "../config";
+
+// Verifies the Google access token directly with Google and returns the
+// verified profile. Never trust name/email supplied by the client for
+// login/registration purposes - always resolve them server-side from the
+// token itself, otherwise anyone could log in or register as any email.
+async function VerifyGoogleAccessToken(googleAccessToken: string) {
+  try {
+    const { data } = await axios.get(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      { headers: { Authorization: `Bearer ${googleAccessToken}` } }
+    );
+
+    if (!data?.email) {
+      throw new AppError("Invalid Google account data", 401);
+    }
+
+    if (data.email_verified === false) {
+      throw new AppError("Google email is not verified", 401);
+    }
+
+    return { name: data.name as string, email: data.email as string };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError("Failed to verify Google account", 401);
+  }
+}
 
 export async function RegisterService(userData: IRegister) {
   try {
@@ -99,12 +126,10 @@ export async function LoginService(userData: ILogin) {
   }
 }
 
-export async function GoogleLoginService(userData: {
-  name: string;
-  email: string;
-}) {
+export async function GoogleLoginService(googleAccessToken: string) {
   try {
-    const { name, email } = userData;
+    // name/email come from Google itself, never from the client body
+    const { name, email } = await VerifyGoogleAccessToken(googleAccessToken);
 
     const user = await FindUserByEmail(email);
 

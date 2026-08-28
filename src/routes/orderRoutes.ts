@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { VerifyToken } from "../middlewares/authMiddlewares";
+import { RoleGuard, VerifyToken } from "../middlewares/authMiddlewares";
 import {
   CreateOrderController,
   GetAllOrderController,
@@ -15,7 +15,8 @@ import { idParamSchema, orderIdParamSchema, userIdParamSchema } from "../schemas
 const router = Router();
 
 
-router.get("/", VerifyToken, GetAllOrderController);
+// Listing every order in the system is an admin-only operation.
+router.get("/", VerifyToken, RoleGuard, GetAllOrderController);
 router.get(
   "/:userId",
   VerifyToken,

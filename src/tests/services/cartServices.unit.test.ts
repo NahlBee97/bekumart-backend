@@ -363,11 +363,12 @@ describe("AddItemToCartService", () => {
 describe("UpdateItemInCartService", () => {
   const itemId = userCart.items[0].id;
   const quantity = 5;
+  const itemWithCart = { ...userCart.items[0], cart: { userId } };
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    mockedPrisma.cartItems.findUnique.mockResolvedValue(userCart.items[0]);
+    mockedPrisma.cartItems.findUnique.mockResolvedValue(itemWithCart);
     mockedPrisma.cartItems.update.mockResolvedValue({
       ...userCart.items[0],
       quantity,
@@ -375,10 +376,11 @@ describe("UpdateItemInCartService", () => {
   });
 
   it("should update item quantity in cart", async () => {
-    const result = await UpdateItemInCartService(itemId, quantity);
+    const result = await UpdateItemInCartService(itemId, quantity, userId);
 
     expect(mockedPrisma.cartItems.findUnique).toHaveBeenCalledWith({
       where: { id: itemId },
+      include: { cart: true },
     });
     expect(mockedPrisma.cartItems.update).toHaveBeenCalledWith({
       where: { id: itemId },
@@ -390,33 +392,46 @@ describe("UpdateItemInCartService", () => {
   it("should throw error if finding cart item fails", async () => {
     const dbError = new Error("Database error");
     mockedPrisma.cartItems.findUnique.mockRejectedValue(dbError);
-    await expect(UpdateItemInCartService(itemId, quantity)).rejects.toThrow(
-      dbError
-    );
+    await expect(
+      UpdateItemInCartService(itemId, quantity, userId)
+    ).rejects.toThrow(dbError);
     expect(mockedPrisma.cartItems.findUnique).toHaveBeenCalledWith({
       where: { id: itemId },
+      include: { cart: true },
     });
   });
 
   it("should throw error if item not found", async () => {
     mockedPrisma.cartItems.findUnique.mockResolvedValue(null);
-    await expect(UpdateItemInCartService(itemId, quantity)).rejects.toThrow(
-      new AppError("Item not found in cart", 404)
-    );
+    await expect(
+      UpdateItemInCartService(itemId, quantity, userId)
+    ).rejects.toThrow(new AppError("Item not found in cart", 404));
     expect(mockedPrisma.cartItems.findUnique).toHaveBeenCalledWith({
       where: { id: itemId },
+      include: { cart: true },
     });
+  });
+
+  it("should throw error if item belongs to a different user", async () => {
+    mockedPrisma.cartItems.findUnique.mockResolvedValue({
+      ...userCart.items[0],
+      cart: { userId: "different-user-id" },
+    });
+    await expect(
+      UpdateItemInCartService(itemId, quantity, userId)
+    ).rejects.toThrow(new AppError("Item not found in cart", 404));
   });
 
   it("should throw error if updating item fails", async () => {
     const dbError = new Error("Database error");
-    mockedPrisma.cartItems.findUnique.mockResolvedValue(userCart.items[0]);
+    mockedPrisma.cartItems.findUnique.mockResolvedValue(itemWithCart);
     mockedPrisma.cartItems.update.mockRejectedValue(dbError);
-    await expect(UpdateItemInCartService(itemId, quantity)).rejects.toThrow(
-      dbError
-    );
+    await expect(
+      UpdateItemInCartService(itemId, quantity, userId)
+    ).rejects.toThrow(dbError);
     expect(mockedPrisma.cartItems.findUnique).toHaveBeenCalledWith({
       where: { id: itemId },
+      include: { cart: true },
     });
     expect(mockedPrisma.cartItems.update).toHaveBeenCalledWith({
       where: { id: itemId },
@@ -427,18 +442,21 @@ describe("UpdateItemInCartService", () => {
 
 describe("DeleteItemInCartService", () => {
   const itemId = userCart.items[0].id;
+  const itemWithCart = { ...userCart.items[0], cart: { userId } };
+
   beforeEach(() => {
     jest.resetAllMocks();
 
-    mockedPrisma.cartItems.findUnique.mockResolvedValue(userCart.items[0]);
+    mockedPrisma.cartItems.findUnique.mockResolvedValue(itemWithCart);
     mockedPrisma.cartItems.delete.mockResolvedValue(userCart.items[0]);
   });
 
   it("should delete item from cart", async () => {
-    const result = await DeleteItemInCartService(itemId);
+    const result = await DeleteItemInCartService(itemId, userId);
 
     expect(mockedPrisma.cartItems.findUnique).toHaveBeenCalledWith({
       where: { id: itemId },
+      include: { cart: true },
     });
     expect(mockedPrisma.cartItems.delete).toHaveBeenCalledWith({
       where: { id: itemId },
@@ -448,28 +466,46 @@ describe("DeleteItemInCartService", () => {
   it("should throw error if finding cart item fails", async () => {
     const dbError = new Error("Database error");
     mockedPrisma.cartItems.findUnique.mockRejectedValue(dbError);
-    await expect(DeleteItemInCartService(itemId)).rejects.toThrow(dbError);
+    await expect(DeleteItemInCartService(itemId, userId)).rejects.toThrow(
+      dbError
+    );
     expect(mockedPrisma.cartItems.findUnique).toHaveBeenCalledWith({
       where: { id: itemId },
+      include: { cart: true },
     });
   });
 
   it("should throw error if item not found", async () => {
     mockedPrisma.cartItems.findUnique.mockResolvedValue(null);
-    await expect(DeleteItemInCartService(itemId)).rejects.toThrow(
+    await expect(DeleteItemInCartService(itemId, userId)).rejects.toThrow(
       new AppError("Item not found in cart", 404)
     );
     expect(mockedPrisma.cartItems.findUnique).toHaveBeenCalledWith({
       where: { id: itemId },
+      include: { cart: true },
     });
+  });
+
+  it("should throw error if item belongs to a different user", async () => {
+    mockedPrisma.cartItems.findUnique.mockResolvedValue({
+      ...userCart.items[0],
+      cart: { userId: "different-user-id" },
+    });
+    await expect(DeleteItemInCartService(itemId, userId)).rejects.toThrow(
+      new AppError("Item not found in cart", 404)
+    );
   });
 
   it("should throw error if deleting item fails", async () => {
     const dbError = new Error("Database error");
+    mockedPrisma.cartItems.findUnique.mockResolvedValue(itemWithCart);
     mockedPrisma.cartItems.delete.mockRejectedValue(dbError);
-    await expect(DeleteItemInCartService(itemId)).rejects.toThrow(dbError);
+    await expect(DeleteItemInCartService(itemId, userId)).rejects.toThrow(
+      dbError
+    );
     expect(mockedPrisma.cartItems.findUnique).toHaveBeenCalledWith({
       where: { id: itemId },
+      include: { cart: true },
     });
     expect(mockedPrisma.cartItems.delete).toHaveBeenCalledWith({
       where: { id: itemId },

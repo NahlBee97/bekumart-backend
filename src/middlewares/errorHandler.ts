@@ -38,8 +38,11 @@ export function globalErrorHandler(
 
   //   rajaongkir errors
   if (axios.isAxiosError(error)) {
-    status = error.response?.data.meta.code;
-    message = error.response?.data.meta.message;
+    const meta = error.response?.data?.meta;
+    if (meta?.code && meta?.message) {
+      status = meta.code;
+      message = meta.message;
+    }
   }
 
   console.error(error);

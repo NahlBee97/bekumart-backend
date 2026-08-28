@@ -23,8 +23,7 @@ export const LoginSchema = z.object({
 
 export const GoogleLoginSchema = z.object({
   body: z.object({
-    name: z.string().min(3, "Nama minimal 3 karakter"),
-    email: z.email("Email tidak valid"),
+    accessToken: z.string().min(1, "Google access token wajib diisi"),
   }),
 });
 

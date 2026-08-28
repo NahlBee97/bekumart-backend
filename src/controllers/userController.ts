@@ -7,6 +7,7 @@ import {
   UploadProfileService,
 } from "../services/userServices";
 import { AppError } from "../utils/appError";
+import { assertOwnerOrAdmin } from "../utils/ownership";
 
 export async function UploadProfileController(
   req: Request,
@@ -15,6 +16,7 @@ export async function UploadProfileController(
 ) {
   try {
     const userId = req.params.id as string;
+    assertOwnerOrAdmin(req, userId);
 
     const { file } = req;
 
@@ -41,6 +43,7 @@ export async function GetUserInfoController(
 ) {
   try {
     const userId = req.params.id as string;
+    assertOwnerOrAdmin(req, userId);
 
     const user = await GetUserInfoService(userId);
 
@@ -61,6 +64,7 @@ export async function EditUserInfoController(
 ) {
   try {
     const userId = req.params.id as string;
+    assertOwnerOrAdmin(req, userId);
     const userData = req.body;
 
     const updatedUser = await EditUserInfoService(userId, userData);
@@ -82,6 +86,7 @@ export async function ChangeUserPasswordController(
 ) {
   try {
     const userId = req.params.userId as string;
+    assertOwnerOrAdmin(req, userId);
     const { newPassword } = req.body;
 
     const updatedUser = await ChangeUserPasswordService(userId, newPassword);
