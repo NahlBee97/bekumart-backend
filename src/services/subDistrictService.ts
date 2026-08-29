@@ -1,5 +1,5 @@
 import axios from "axios";
-import { redis } from "../lib/redis";
+import { cache } from "../lib/cache";
 import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
 import { getDistrictId } from "./districtServices";
 import { AppError } from "../utils/appError";
@@ -14,8 +14,11 @@ export async function GetSubDistrictsByDistrictService(
 
     if (!districtId) throw new AppError(`subdistrict not found'`, 404);
 
-    const cacheKey = `${city.toLowerCase().trim()}_cities`;
-    const cachedValue = await redis.get(cacheKey);
+    // Cache key must match what getShippingCost.ts looks up
+    // ("{district}_sub_districts") - it used to be keyed by city, which
+    // meant the shipping-cost lookup could never find this cache entry.
+    const cacheKey = `${district.toLowerCase().trim()}_sub_districts`;
+    const cachedValue = await cache.get(cacheKey);
 
     if (cachedValue) {
       return JSON.parse(cachedValue);
@@ -33,7 +36,7 @@ export async function GetSubDistrictsByDistrictService(
     if (subDistricts.length === 0)
       throw new AppError("can not get subdistricts", 500);
 
-    await redis.setex(cacheKey, 259200, JSON.stringify(subDistricts));
+    await cache.setex(cacheKey, 259200, JSON.stringify(subDistricts));
 
     return subDistricts;
   } catch (error) {

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
 import { getProvinceId } from "./provinceServices";
-import { redis } from "../lib/redis";
+import { cache } from "../lib/cache";
 import { AppError } from "../utils/appError";
 
 export async function fetchCitiesByProvince(province: string) {
@@ -13,7 +13,7 @@ export async function fetchCitiesByProvince(province: string) {
     }
 
     const cacheKey = `${province.toLowerCase().trim()}_cities`;
-    const cachedValue = await redis.get(cacheKey);
+    const cachedValue = await cache.get(cacheKey);
 
     if (cachedValue) {
       return JSON.parse(cachedValue);
@@ -34,7 +34,7 @@ export async function fetchCitiesByProvince(province: string) {
     if (!cities) throw new AppError("Failed to get cities", 500);
 
     if (cities.length > 0) {
-      await redis.setex(
+      await cache.setex(
         cacheKey,
         259200, // 1 hour TTL
         JSON.stringify(cities)

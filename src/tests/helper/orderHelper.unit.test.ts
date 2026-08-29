@@ -42,8 +42,8 @@ describe("validateCartItems", () => {
     },
   ];
 
-  it("should pass validation for a valid cart", async () => {
-    await expect(validateCartItems(cartItems)).resolves.not.toThrow();
+  it("should pass validation for a valid cart and return the calculated subtotal", async () => {
+    await expect(validateCartItems(cartItems)).resolves.toBe(200);
   });
 
   it("should throw AppError 404 if a product is not found", async () => {
@@ -90,21 +90,18 @@ describe("validateCartItems", () => {
     );
   });
 
-  it("should throw AppError 400 if price has changed", async () => {
-    const invalidCart: any[] = [
+  it("should ignore a client-supplied price and calculate the subtotal from the DB price", async () => {
+    // The client claims the price is 99.99, but the DB says 100 - the
+    // returned subtotal must be based on the trusted DB price only.
+    const cartWithTamperedPrice: any[] = [
       {
         productId: "product-1",
         quantity: 1,
         product: { price: 99.99, name: "Product 1" },
-      }, // DB price: 100
+      },
     ];
 
-    await expect(validateCartItems(invalidCart)).rejects.toThrow(
-      new AppError(
-        'Price has changed for "Product 1". Please refresh your cart',
-        400
-      )
-    );
+    await expect(validateCartItems(cartWithTamperedPrice)).resolves.toBe(100);
   });
 });
 

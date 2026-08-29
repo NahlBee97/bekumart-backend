@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import axios from "axios";
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import {
   CheckService,
@@ -16,6 +17,9 @@ import { AppError } from "../../utils/appError";
 import { UserRoles } from "@prisma/client";
 import { IRegister } from "../../interfaces/authInterfaces";
 
+jest.mock("axios");
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
 const registrationData: IRegister = {
   name: "nama",
   email: "nama@gmail.com",
@@ -27,6 +31,10 @@ const loginData = {
   password: "Password@123",
 };
 
+// The raw Google OAuth access token the client would send us. The actual
+// name/email are resolved server-side via the mocked axios call to
+// Google's userinfo endpoint below - never trusted from client input.
+const googleAccessToken = "fake-google-access-token";
 const GoogleLoginData = {
   name: "string",
   email: "nama@gmail.com",
@@ -291,6 +299,16 @@ describe("Google Login Service", () => {
     mockedFindUserByEmail.mockResolvedValue(existingUser);
     mockedCompare.mockResolvedValue(true);
     mockedSign.mockReturnValue(accessToken).mockReturnValueOnce(refreshToken);
+
+    // Google itself verifies the access token and returns the profile -
+    // the service must never trust name/email supplied by the client.
+    mockedAxios.get.mockResolvedValue({
+      data: {
+        name: GoogleLoginData.name,
+        email: GoogleLoginData.email,
+        email_verified: true,
+      },
+    });
   });
 
   it("should return tokens for valid credentials and invalidate existing tokens", async () => {
@@ -320,7 +338,7 @@ describe("Google Login Service", () => {
       async (callback: any) => await callback(mockedPrisma)
     );
 
-    const result = await GoogleLoginService(GoogleLoginData);
+    const result = await GoogleLoginService(googleAccessToken);
 
     expect(mockedFindUserByEmail).toHaveBeenCalledWith(loginData.email);
 
@@ -389,7 +407,7 @@ describe("Google Login Service", () => {
       async (callback: any) => await callback(mockedPrisma)
     );
 
-    const result = await GoogleLoginService(GoogleLoginData);
+    const result = await GoogleLoginService(googleAccessToken);
 
     expect(mockedFindUserByEmail).toHaveBeenCalledWith(GoogleLoginData.email);
 
@@ -444,7 +462,7 @@ describe("Google Login Service", () => {
     mockedSign.mockReturnValue(null);
     mockedSign.mockReturnValue(null);
 
-    await expect(GoogleLoginService(GoogleLoginData)).rejects.toThrow(
+    await expect(GoogleLoginService(googleAccessToken)).rejects.toThrow(
       tokenError
     );
 
@@ -463,7 +481,7 @@ describe("Google Login Service", () => {
       throw invalidateError;
     });
 
-    await expect(GoogleLoginService(GoogleLoginData)).rejects.toThrow(
+    await expect(GoogleLoginService(googleAccessToken)).rejects.toThrow(
       invalidateError
     );
 
@@ -474,6 +492,32 @@ describe("Google Login Service", () => {
       data: { isValid: false },
     });
     expect(mockedPrisma.tokens.create).not.toHaveBeenCalled();
+  });
+
+  it("should throw if the Google access token cannot be verified", async () => {
+    mockedAxios.get.mockRejectedValue(new Error("Google API error"));
+
+    await expect(GoogleLoginService(googleAccessToken)).rejects.toThrow(
+      new AppError("Failed to verify Google account", 401)
+    );
+
+    expect(mockedFindUserByEmail).not.toHaveBeenCalled();
+  });
+
+  it("should throw if Google reports the email as unverified", async () => {
+    mockedAxios.get.mockResolvedValue({
+      data: {
+        name: GoogleLoginData.name,
+        email: GoogleLoginData.email,
+        email_verified: false,
+      },
+    });
+
+    await expect(GoogleLoginService(googleAccessToken)).rejects.toThrow(
+      new AppError("Google email is not verified", 401)
+    );
+
+    expect(mockedFindUserByEmail).not.toHaveBeenCalled();
   });
 });
 

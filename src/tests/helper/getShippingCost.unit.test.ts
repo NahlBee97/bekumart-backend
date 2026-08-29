@@ -1,5 +1,5 @@
 import axios from "axios";
-import { redis } from "../../lib/redis";
+import { cache } from "../../lib/cache";
 import { GetUserCartService } from "../../services/cartServices";
 import { getShippingCost } from "../../helper/getShippingCost";
 import { AppError } from "../../utils/appError";
@@ -7,8 +7,8 @@ import { mockedPrisma } from "../mockPrisma";
 import { ORIGIN_SUBDISTRICT_ID, RAJAONGKIR_BASE_URL } from "../../config";
 
 jest.mock("axios");
-jest.mock("../../lib/redis", () => ({
-  redis: {
+jest.mock("../../lib/cache", () => ({
+  cache: {
     get: jest.fn(),
     setex: jest.fn(),
   },
@@ -18,8 +18,8 @@ jest.mock("../../services/cartServices", () => ({
 }));
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
-const mockedRedisGet = redis.get as jest.Mock;
-const mockedRedisSetex = redis.setex as jest.Mock;
+const mockedCacheGet = cache.get as jest.Mock;
+const mockedCacheSetex = cache.setex as jest.Mock;
 const mockedCartService = GetUserCartService as jest.Mock;
 
 const mockAddress = {
@@ -56,10 +56,10 @@ describe("getShippingCost", () => {
     mockedPrisma.addresses.findUnique.mockResolvedValue(mockAddress as any);
     mockedCartService.mockResolvedValue(mockCart);
 
-    mockedRedisGet.mockResolvedValueOnce(JSON.stringify(mockSubDistricts));
+    mockedCacheGet.mockResolvedValueOnce(JSON.stringify(mockSubDistricts));
 
     // get couriers from cache
-    mockedRedisGet.mockResolvedValueOnce(null);
+    mockedCacheGet.mockResolvedValueOnce(null);
 
     mockedAxios.post.mockResolvedValue({ data: { data: mockCouriers } });
 
@@ -70,7 +70,7 @@ describe("getShippingCost", () => {
       where: { id: "address-123" },
     });
     expect(mockedCartService).toHaveBeenCalledWith("user-abc");
-    expect(mockedRedisGet).toHaveBeenCalledWith("bima_sub_districts");
+    expect(mockedCacheGet).toHaveBeenCalledWith("bima_sub_districts");
 
     expect(mockedAxios.post).toHaveBeenCalledTimes(1);
     expect(mockedAxios.post).toHaveBeenCalledWith(
@@ -87,7 +87,7 @@ describe("getShippingCost", () => {
 
     const expectedCacheKey = "sila_couriers_1500";
 
-    expect(mockedRedisSetex).toHaveBeenCalledWith(
+    expect(mockedCacheSetex).toHaveBeenCalledWith(
       expectedCacheKey,
       259200,
       JSON.stringify(mockCouriers)
@@ -100,15 +100,15 @@ describe("getShippingCost", () => {
     mockedPrisma.addresses.findUnique.mockResolvedValue(mockAddress as any);
     mockedCartService.mockResolvedValue(mockCart);
 
-    mockedRedisGet.mockResolvedValueOnce(JSON.stringify(mockSubDistricts));
+    mockedCacheGet.mockResolvedValueOnce(JSON.stringify(mockSubDistricts));
 
-    // Panggilan redis.get kedua (shipping cost cache) -> CACHE HIT
-    mockedRedisGet.mockResolvedValueOnce(JSON.stringify(mockCouriers));
+    // Panggilan cache.get kedua (shipping cost cache) -> CACHE HIT
+    mockedCacheGet.mockResolvedValueOnce(JSON.stringify(mockCouriers));
 
     const result = await getShippingCost("address-123", 1.5);
 
     expect(mockedAxios.post).not.toHaveBeenCalled();
-    expect(mockedRedisSetex).not.toHaveBeenCalled();
+    expect(mockedCacheSetex).not.toHaveBeenCalled();
 
     expect(result).toEqual(mockCouriers);
   });
@@ -134,8 +134,8 @@ describe("getShippingCost", () => {
     mockedPrisma.addresses.findUnique.mockResolvedValue(mockAddress as any);
     mockedCartService.mockResolvedValue(mockCart);
 
-    // Panggilan redis.get pertama (sub-districts) -> CACHE MISS
-    mockedRedisGet.mockResolvedValueOnce(null);
+    // Panggilan cache.get pertama (sub-districts) -> CACHE MISS
+    mockedCacheGet.mockResolvedValueOnce(null);
 
     await expect(getShippingCost("address-123", 1.5)).rejects.toThrow(
       new AppError("Can not get subdistricts", 500)
@@ -147,7 +147,7 @@ describe("getShippingCost", () => {
 
     mockedCartService.mockResolvedValue(mockCart);
 
-    mockedRedisGet.mockResolvedValueOnce(null);
+    mockedCacheGet.mockResolvedValueOnce(null);
 
     await expect(getShippingCost("address-123", 1.5)).rejects.toThrow(
       new AppError("Can not get subdistricts", 500)
@@ -159,9 +159,9 @@ describe("getShippingCost", () => {
 
     mockedCartService.mockResolvedValue(mockCart);
 
-    mockedRedisGet.mockResolvedValueOnce(JSON.stringify(mockSubDistricts));
+    mockedCacheGet.mockResolvedValueOnce(JSON.stringify(mockSubDistricts));
 
-    mockedRedisGet.mockResolvedValueOnce(null);
+    mockedCacheGet.mockResolvedValueOnce(null);
 
     mockedAxios.post.mockRejectedValue(
       new AppError("Can not fetch couriers", 500)

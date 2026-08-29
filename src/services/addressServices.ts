@@ -39,14 +39,15 @@ export async function CreateAddressService(userId: string, bodyData: IAddress) {
 
 export async function EditAddressByIdService(
   addressId: string,
-  addressData: Partial<IAddress>
+  addressData: Partial<IAddress>,
+  userId: string
 ) {
   try {
     const existingAddress = await prisma.addresses.findUnique({
       where: { id: addressId },
     });
 
-    if (!existingAddress) {
+    if (!existingAddress || existingAddress.userId !== userId) {
       throw new AppError("Address not found", 404);
     }
 
@@ -104,7 +105,7 @@ export async function SetDefaultAddressService(
   }
 }
 
-export async function DeleteAddressByIdService(addressId: string) {
+export async function DeleteAddressByIdService(addressId: string, userId: string) {
   try {
     const address = await prisma.addresses.findUnique({
       where: {
@@ -112,7 +113,9 @@ export async function DeleteAddressByIdService(addressId: string) {
       },
     });
 
-    if (!address) throw new AppError("Address not found", 404);
+    if (!address || address.userId !== userId) {
+      throw new AppError("Address not found", 404);
+    }
 
     await prisma.addresses.delete({
       where: { id: addressId },

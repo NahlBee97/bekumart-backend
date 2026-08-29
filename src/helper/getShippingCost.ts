@@ -7,7 +7,7 @@ import {
 import { prisma } from "../lib/prisma";
 import { AppError } from "../utils/appError";
 import { GetUserCartService } from "../services/cartServices";
-import { redis } from "../lib/redis";
+import { cache } from "../lib/cache";
 
 export async function getShippingCost(addressId: string, totalWeight: number) {
   try {
@@ -25,7 +25,7 @@ export async function getShippingCost(addressId: string, totalWeight: number) {
 
     if (!cart?.items.length) throw new AppError("Cart is empty", 404);
 
-    const cachedValue = await redis.get(
+    const cachedValue = await cache.get(
       `${district.toLowerCase()}_sub_districts`
     );
 
@@ -60,7 +60,7 @@ export async function getShippingCost(addressId: string, totalWeight: number) {
       data.weight
     }`;
     
-    const couriersCachedValue = await redis.get(cacheKey);
+    const couriersCachedValue = await cache.get(cacheKey);
     
     if (couriersCachedValue) {
       return JSON.parse(couriersCachedValue);
@@ -77,7 +77,7 @@ export async function getShippingCost(addressId: string, totalWeight: number) {
     if (couriers.length === 0)
       throw new AppError("Can not fetch couriers", 500);
 
-    await redis.setex(cacheKey, 259200, JSON.stringify(couriers));
+    await cache.setex(cacheKey, 259200, JSON.stringify(couriers));
 
     return couriers;
   } catch (error) {

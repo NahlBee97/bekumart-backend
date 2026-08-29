@@ -10,7 +10,6 @@ import { upload } from "../middlewares/fileUpload.middleware";
 import { validateRequest } from "../middlewares/validationMiddleware";
 import {
   changePasswordSchema,
-  resetPasswordSchema,
   updateUserSchema,
 } from "../schemas/userSchemas";
 import { z } from "zod";
@@ -27,13 +26,6 @@ const userUpdateValidationSchema = z.object({
 
 const changePasswordValidationSchema = z.object({
   body: changePasswordSchema,
-  params: z.object({
-    userId: z.string().min(1, "User ID wajib diisi"),
-  }),
-});
-
-const resetPasswordValidationSchema = z.object({
-  body: resetPasswordSchema,
   params: z.object({
     userId: z.string().min(1, "User ID wajib diisi"),
   }),
@@ -65,11 +57,9 @@ router.patch(
   validateRequest(changePasswordSchema),
   ChangeUserPasswordController
 );
-router.patch(
-  "/reset-password/:userId",
-  validateRequest(userIdParamSchema),
-  validateRequest(resetPasswordSchema),
-  ChangeUserPasswordController
-);
+// NOTE: the insecure, unauthenticated "/reset-password/:userId" endpoint
+// that used to live here has been removed - it allowed anyone to change
+// any user's password just by knowing their userId. The correct,
+// token-verified reset flow is /api/auth/verify-reset + /api/auth/set-password.
 
 export default router;

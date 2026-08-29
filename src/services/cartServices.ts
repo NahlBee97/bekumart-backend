@@ -105,14 +105,18 @@ export async function AddItemToCartService(
 
 export async function UpdateItemInCartService(
   itemId: string,
-  quantity: number
+  quantity: number,
+  userId: string
 ) {
   try {
     const cartItem = await prisma.cartItems.findUnique({
       where: { id: itemId },
+      include: { cart: true },
     });
 
-    if (!cartItem) throw new AppError("Item not found in cart", 404);
+    if (!cartItem || cartItem.cart.userId !== userId) {
+      throw new AppError("Item not found in cart", 404);
+    }
 
     const updatedItem = await prisma.cartItems.update({
       where: { id: cartItem.id },
@@ -125,13 +129,16 @@ export async function UpdateItemInCartService(
   }
 }
 
-export async function DeleteItemInCartService(itemId: string) {
+export async function DeleteItemInCartService(itemId: string, userId: string) {
   try {
     const cartItem = await prisma.cartItems.findUnique({
       where: { id: itemId },
+      include: { cart: true },
     });
 
-    if (!cartItem) throw new AppError("Item not found in cart", 404);
+    if (!cartItem || cartItem.cart.userId !== userId) {
+      throw new AppError("Item not found in cart", 404);
+    }
 
     await prisma.cartItems.delete({
       where: { id: cartItem.id },

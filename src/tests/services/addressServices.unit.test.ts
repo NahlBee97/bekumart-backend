@@ -94,7 +94,7 @@ describe("EditAddressByIdService", () => {
   });
 
   it("should update address with specific id", async () => {
-    const result = await EditAddressByIdService(addressId, dataToUpdate);
+    const result = await EditAddressByIdService(addressId, dataToUpdate, userId);
 
     expect(mockedPrisma.addresses.findUnique).toHaveBeenCalledWith({
       where: { id: addressId },
@@ -122,7 +122,7 @@ describe("EditAddressByIdService", () => {
     mockedPrisma.addresses.findUnique.mockResolvedValue(null);
 
     await expect(
-      EditAddressByIdService(addressId, dataToUpdate)
+      EditAddressByIdService(addressId, dataToUpdate, userId)
     ).rejects.toThrow(new AppError("Address not found", 404));
 
     expect(mockedPrisma.addresses.findUnique).toHaveBeenCalledWith({
@@ -213,7 +213,7 @@ describe("DeleteAddressByIdService", () => {
   });
 
   it("should delete address with coresponding id", async () => {
-    await DeleteAddressByIdService(addressId);
+    await DeleteAddressByIdService(addressId, userId);
 
     expect(mockedPrisma.addresses.findUnique).toHaveBeenCalledWith({
       where: { id: addressId },
@@ -228,7 +228,7 @@ describe("DeleteAddressByIdService", () => {
 
     mockedPrisma.addresses.findUnique.mockResolvedValue(null);
 
-    await expect(DeleteAddressByIdService(addressId)).rejects.toThrow(
+    await expect(DeleteAddressByIdService(addressId, userId)).rejects.toThrow(
       notFoundError
     );
 

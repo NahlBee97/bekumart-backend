@@ -65,7 +65,9 @@ export async function GoogleLoginController(
   next: NextFunction
 ) {
   try {
-    const tokens = await GoogleLoginService(req.body);
+    const { accessToken: googleAccessToken } = req.body;
+
+    const tokens = await GoogleLoginService(googleAccessToken);
 
     const { accessToken, refreshToken } = tokens;
 
@@ -98,7 +100,11 @@ export async function LogOutController(
 
     res
       .status(200)
-      .clearCookie("token", { httpOnly: true })
+      .clearCookie("token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      })
       .json({ message: `Log out successfully` });
   } catch (error) {
     

@@ -7,6 +7,7 @@ import {
 } from "../services/cartServices";
 import type { IAddItem } from "../interfaces/cartInterfaces";
 import { AppError } from "../utils/appError";
+import { assertOwnerOrAdmin } from "../utils/ownership";
 
 export async function GetUserCartController(
   req: Request,
@@ -15,6 +16,7 @@ export async function GetUserCartController(
 ) {
   try {
     const { userId } = req.params;
+    assertOwnerOrAdmin(req, userId);
     const cart = await GetUserCartService(userId);
     res.status(200).json({ message: "User cart retrieved", cart });
   } catch (error) {
@@ -50,8 +52,9 @@ export async function UpdateItemInCartController(
   try {
     const { itemId } = req.params;
     const { quantity } = req.body;
+    const userId = req.user?.id as string;
 
-    const cart = await UpdateItemInCartService(itemId, quantity);
+    const cart = await UpdateItemInCartService(itemId, quantity, userId);
     res
       .status(200)
       .json({ message: "Item updated in cart successfully", cart });
@@ -68,8 +71,9 @@ export async function DeleteItemInCartController(
 ) {
   try {
     const { itemId } = req.params as { itemId: string };
+    const userId = req.user?.id as string;
 
-    await DeleteItemInCartService(itemId);
+    await DeleteItemInCartService(itemId, userId);
     res.status(200).json({ message: "Item deleted from cart successfully" });
   } catch (error) {
     

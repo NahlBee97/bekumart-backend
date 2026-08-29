@@ -1,21 +1,21 @@
 import { z } from "zod";
 
 export const createOrderSchema = z.object({
+  // userId and totalAmount are intentionally NOT accepted here - userId
+  // comes from the verified token and totalAmount is recomputed
+  // server-side, so client-supplied values for either are ignored even
+  // if present in the body.
   body: z.object({
-    userId: z.string().min(1, "User ID wajib ada"),
     addressId: z.string().optional(),
     courier: z.string().optional(),
     fullfillmentType: z.string().min(1, "Pemenuhan Order Wajib Ada"),
     paymentMethod: z.string().min(1, "Metode pembayaran wajib ada"),
-    totalAmount: z.number().min(0, "Harga total wajib ada"),
   }),
 });
 
 export const PaymentTokenSchema = z.object({
   body: z.object({
-    id: z.string().min(1, "ID wajib ada"),
-    userId: z.string().min(1, "User ID wajib ada"),
-    totalAmount: z.number().min(0, "Harga total wajib ada"),
+    orderId: z.string().min(1, "Order ID wajib ada"),
   }),
 });
 

@@ -1,12 +1,12 @@
 import axios from "axios";
 
-import { redis } from "../lib/redis";
+import { cache } from "../lib/cache";
 import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
 import { AppError } from "../utils/appError";
 
 export async function fetchProvince() {
   try {
-    const cachedValue = await redis.get("provinces");
+    const cachedValue = await cache.get("provinces");
     if (cachedValue) {
       return JSON.parse(cachedValue);
     }
@@ -26,7 +26,7 @@ export async function fetchProvince() {
     if (provinces.length === 0)
       throw new AppError("Failed to get provinces", 500);
 
-    await redis.setex("provinces", 259200, JSON.stringify(provinces));
+    await cache.setex("provinces", 259200, JSON.stringify(provinces));
 
     return provinces;
   } catch (error) {

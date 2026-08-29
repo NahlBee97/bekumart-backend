@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getCityId } from "./cityServices";
-import { redis } from "../lib/redis";
+import { cache } from "../lib/cache";
 import { RAJAONGKIR_API_KEY, RAJAONGKIR_BASE_URL } from "../config";
 import { AppError } from "../utils/appError";
 
@@ -18,7 +18,7 @@ export async function fetchDistrictsByCity(province: string, city: string) {
     const cacheKey = `${city.toLowerCase().trim()}_districts`;
     let cachedValue;
 
-    cachedValue = await redis.get(cacheKey);
+    cachedValue = await cache.get(cacheKey);
     if (cachedValue) {
       return JSON.parse(cachedValue);
     }
@@ -38,7 +38,7 @@ export async function fetchDistrictsByCity(province: string, city: string) {
     if (!districts) throw new AppError("can not get district", 500);
 
     if (districts.length > 0) {
-      await redis.setex(cacheKey, 259200, JSON.stringify(districts));
+      await cache.setex(cacheKey, 259200, JSON.stringify(districts));
     }
 
     return districts;

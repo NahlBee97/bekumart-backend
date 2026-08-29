@@ -7,6 +7,7 @@ import {
   SetDefaultAddressService,
 } from "../services/addressServices";
 import { AppError } from "../utils/appError";
+import { assertOwnerOrAdmin } from "../utils/ownership";
 
 export async function GetAddressesByUserIdController(
   req: Request,
@@ -15,6 +16,7 @@ export async function GetAddressesByUserIdController(
 ) {
   try {
     const { userId } = req.params;
+    assertOwnerOrAdmin(req, userId);
     const addresses = await GetAddressesByUserIdService(userId);
     res
       .status(200)
@@ -33,8 +35,13 @@ export async function EditAddressByIdController(
   try {
     const addressId = req.params.id;
     const addressData = req.body;
+    const userId = req.user?.id as string;
 
-    const updatedAddress = await EditAddressByIdService(addressId, addressData);
+    const updatedAddress = await EditAddressByIdService(
+      addressId,
+      addressData,
+      userId
+    );
     res
       .status(200)
       .json({ message: "Berhasil mengubah alamat", updatedAddress });
@@ -74,7 +81,8 @@ export async function DeleteAddressByIdController(
 ) {
   try {
     const addressId = req.params.id;
-    await DeleteAddressByIdService(addressId);
+    const userId = req.user?.id as string;
+    await DeleteAddressByIdService(addressId, userId);
     res.status(200).json({ message: "Berhasil menghapus alamat" });
   } catch (error) {
     
